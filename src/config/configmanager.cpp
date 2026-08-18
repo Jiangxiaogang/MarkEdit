@@ -64,7 +64,15 @@ void ConfigManager::loadConfig()
     m_settings->endGroup();
     
     m_settings->beginGroup("Window");
-    m_splitterSizes = m_settings->value("splitterSizes", QList<int>() << 400 << 400).toList();
+    // 使用 QVariant::fromValue() 来存储 QList<int>，然后正确转换回 QList<int>
+    QVariant defaultSplitterSizes = QVariant::fromValue(QList<int>() << 400 << 400);
+    QVariant splitterVar = m_settings->value("splitterSizes", defaultSplitterSizes);
+    QList<QVariant> variantList = splitterVar.toList();
+    QList<int> sizes;
+    for (const QVariant &v : variantList) {
+        sizes.append(v.toInt());
+    }
+    m_splitterSizes = sizes;
     m_windowGeometry = m_settings->value("geometry", QByteArray()).toByteArray();
     m_windowState = m_settings->value("state", QByteArray()).toByteArray();
     m_settings->endGroup();
@@ -87,7 +95,8 @@ void ConfigManager::saveConfig()
     m_settings->endGroup();
     
     m_settings->beginGroup("Window");
-    m_settings->setValue("splitterSizes", m_splitterSizes);
+    // 使用 QVariant::fromValue() 来存储 QList<int>
+    m_settings->setValue("splitterSizes", QVariant::fromValue(m_splitterSizes));
     m_settings->setValue("geometry", m_windowGeometry);
     m_settings->setValue("state", m_windowState);
     m_settings->endGroup();

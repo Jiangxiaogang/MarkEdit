@@ -9,6 +9,7 @@
 #include <QPrinter>
 #include <QPrintDialog>
 #include <QDateTime>
+#include <QClipboard>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)

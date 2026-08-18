@@ -51,6 +51,7 @@ private:
     bool m_showLineNumbers;
     bool m_showWhitespace;
     
+    friend class LineNumberArea;
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth();
 };
