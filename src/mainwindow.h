@@ -190,7 +190,6 @@ private:
     // 状态栏组件
     QLabel *m_statusLabel;
     QLabel *m_cursorPosLabel;
-    QLabel *m_wordCountLabel;
     
     // 定时器用于延迟更新预览
     QTimer *m_updateTimer;
