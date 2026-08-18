@@ -29,7 +29,7 @@ private:
     QString parseHorizontalRules(const QString &text);
     QString parseParagraphs(const QString &text);
     QString parseTables(const QString &text);
-    QStringList parseTableRow(const QString &row);
+    QStringList parseTableRow(const QString &row, bool isHeader = false);
 };
 
 #endif // MARKDOWNPARSER_H

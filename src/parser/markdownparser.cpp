@@ -13,41 +13,41 @@ QString MarkdownParser::parse(const QString &markdown)
     // 1. 解析代码块 (必须在其他解析之前，避免代码块内的标记被解析)
     html = parseCodeBlocks(html);
     
-    // 2. 解析图片 (在链接之前，因为图片语法类似链接)
+    // 2. 解析表格 (必须在段落解析之前，因为表格包含多行)
+    html = parseTables(html);
+    
+    // 3. 解析图片 (在链接之前，因为图片语法类似链接)
     html = parseImages(html);
     
-    // 3. 解析链接
+    // 4. 解析链接
     html = parseLinks(html);
     
-    // 4. 解析粗体 (在斜体之前)
+    // 5. 解析粗体 (在斜体之前)
     html = parseBold(html);
     
-    // 5. 解析斜体
+    // 6. 解析斜体
     html = parseItalic(html);
     
-    // 6. 解析删除线
+    // 7. 解析删除线
     html = parseStrikethrough(html);
     
-    // 7. 解析行内代码
+    // 8. 解析行内代码
     html = parseInlineCode(html);
     
-    // 8. 解析标题
+    // 9. 解析标题
     html = parseHeaders(html);
     
-    // 9. 解析列表
+    // 10. 解析列表
     html = parseLists(html);
     
-    // 10. 解析引用
+    // 11. 解析引用
     html = parseBlockquotes(html);
     
-    // 11. 解析水平线
+    // 12. 解析水平线
     html = parseHorizontalRules(html);
     
-    // 12. 解析段落
+    // 13. 解析段落
     html = parseParagraphs(html);
-    
-    // 13. 解析表格
-    html = parseTables(html);
     
     return html;
 }
@@ -313,7 +313,7 @@ QString MarkdownParser::parseTables(const QString &text)
             
             // 第一行是表头
             QString headerLine = lines[i - 1];
-            QStringList headers = parseTableRow(headerLine);
+            QStringList headers = parseTableRow(headerLine, true);
             tableRows << QString("<tr>%1</tr>").arg(headers.join(""));
             
             // 跳过分隔行
@@ -326,7 +326,7 @@ QString MarkdownParser::parseTables(const QString &text)
                 QRegularExpressionMatch dataMatch = dataRowRegex.match(dataLine);
                 
                 if (dataMatch.hasMatch()) {
-                    QStringList cells = parseTableRow(dataLine);
+                    QStringList cells = parseTableRow(dataLine, false);
                     tableRows << QString("<tr>%1</tr>").arg(cells.join(""));
                     i++;
                 } else {
@@ -342,7 +342,9 @@ QString MarkdownParser::parseTables(const QString &text)
             tableHtml += "</tbody>\n</table>";
             
             // 替换输出中的表头行和分隔行
-            outputLines.removeLast(); // 移除之前添加的表头行
+            if (!outputLines.isEmpty()) {
+                outputLines.removeLast(); // 移除之前添加的表头行
+            }
             outputLines << tableHtml;
         } else {
             outputLines << line;
@@ -353,13 +355,29 @@ QString MarkdownParser::parseTables(const QString &text)
     return outputLines.join('\n');
 }
 
-QStringList MarkdownParser::parseTableRow(const QString &row)
+QStringList MarkdownParser::parseTableRow(const QString &row, bool isHeader)
 {
     QStringList cells;
-    QStringList parts = row.split('|', Qt::SkipEmptyParts);
+    // Qt 5.12 compatibility: split() without flags keeps empty parts by default
+    QStringList parts = row.split('|');
     
-    for (const QString &part : parts) {
+    // 过滤首尾空单元格（由行首和行尾的 | 产生）
+    int startIdx = 0;
+    int endIdx = parts.size();
+    
+    // 跳过开头的空单元格
+    if (parts.size() > 0 && parts[0].trimmed().isEmpty()) {
+        startIdx = 1;
+    }
+    // 跳过结尾的空单元格
+    if (parts.size() > 1 && parts.last().trimmed().isEmpty()) {
+        endIdx = parts.size() - 1;
+    }
+    
+    for (int i = startIdx; i < endIdx; i++) {
+        const QString &part = parts[i];
         QString cellContent = part.trimmed();
+        
         // 对单元格内容进行 HTML 转义
         cellContent = cellContent.toHtmlEscaped();
         
@@ -371,7 +389,11 @@ QStringList MarkdownParser::parseTableRow(const QString &row)
         cellContent = parseLinks(cellContent);
         cellContent = parseImages(cellContent);
         
-        cells << QString("<td>%1</td>").arg(cellContent);
+        if (isHeader) {
+            cells << QString("<th>%1</th>").arg(cellContent);
+        } else {
+            cells << QString("<td>%1</td>").arg(cellContent);
+        }
     }
     
     return cells;
