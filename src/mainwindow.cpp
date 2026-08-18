@@ -10,6 +10,7 @@
 #include <QPrintDialog>
 #include <QDateTime>
 #include <QClipboard>
+#include <QTextCodec>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -18,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
     , m_config(nullptr)
     , m_updateTimer(nullptr)
     , m_isModified(false)
+    , m_fileCodec(QTextCodec::codecForName("UTF-8")) // 默认使用 UTF-8 编码
 {
     ui->setupUi(this);
     
@@ -369,6 +371,7 @@ void MainWindow::newFile()
     m_editor->clear();
     m_currentFilePath.clear();
     m_isModified = false;
+    m_fileCodec = QTextCodec::codecForName("UTF-8"); // 新建文件默认使用 UTF-8 编码
     updateWindowTitle();
     m_statusLabel->setText(tr("New file created"));
 }
@@ -387,9 +390,30 @@ void MainWindow::openFile()
         return;
     }
     
-    QTextStream in(&file);
-    m_editor->setPlainText(in.readAll());
+    // 检测文件编码，优先尝试 UTF-8，如果失败则使用本地编码
+    QByteArray rawData = file.readAll();
     file.close();
+    
+    // 尝试使用 UTF-8 解码
+    QTextCodec *codec = QTextCodec::codecForName("UTF-8");
+    QString content = codec->toUnicode(rawData);
+    
+    // 检查是否有无效字符（替换字符），如果有则尝试其他编码
+    if (content.contains(QChar::ReplacementCharacter)) {
+        // 尝试使用 GBK/GB18030 编码（常见于中文 Windows）
+        codec = QTextCodec::codecForName("GB18030");
+        content = codec->toUnicode(rawData);
+        
+        // 如果仍然有替换字符，尝试使用系统本地编码
+        if (content.contains(QChar::ReplacementCharacter)) {
+            codec = QTextCodec::codecForLocale();
+            content = codec->toUnicode(rawData);
+        }
+    }
+    
+    m_fileCodec = codec; // 保存检测到的编码用于后续保存
+    
+    m_editor->setPlainText(content);
     
     m_currentFilePath = fileName;
     m_isModified = false;
@@ -410,8 +434,9 @@ void MainWindow::saveFile()
         return;
     }
     
-    QTextStream out(&file);
-    out << m_editor->toPlainText();
+    // 使用打开文件时检测到的编码保存，保持原编码不变
+    QByteArray encodedData = m_fileCodec->fromUnicode(m_editor->toPlainText());
+    file.write(encodedData);
     file.close();
     
     m_isModified = false;
@@ -445,6 +470,7 @@ void MainWindow::exportToHtml()
     QFile file(fileName);
     if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QTextStream out(&file);
+        out.setCodec("UTF-8"); // HTML 导出使用 UTF-8 编码
         out << html;
         file.close();
         m_statusLabel->setText(tr("Exported to HTML: %1").arg(fileName));
