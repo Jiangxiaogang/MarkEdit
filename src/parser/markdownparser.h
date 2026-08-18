@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QStringList>
 #include <QRegularExpression>
 
 class MarkdownParser : public QObject
@@ -27,6 +28,8 @@ private:
     QString parseBlockquotes(const QString &text);
     QString parseHorizontalRules(const QString &text);
     QString parseParagraphs(const QString &text);
+    QString parseTables(const QString &text);
+    QStringList parseTableRow(const QString &row);
 };
 
 #endif // MARKDOWNPARSER_H

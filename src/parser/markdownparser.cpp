@@ -1,4 +1,5 @@
 #include "markdownparser.h"
+#include <QStringList>
 
 MarkdownParser::MarkdownParser(QObject *parent)
     : QObject(parent)
@@ -44,6 +45,9 @@ QString MarkdownParser::parse(const QString &markdown)
     
     // 12. 解析段落
     html = parseParagraphs(html);
+    
+    // 13. 解析表格
+    html = parseTables(html);
     
     return html;
 }
@@ -287,4 +291,88 @@ QString MarkdownParser::parseParagraphs(const QString &text)
     flushParagraph();
     
     return outputLines.join('\n');
+}
+
+QString MarkdownParser::parseTables(const QString &text)
+{
+    QString result = text;
+    QStringList lines = result.split('\n');
+    QStringList outputLines;
+    
+    int i = 0;
+    while (i < lines.size()) {
+        QString line = lines[i];
+        
+        // 检查是否是表格分隔行 (|---|---| 或 |---:|:---| 等)
+        QRegularExpression separatorRegex("^\\s*\\|[\\s\\-:\\|]+\\|\\s*$");
+        QRegularExpressionMatch sepMatch = separatorRegex.match(line);
+        
+        if (sepMatch.hasMatch() && i > 0) {
+            // 找到表格，开始解析
+            QStringList tableRows;
+            
+            // 第一行是表头
+            QString headerLine = lines[i - 1];
+            QStringList headers = parseTableRow(headerLine);
+            tableRows << QString("<tr>%1</tr>").arg(headers.join(""));
+            
+            // 跳过分隔行
+            i++;
+            
+            // 解析数据行
+            while (i < lines.size()) {
+                QString dataLine = lines[i];
+                QRegularExpression dataRowRegex("^\\s*\\|.*\\|\\s*$");
+                QRegularExpressionMatch dataMatch = dataRowRegex.match(dataLine);
+                
+                if (dataMatch.hasMatch()) {
+                    QStringList cells = parseTableRow(dataLine);
+                    tableRows << QString("<tr>%1</tr>").arg(cells.join(""));
+                    i++;
+                } else {
+                    break;
+                }
+            }
+            
+            // 生成完整的表格 HTML
+            QString tableHtml = "<table>\n<thead>\n" + tableRows[0] + "\n</thead>\n<tbody>\n";
+            for (int j = 1; j < tableRows.size(); j++) {
+                tableHtml += tableRows[j] + "\n";
+            }
+            tableHtml += "</tbody>\n</table>";
+            
+            // 替换输出中的表头行和分隔行
+            outputLines.removeLast(); // 移除之前添加的表头行
+            outputLines << tableHtml;
+        } else {
+            outputLines << line;
+            i++;
+        }
+    }
+    
+    return outputLines.join('\n');
+}
+
+QStringList MarkdownParser::parseTableRow(const QString &row)
+{
+    QStringList cells;
+    QStringList parts = row.split('|', Qt::SkipEmptyParts);
+    
+    for (const QString &part : parts) {
+        QString cellContent = part.trimmed();
+        // 对单元格内容进行 HTML 转义
+        cellContent = cellContent.toHtmlEscaped();
+        
+        // 解析单元格内的粗体、斜体等格式
+        cellContent = parseBold(cellContent);
+        cellContent = parseItalic(cellContent);
+        cellContent = parseStrikethrough(cellContent);
+        cellContent = parseInlineCode(cellContent);
+        cellContent = parseLinks(cellContent);
+        cellContent = parseImages(cellContent);
+        
+        cells << QString("<td>%1</td>").arg(cellContent);
+    }
+    
+    return cells;
 }
