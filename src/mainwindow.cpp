@@ -68,11 +68,9 @@ void MainWindow::initUI()
     // 创建状态栏
     m_statusLabel = new QLabel(tr("Ready"));
     m_cursorPosLabel = new QLabel(tr("Line: 1, Col: 1"));
-    m_wordCountLabel = new QLabel(tr("Words: 0"));
     
     statusBar()->addWidget(m_statusLabel, 1);
     statusBar()->addPermanentWidget(m_cursorPosLabel);
-    statusBar()->addPermanentWidget(m_wordCountLabel);
     
     // 创建延迟更新定时器
     m_updateTimer = new QTimer(this);
@@ -853,10 +851,6 @@ void MainWindow::updateStatusBar()
     int line = cursor.blockNumber() + 1;
     int col = cursor.columnNumber() + 1;
     m_cursorPosLabel->setText(tr("Line: %1, Col: %2").arg(line).arg(col));
-    
-    QString text = m_editor->toPlainText();
-    int wordCount = text.split(QRegExp("\\s+"), Qt::SkipEmptyParts).size();
-    m_wordCountLabel->setText(tr("Words: %1").arg(wordCount));
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
