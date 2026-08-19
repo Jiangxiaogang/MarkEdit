@@ -274,7 +274,7 @@ pre {
 }
 
 pre code {
-    display: inline;
+    display: block;
     max-width: auto;
     padding: 0;
     margin: 0;
@@ -283,6 +283,7 @@ pre code {
     word-wrap: normal;
     background-color: transparent;
     border: 0;
+    white-space: pre;
 }
 
 blockquote {
