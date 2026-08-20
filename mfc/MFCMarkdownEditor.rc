@@ -1,0 +1,234 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "Resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#ifndef APSTUDIO_INVOKED
+#include "targetver.h"
+#endif
+#include "afxres.h"
+#include "verrsrc.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// 中文 (简体，中国) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\MFCMarkdownEditor.ico"
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "Resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#ifndef APSTUDIO_INVOKED\015\012"\
+    "#include ""targetver.h""\015\012"\
+    "#endif\015\012"\
+    "#include ""afxres.h""\015\012"\
+    "#include ""verrsrc.h""\015\012"\
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\015\012"\
+    "#define _AFX_NO_OLE_RESOURCES\015\012"\
+    "#define _AFX_NO_TRACKER_RESOURCES\015\012"\
+    "#define _AFX_NO_PROPERTY_RESOURCES\015\012"\
+    "\015\012"\
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)\015\012"\
+    "LANGUAGE 4, 2\015\012"\
+    "#pragma code_page(936)\015\012"\
+    "#include ""res\\MFCMarkdownEditor.rc2""\015\012"\
+    "#endif\015\012"\
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_MFCMARKDOWNEDITOR_DIALOG DIALOGEX 0, 0, 374, 250
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "Markdown 编辑器"
+FONT 9, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    EDITTEXT            IDC_EDIT_MARKDOWN,7,7,180,236,ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_WANTRETURN | WS_VSCROLL | WS_HSCROLL
+    CONTROL             "",IDC_HTML_PREVIEW,"Static",SS_WHITERECT | WS_CHILD | WS_VISIBLE | WS_BORDER,187,7,180,236
+END
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU_MAIN MENU
+BEGIN
+    POPUP "文件 (&F)"
+    BEGIN
+        MENUITEM "新建\tCtrl+N",                ID_FILE_NEW
+        MENUITEM "打开\tCtrl+O",                ID_FILE_OPEN
+        MENUITEM "保存\tCtrl+S",                ID_FILE_SAVE
+        MENUITEM "另存为...",                   ID_FILE_SAVE_AS
+        MENUITEM SEPARATOR
+        MENUITEM "退出",                        ID_FILE_EXIT
+    END
+    POPUP "编辑 (&E)"
+    BEGIN
+        MENUITEM "撤销\tCtrl+Z",                ID_EDIT_UNDO
+        MENUITEM "重做\tCtrl+Y",                ID_EDIT_REDO
+        MENUITEM SEPARATOR
+        MENUITEM "剪切\tCtrl+X",                ID_EDIT_CUT
+        MENUITEM "复制\tCtrl+C",                ID_EDIT_COPY
+        MENUITEM "粘贴\tCtrl+V",                ID_EDIT_PASTE
+        MENUITEM SEPARATOR
+        MENUITEM "全选\tCtrl+A",                ID_EDIT_SELECT_ALL
+    END
+    POPUP "视图 (&V)"
+    BEGIN
+        MENUITEM "全屏",                        ID_VIEW_FULLSCREEN
+        MENUITEM "刷新预览",                    ID_VIEW_REFRESH
+    END
+    POPUP "格式 (&O)"
+    BEGIN
+        MENUITEM "粗体",                        ID_FORMAT_BOLD
+        MENUITEM "斜体",                        ID_FORMAT_ITALIC
+        MENUITEM SEPARATOR
+        MENUITEM "一级标题",                    ID_FORMAT_HEADING1
+        MENUITEM "二级标题",                    ID_FORMAT_HEADING2
+        MENUITEM "三级标题",                    ID_FORMAT_HEADING3
+        MENUITEM SEPARATOR
+        MENUITEM "代码",                        ID_FORMAT_CODE
+        MENUITEM "列表",                        ID_FORMAT_LIST
+    END
+    POPUP "工具 (&T)"
+    BEGIN
+        MENUITEM "选项...",                     ID_TOOLS_OPTIONS
+    END
+    POPUP "帮助 (&H)"
+    BEGIN
+        MENUITEM "关于 Markdown 编辑器",         ID_HELP_ABOUT
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version resources
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080404B0"
+        BEGIN
+            VALUE "CompanyName", "MFC Markdown Editor"
+            VALUE "FileDescription", "Markdown 编辑器"
+            VALUE "FileVersion", "1.0.0.1"
+            VALUE "InternalName", "MFCMarkdownEditor.exe"
+            VALUE "LegalCopyright", "Copyright (C) 2024"
+            VALUE "OriginalFilename", "MFCMarkdownEditor.exe"
+            VALUE "ProductName", "Markdown 编辑器"
+            VALUE "ProductVersion", "1.0.0.1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x804, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_MFCMARKDOWNEDITOR_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 367
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 243
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDR_MAINFRAME           "Markdown 编辑器"
+END
+
+#endif    // 中文 (简体，中国) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+LANGUAGE 4, 2
+#pragma code_page(936)
+#include "res\MFCMarkdownEditor.rc2"
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
