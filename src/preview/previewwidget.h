@@ -1,13 +1,13 @@
 #ifndef PREVIEWWIDGET_H
 #define PREVIEWWIDGET_H
 
-#include <QTextBrowser>
+#include <QWebEngineView>
 #include <QString>
 
 class MarkdownParser;
 class StyleSheetLoader;
 
-class PreviewWidget : public QTextBrowser
+class PreviewWidget : public QWebEngineView
 {
     Q_OBJECT
     
