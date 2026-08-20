@@ -6,8 +6,6 @@
 #include <QApplication>
 #include <QCloseEvent>
 #include <QTextStream>
-#include <QPrinter>
-#include <QPrintDialog>
 #include <QDateTime>
 #include <QClipboard>
 #include <QTextCodec>
@@ -483,28 +481,27 @@ void MainWindow::exportToPdf()
     if (fileName.isEmpty())
         return;
     
-    QPrinter printer(QPrinter::HighResolution);
-    printer.setOutputFormat(QPrinter::PdfFormat);
-    printer.setOutputFileName(fileName);
-    
-    QTextDocument doc;
-    doc.setHtml(m_preview->toHtml());
-    doc.print(&printer);
+    // 使用 QWebEngineView 的 pdf 导出功能
+    m_preview->page()->toPdf([fileName](const QByteArray &pdfData) {
+        QFile file(fileName);
+        if (file.open(QIODevice::WriteOnly)) {
+            file.write(pdfData);
+            file.close();
+        }
+    });
     
     m_statusLabel->setText(tr("Exported to PDF: %1").arg(fileName));
 }
 
 void MainWindow::printFile()
 {
-    QPrinter printer(QPrinter::HighResolution);
-    QPrintDialog dialog(&printer, this);
-    
-    if (dialog.exec() == QDialog::Accepted) {
-        QTextDocument doc;
-        doc.setHtml(m_preview->toHtml());
-        doc.print(&printer);
-        m_statusLabel->setText(tr("File printed"));
-    }
+    // 使用 QWebEngineView 的打印功能
+    m_preview->print(nullptr, [](bool success) {
+        if (success) {
+            // 打印成功
+        }
+    });
+    m_statusLabel->setText(tr("File printed"));
 }
 
 void MainWindow::exitApp()

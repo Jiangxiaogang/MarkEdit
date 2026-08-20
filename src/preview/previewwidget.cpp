@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QTextStream>
 #include <QWebEnginePage>
+#include <QWebEngineNavigationRequest>
 #include <QDesktopServices>
 #include <QUrl>
 
@@ -15,12 +16,21 @@ PreviewWidget::PreviewWidget(QWidget *parent)
     // 加载默认 CSS
     resetToDefaultCSS();
     
-    // 设置打开外部链接的行为
-    setPage(new QWebEnginePage(this));
-    page()->setLinkDelegationPolicy(QWebEnginePage::DelegateAllLinks);
-    connect(page(), &QWebEnginePage::linkRequested, this, [](const QUrl &url){
+    // 创建自定义页面并拦截导航请求
+    QWebEnginePage *webPage = new QWebEnginePage(this);
+    setPage(webPage);
+    
+    // 连接 linkHovered 信号用于状态栏显示
+    connect(page(), &QWebEnginePage::linkHovered, this, [this](const QString &url) {
+        m_linkHoveredUrl = url;
+    });
+    
+    // 拦截 navigationRequested 来在外部浏览器打开 http/https 链接
+    connect(page(), &QWebEnginePage::navigationRequested, this, [](QWebEngineNavigationRequest *request) {
+        QUrl url = request->url();
         if (url.scheme() == "http" || url.scheme() == "https") {
             QDesktopServices::openUrl(url);
+            request->abort();
         }
     });
 }

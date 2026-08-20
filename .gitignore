@@ -3,35 +3,40 @@
 *.o
 *.obj
 *.a
-*.lib
-*.dll
 *.so
-*.dylib
+*.dll
 *.exe
 *.out
 
-# Qt/MOC generated files
+# Qt specific
+*.pro.user
+*.pro.user.*
+*.qbs.user
+*.qbs.user.*
 moc_*.cpp
-moc_*.h
 qrc_*.cpp
 ui_*.h
-
-# Build directories
+Makefile*
 build/
-release/
-debug/
-*_build/
-*.pro.user
 
 # Dependencies
 node_modules/
-vendor/
+venv/
+.venv/
+__pycache__/
+*.egg-info/
+.Python
 
-# Editors
+# IDE and editor files
 .vscode/
 .idea/
 *.swp
 *.swo
+*.tmp
+
+# System files
+.DS_Store
+Thumbs.db
 
 # Logs
 *.log
@@ -42,6 +47,8 @@ vendor/
 *.env.*
 
 # Coverage
+coverage/
+htmlcov/
 .coverage
 coverage/
 htmlcov/
