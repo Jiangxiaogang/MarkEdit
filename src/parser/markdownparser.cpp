@@ -57,12 +57,12 @@ QString MarkdownParser::parseHeaders(const QString &text)
     QString result = text;
     
     // H6 到 H1 (必须从大到小，避免匹配冲突)
-    result.replace(QRegularExpression("^######\\s+(.*)$", QRegularExpression::MultilineOption), "<h6>\\1</h6>");
-    result.replace(QRegularExpression("^#####\\s+(.*)$", QRegularExpression::MultilineOption), "<h5>\\1</h5>");
-    result.replace(QRegularExpression("^####\\s+(.*)$", QRegularExpression::MultilineOption), "<h4>\\1</h4>");
-    result.replace(QRegularExpression("^###\\s+(.*)$", QRegularExpression::MultilineOption), "<h3>\\1</h3>");
-    result.replace(QRegularExpression("^##\\s+(.*)$", QRegularExpression::MultilineOption), "<h2>\\1</h2>");
-    result.replace(QRegularExpression("^#\\s+(.*)$", QRegularExpression::MultilineOption), "<h1>\\1</h1>");
+    result.replace(QRegExp("^######\\s+(.*)$"), "<h6>\\1</h6>");
+    result.replace(QRegExp("^#####\\s+(.*)$"), "<h5>\\1</h5>");
+    result.replace(QRegExp("^####\\s+(.*)$"), "<h4>\\1</h4>");
+    result.replace(QRegExp("^###\\s+(.*)$"), "<h3>\\1</h3>");
+    result.replace(QRegExp("^##\\s+(.*)$"), "<h2>\\1</h2>");
+    result.replace(QRegExp("^#\\s+(.*)$"), "<h1>\\1</h1>");
     
     return result;
 }
@@ -71,8 +71,8 @@ QString MarkdownParser::parseBold(const QString &text)
 {
     QString result = text;
     // **bold** or __bold__
-    result.replace(QRegularExpression("\\*\\*(.+?)\\*\\*"), "<strong>\\1</strong>");
-    result.replace(QRegularExpression("__(.+?)__"), "<strong>\\1</strong>");
+    result.replace(QRegExp("\\*\\*(.+?)\\*\\*"), "<strong>\\1</strong>");
+    result.replace(QRegExp("__(.+?)__"), "<strong>\\1</strong>");
     return result;
 }
 
@@ -80,8 +80,8 @@ QString MarkdownParser::parseItalic(const QString &text)
 {
     QString result = text;
     // *italic* or _italic_
-    result.replace(QRegularExpression("\\*(.+?)\\*"), "<em>\\1</em>");
-    result.replace(QRegularExpression("_(.+?)_"), "<em>\\1</em>");
+    result.replace(QRegExp("\\*(.+?)\\*"), "<em>\\1</em>");
+    result.replace(QRegExp("_(.+?)_"), "<em>\\1</em>");
     return result;
 }
 
@@ -89,7 +89,7 @@ QString MarkdownParser::parseStrikethrough(const QString &text)
 {
     QString result = text;
     // ~~strikethrough~~
-    result.replace(QRegularExpression("~~(.+?)~~"), "<del>\\1</del>");
+    result.replace(QRegExp("~~(.+?)~~"), "<del>\\1</del>");
     return result;
 }
 
@@ -97,7 +97,7 @@ QString MarkdownParser::parseInlineCode(const QString &text)
 {
     QString result = text;
     // `code`
-    result.replace(QRegularExpression("`([^`]+)`"), "<code>\\1</code>");
+    result.replace(QRegExp("`([^`]+)`"), "<code>\\1</code>");
     return result;
 }
 
@@ -106,14 +106,12 @@ QString MarkdownParser::parseCodeBlocks(const QString &text)
     QString result = text;
     
     // ```code``` (支持带语言标识的代码块)
-    QRegularExpression codeBlockRegex("```(\\w*)\\n([\\s\\S]*?)```", QRegularExpression::DotMatchesEverythingOption);
-    QRegularExpressionMatchIterator it = codeBlockRegex.globalMatch(result);
+    QRegExp codeBlockRegex("```(\\w*)\\n([\\s\\S]*?)```");
     
-    QStringList matches;
-    while (it.hasNext()) {
-        QRegularExpressionMatch match = it.next();
-        QString lang = match.captured(1);
-        QString code = match.captured(2).toHtmlEscaped();
+    int pos = 0;
+    while ((pos = codeBlockRegex.indexIn(result, pos)) != -1) {
+        QString lang = codeBlockRegex.cap(1);
+        QString code = codeBlockRegex.cap(2).toHtmlEscaped();
         
         QString replacement;
         if (!lang.isEmpty()) {
@@ -122,11 +120,8 @@ QString MarkdownParser::parseCodeBlocks(const QString &text)
             replacement = QString("<pre><code>%1</code></pre>").arg(code);
         }
         
-        matches << match.captured(0) << replacement;
-    }
-    
-    for (int i = 0; i < matches.size(); i += 2) {
-        result.replace(matches[i], matches[i + 1]);
+        result.replace(pos, codeBlockRegex.matchedLength(), replacement);
+        pos += replacement.length();
     }
     
     return result;
@@ -136,7 +131,7 @@ QString MarkdownParser::parseLinks(const QString &text)
 {
     QString result = text;
     // [text](url)
-    result.replace(QRegularExpression("\\[([^\\]]+)\\]\\(([^)]+)\\)"), "<a href=\"\\2\">\\1</a>");
+    result.replace(QRegExp("\\[([^\\]]+)\\]\\(([^)]+)\\)"), "<a href=\"\\2\">\\1</a>");
     return result;
 }
 
@@ -144,7 +139,7 @@ QString MarkdownParser::parseImages(const QString &text)
 {
     QString result = text;
     // ![alt](url)
-    result.replace(QRegularExpression("!\\[([^\\]]*)\\]\\(([^)]+)\\)"), "<img src=\"\\2\" alt=\"\\1\"/>");
+    result.replace(QRegExp("!\\[([^\\]]*)\\]\\(([^)]+)\\)"), "<img src=\"\\2\" alt=\"\\1\"/>");
     return result;
 }
 
@@ -161,21 +156,19 @@ QString MarkdownParser::parseLists(const QString &text)
         QString line = lines[i];
         
         // 检查无序列表
-        QRegularExpression bulletRegex("^\\s*[-*+]\\s+(.*)$");
-        QRegularExpressionMatch bulletMatch = bulletRegex.match(line);
+        QRegExp bulletRegex("^\\s*[-*+]\\s+(.*)$");
         
         // 检查有序列表
-        QRegularExpression numberedRegex("^\\s*\\d+\\.\\s+(.*)$");
-        QRegularExpressionMatch numberedMatch = numberedRegex.match(line);
+        QRegExp numberedRegex("^\\s*\\d+\\.\\s+(.*)$");
         
-        if (bulletMatch.hasMatch()) {
+        if (bulletRegex.exactMatch(line)) {
             if (!inBulletList) {
                 outputLines << "<ul>";
                 inBulletList = true;
                 inNumberedList = false;
             }
-            outputLines << QString("<li>%1</li>").arg(bulletMatch.captured(1));
-        } else if (numberedMatch.hasMatch()) {
+            outputLines << QString("<li>%1</li>").arg(bulletRegex.cap(1));
+        } else if (numberedRegex.exactMatch(line)) {
             if (!inNumberedList) {
                 if (inBulletList) {
                     outputLines << "</ul>";
@@ -184,7 +177,7 @@ QString MarkdownParser::parseLists(const QString &text)
                 outputLines << "<ol>";
                 inNumberedList = true;
             }
-            outputLines << QString("<li>%1</li>").arg(numberedMatch.captured(1));
+            outputLines << QString("<li>%1</li>").arg(numberedRegex.cap(1));
         } else {
             if (inBulletList) {
                 outputLines << "</ul>";
@@ -220,15 +213,14 @@ QString MarkdownParser::parseBlockquotes(const QString &text)
     for (int i = 0; i < lines.size(); ++i) {
         QString line = lines[i];
         
-        QRegularExpression quoteRegex("^&gt;\\s*(.*)$");
-        QRegularExpressionMatch match = quoteRegex.match(line);
+        QRegExp quoteRegex("^&gt;\\s*(.*)$");
         
-        if (match.hasMatch()) {
+        if (quoteRegex.exactMatch(line)) {
             if (!inBlockquote) {
                 outputLines << "<blockquote>";
                 inBlockquote = true;
             }
-            outputLines << match.captured(1);
+            outputLines << quoteRegex.cap(1);
         } else {
             if (inBlockquote) {
                 outputLines << "</blockquote>";
@@ -249,9 +241,9 @@ QString MarkdownParser::parseHorizontalRules(const QString &text)
 {
     QString result = text;
     // ---, ***, ___
-    result.replace(QRegularExpression("^---+$", QRegularExpression::MultilineOption), "<hr/>");
-    result.replace(QRegularExpression("^\\*\\*\\*+$", QRegularExpression::MultilineOption), "<hr/>");
-    result.replace(QRegularExpression("^___+$", QRegularExpression::MultilineOption), "<hr/>");
+    result.replace(QRegExp("^---+$"), "<hr/>");
+    result.replace(QRegExp("^\\*\\*\\*+$"), "<hr/>");
+    result.replace(QRegExp("^___+$"), "<hr/>");
     return result;
 }
 
@@ -304,10 +296,9 @@ QString MarkdownParser::parseTables(const QString &text)
         QString line = lines[i];
         
         // 检查是否是表格分隔行 (|---|---| 或 |---:|:---| 等)
-        QRegularExpression separatorRegex("^\\s*\\|[\\s\\-:\\|]+\\|\\s*$");
-        QRegularExpressionMatch sepMatch = separatorRegex.match(line);
+        QRegExp separatorRegex("^\\s*\\|[\\s\\-:\\|]+\\|\\s*$");
         
-        if (sepMatch.hasMatch() && i > 0) {
+        if (separatorRegex.exactMatch(line) && i > 0) {
             // 找到表格，开始解析
             QStringList tableRows;
             
@@ -322,10 +313,9 @@ QString MarkdownParser::parseTables(const QString &text)
             // 解析数据行
             while (i < lines.size()) {
                 QString dataLine = lines[i];
-                QRegularExpression dataRowRegex("^\\s*\\|.*\\|\\s*$");
-                QRegularExpressionMatch dataMatch = dataRowRegex.match(dataLine);
+                QRegExp dataRowRegex("^\\s*\\|.*\\|\\s*$");
                 
-                if (dataMatch.hasMatch()) {
+                if (dataRowRegex.exactMatch(dataLine)) {
                     QStringList cells = parseTableRow(dataLine, false);
                     tableRows << QString("<tr>%1</tr>").arg(cells.join(""));
                     i++;
@@ -358,7 +348,7 @@ QString MarkdownParser::parseTables(const QString &text)
 QStringList MarkdownParser::parseTableRow(const QString &row, bool isHeader)
 {
     QStringList cells;
-    // Qt 5.12 compatibility: split() without flags keeps empty parts by default
+    // Qt 4.8 compatibility: split() without flags keeps empty parts by default
     QStringList parts = row.split('|');
     
     // 过滤首尾空单元格（由行首和行尾的 | 产生）

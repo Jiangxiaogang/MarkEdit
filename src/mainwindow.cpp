@@ -8,7 +8,7 @@
 #include <QTextStream>
 #include <QDateTime>
 #include <QClipboard>
-#include <QTextCodec>
+#include <QPrinter>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -17,7 +17,6 @@ MainWindow::MainWindow(QWidget *parent)
     , m_config(nullptr)
     , m_updateTimer(nullptr)
     , m_isModified(false)
-    , m_fileCodec(QTextCodec::codecForName("UTF-8")) // 默认使用 UTF-8 编码
 {
     ui->setupUi(this);
     
@@ -367,7 +366,6 @@ void MainWindow::newFile()
     m_editor->clear();
     m_currentFilePath.clear();
     m_isModified = false;
-    m_fileCodec = QTextCodec::codecForName("UTF-8"); // 新建文件默认使用 UTF-8 编码
     updateWindowTitle();
     m_statusLabel->setText(tr("New file created"));
 }
@@ -386,28 +384,11 @@ void MainWindow::openFile()
         return;
     }
     
-    // 检测文件编码，优先尝试 UTF-8，如果失败则使用本地编码
-    QByteArray rawData = file.readAll();
+    // Qt 4.8: 使用 QTextStream 读取文件，默认使用 UTF-8 编码
+    QTextStream in(&file);
+    in.setCodec("UTF-8");
+    QString content = in.readAll();
     file.close();
-    
-    // 尝试使用 UTF-8 解码
-    QTextCodec *codec = QTextCodec::codecForName("UTF-8");
-    QString content = codec->toUnicode(rawData);
-    
-    // 检查是否有无效字符（替换字符），如果有则尝试其他编码
-    if (content.contains(QChar::ReplacementCharacter)) {
-        // 尝试使用 GBK/GB18030 编码（常见于中文 Windows）
-        codec = QTextCodec::codecForName("GB18030");
-        content = codec->toUnicode(rawData);
-        
-        // 如果仍然有替换字符，尝试使用系统本地编码
-        if (content.contains(QChar::ReplacementCharacter)) {
-            codec = QTextCodec::codecForLocale();
-            content = codec->toUnicode(rawData);
-        }
-    }
-    
-    m_fileCodec = codec; // 保存检测到的编码用于后续保存
     
     m_editor->setPlainText(content);
     
@@ -430,9 +411,10 @@ void MainWindow::saveFile()
         return;
     }
     
-    // 使用打开文件时检测到的编码保存，保持原编码不变
-    QByteArray encodedData = m_fileCodec->fromUnicode(m_editor->toPlainText());
-    file.write(encodedData);
+    // Qt 4.8: 使用 QTextStream 写入文件，使用 UTF-8 编码
+    QTextStream out(&file);
+    out.setCodec("UTF-8");
+    out << m_editor->toPlainText();
     file.close();
     
     m_isModified = false;
@@ -475,32 +457,16 @@ void MainWindow::exportToHtml()
 
 void MainWindow::exportToPdf()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Export to PDF"), "",
-        tr("PDF Files (*.pdf);;All Files (*)"));
-    
-    if (fileName.isEmpty())
-        return;
-    
-    // 使用 QWebEngineView 的 pdf 导出功能
-    m_preview->page()->toPdf([fileName](const QByteArray &pdfData) {
-        QFile file(fileName);
-        if (file.open(QIODevice::WriteOnly)) {
-            file.write(pdfData);
-            file.close();
-        }
-    });
-    
-    m_statusLabel->setText(tr("Exported to PDF: %1").arg(fileName));
+    // Qt 4.8 的 QWebView 不支持直接导出 PDF
+    // 建议使用打印功能来保存为 PDF
+    QMessageBox::information(this, tr("Export to PDF"), 
+        tr("PDF export is not available in Qt 4.8. Please use the Print function instead."));
 }
 
 void MainWindow::printFile()
 {
-    // 使用 QWebEngineView 的打印功能
-    m_preview->print(nullptr, [](bool success) {
-        if (success) {
-            // 打印成功
-        }
-    });
+    // 使用 QWebView 的打印功能
+    m_preview->print(new QPrinter(QPrinter::HighResolution));
     m_statusLabel->setText(tr("File printed"));
 }
 

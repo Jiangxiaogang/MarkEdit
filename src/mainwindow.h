@@ -14,7 +14,6 @@
 #include <QMessageBox>
 #include <QTimer>
 #include <QSettings>
-#include <QTextCodec>
 
 #include "editor/codeeditor.h"
 #include "preview/previewwidget.h"
@@ -195,7 +194,6 @@ private:
     
     QString m_currentFilePath;
     bool m_isModified;
-    QTextCodec *m_fileCodec; // 保存当前文件的编码
 };
 
 #endif // MAINWINDOW_H
