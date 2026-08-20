@@ -1,6 +1,9 @@
 #include "configmanager.h"
 #include <QStandardPaths>
 #include <QDir>
+#include <QFile>
+#include <QTextStream>
+#include <QCoreApplication>
 
 ConfigManager::ConfigManager(QObject *parent)
     : QObject(parent)
@@ -206,143 +209,17 @@ void ConfigManager::setWindowState(const QByteArray &state)
 
 QString ConfigManager::defaultCSS()
 {
-    return R"(
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-    font-size: 16px;
-    line-height: 1.6;
-    color: #333;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #fff;
-}
-
-h1, h2, h3, h4, h5, h6 {
-    margin-top: 24px;
-    margin-bottom: 16px;
-    font-weight: 600;
-    line-height: 1.25;
-}
-
-h1 {
-    font-size: 2em;
-    border-bottom: 1px solid #eaecef;
-    padding-bottom: 0.3em;
-}
-
-h2 {
-    font-size: 1.5em;
-    border-bottom: 1px solid #eaecef;
-    padding-bottom: 0.3em;
-}
-
-h3 {
-    font-size: 1.25em;
-}
-
-p {
-    margin-top: 0;
-    margin-bottom: 16px;
-}
-
-a {
-    color: #0366d6;
-    text-decoration: none;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
-code {
-    padding: 0.2em 0.4em;
-    margin: 0;
-    font-size: 85%;
-    background-color: rgba(27,31,35,0.05);
-    border-radius: 3px;
-    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-}
-
-pre {
-    padding: 16px;
-    overflow: auto;
-    font-size: 85%;
-    line-height: 1.45;
-    background-color: #f6f8fa;
-    border-radius: 3px;
-}
-
-pre code {
-    display: block;
-    max-width: auto;
-    padding: 0;
-    margin: 0;
-    overflow: visible;
-    line-height: inherit;
-    word-wrap: normal;
-    background-color: transparent;
-    border: 0;
-    white-space: pre;
-}
-
-blockquote {
-    padding: 0 1em;
-    color: #6a737d;
-    border-left: 0.25em solid #dfe2e5;
-    margin: 0;
-}
-
-ul, ol {
-    padding-left: 2em;
-    margin-top: 0;
-    margin-bottom: 16px;
-}
-
-li {
-    margin-top: 0.25em;
-}
-
-img {
-    max-width: 100%;
-    box-sizing: content-box;
-}
-
-hr {
-    height: 0.25em;
-    padding: 0;
-    margin: 24px 0;
-    background-color: #e1e4e8;
-    border: 0;
-}
-
-table {
-    border-spacing: 0;
-    border-collapse: collapse;
-    margin-top: 0;
-    margin-bottom: 16px;
-}
-
-table th, table td {
-    padding: 6px 13px;
-    border: 1px solid #dfe2e5;
-}
-
-table tr {
-    background-color: #fff;
-    border-top: 1px solid #c6cbd1;
-}
-
-table tr:nth-child(2n) {
-    background-color: #f6f8fa;
-}
-
-strong {
-    font-weight: 600;
-}
-
-del {
-    text-decoration: line-through;
-}
-)";
+    // 尝试从 default.css 文件加载
+    QString cssPath = QCoreApplication::applicationDirPath() + "/default.css";
+    QFile file(cssPath);
+    
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&file);
+        QString css = in.readAll();
+        file.close();
+        return css;
+    }
+    
+    // 如果文件不存在，返回空字符串或默认样式
+    return QString();
 }
