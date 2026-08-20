@@ -112,6 +112,7 @@ table {
     border-collapse: collapse;
     margin-top: 0;
     margin-bottom: 16px;
+    border: 1px solid #dfe2e5;
 }
 
 table th, table td {
@@ -121,7 +122,6 @@ table th, table td {
 
 table tr {
     background-color: #fff;
-    border-top: 1px solid #c6cbd1;
 }
 
 table tr:nth-child(2n) {
