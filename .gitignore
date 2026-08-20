@@ -1,33 +1,33 @@
-```gitignore
-# Compiled and binary files
-*.pyc
-*.class
+```
+# Build artifacts
 *.o
-*.exe
-*.dll
-*.so
-*.a
 *.obj
+*.a
+*.so
+*.dll
+*.exe
 *.out
+
+# Qt specific
+*.pro.user
+*.pro.user.*
+*.qbs.user
+*.qbs.user.*
+moc_*.cpp
+qrc_*.cpp
+ui_*.h
+Makefile*
+build/
 
 # Dependencies
 node_modules/
 venv/
 .venv/
 __pycache__/
-.mypy_cache/
-.pytest_cache/
-target/
-.gradle/
-
-# Build artifacts
-dist/
-build/
-coverage/
-htmlcov/
 *.egg-info/
+.Python
 
-# Editor/IDE files
+# IDE and editor files
 .vscode/
 .idea/
 *.swp
@@ -37,14 +37,13 @@ htmlcov/
 # System files
 .DS_Store
 Thumbs.db
-.env
-.env.local
-*.env.*
 
 # Logs
 *.log
 
 # Coverage
+coverage/
+htmlcov/
 .coverage
 
 # Compressed files

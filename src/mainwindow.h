@@ -4,7 +4,6 @@
 #include <QMainWindow>
 #include <QSplitter>
 #include <QPlainTextEdit>
-#include <QTextBrowser>
 #include <QMenuBar>
 #include <QMenu>
 #include <QAction>

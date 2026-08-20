@@ -1,13 +1,13 @@
 #ifndef PREVIEWWIDGET_H
 #define PREVIEWWIDGET_H
 
-#include <QTextBrowser>
+#include <QWebEngineView>
 #include <QString>
 
 class MarkdownParser;
 class StyleSheetLoader;
 
-class PreviewWidget : public QTextBrowser
+class PreviewWidget : public QWebEngineView
 {
     Q_OBJECT
     
@@ -27,6 +27,7 @@ private:
     StyleSheetLoader *m_cssLoader;
     QString m_currentCSS;
     QString m_currentMarkdown;
+    QString m_linkHoveredUrl;
     
     void applyStyles();
     QString generateHTML(const QString &htmlContent);
