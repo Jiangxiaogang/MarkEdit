@@ -13,9 +13,9 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , m_parser(nullptr)
-    , m_config(nullptr)
-    , m_updateTimer(nullptr)
+    , m_parser(0)
+    , m_config(0)
+    , m_updateTimer(0)
     , m_isModified(false)
 {
     ui->setupUi(this);
@@ -89,30 +89,30 @@ void MainWindow::createFileMenu()
 {
     m_fileMenu = menuBar()->addMenu(tr("&File"));
     
-    m_actNew = m_fileMenu->addAction(tr("&New"), this, &MainWindow::newFile);
+    m_actNew = m_fileMenu->addAction(tr("&New"), this, SLOT(newFile()));
     m_actNew->setShortcut(QKeySequence::New);
     
-    m_actOpen = m_fileMenu->addAction(tr("&Open..."), this, &MainWindow::openFile);
+    m_actOpen = m_fileMenu->addAction(tr("&Open..."), this, SLOT(openFile()));
     m_actOpen->setShortcut(QKeySequence::Open);
     
     m_fileMenu->addSeparator();
     
-    m_actSave = m_fileMenu->addAction(tr("&Save"), this, &MainWindow::saveFile);
+    m_actSave = m_fileMenu->addAction(tr("&Save"), this, SLOT(saveFile()));
     m_actSave->setShortcut(QKeySequence::Save);
     
-    m_actSaveAs = m_fileMenu->addAction(tr("Save &As..."), this, &MainWindow::saveFileAs);
+    m_actSaveAs = m_fileMenu->addAction(tr("Save &As..."), this, SLOT(saveFileAs()));
     m_actSaveAs->setShortcut(QKeySequence::SaveAs);
     
     m_fileMenu->addSeparator();
     
-    m_actExportHtml = m_fileMenu->addAction(tr("Export to &HTML"), this, &MainWindow::exportToHtml);
-    m_actExportPdf = m_fileMenu->addAction(tr("Export to &PDF"), this, &MainWindow::exportToPdf);
-    m_actPrint = m_fileMenu->addAction(tr("&Print..."), this, &MainWindow::printFile);
+    m_actExportHtml = m_fileMenu->addAction(tr("Export to &HTML"), this, SLOT(exportToHtml()));
+    m_actExportPdf = m_fileMenu->addAction(tr("Export to &PDF"), this, SLOT(exportToPdf()));
+    m_actPrint = m_fileMenu->addAction(tr("&Print..."), this, SLOT(printFile()));
     m_actPrint->setShortcut(QKeySequence::Print);
     
     m_fileMenu->addSeparator();
     
-    m_actExit = m_fileMenu->addAction(tr("E&xit"), this, &MainWindow::exitApp);
+    m_actExit = m_fileMenu->addAction(tr("E&xit"), this, SLOT(exitApp()));
     m_actExit->setShortcut(QKeySequence::Quit);
 }
 
@@ -120,34 +120,34 @@ void MainWindow::createEditMenu()
 {
     m_editMenu = menuBar()->addMenu(tr("&Edit"));
     
-    m_actUndo = m_editMenu->addAction(tr("&Undo"), this, &MainWindow::undo);
+    m_actUndo = m_editMenu->addAction(tr("&Undo"), this, SLOT(undo()));
     m_actUndo->setShortcut(QKeySequence::Undo);
     
-    m_actRedo = m_editMenu->addAction(tr("&Redo"), this, &MainWindow::redo);
+    m_actRedo = m_editMenu->addAction(tr("&Redo"), this, SLOT(redo()));
     m_actRedo->setShortcut(QKeySequence::Redo);
     
     m_editMenu->addSeparator();
     
-    m_actCut = m_editMenu->addAction(tr("Cu&t"), this, &MainWindow::cut);
+    m_actCut = m_editMenu->addAction(tr("Cu&t"), this, SLOT(cut()));
     m_actCut->setShortcut(QKeySequence::Cut);
     
-    m_actCopy = m_editMenu->addAction(tr("&Copy"), this, &MainWindow::copy);
+    m_actCopy = m_editMenu->addAction(tr("&Copy"), this, SLOT(copy()));
     m_actCopy->setShortcut(QKeySequence::Copy);
     
-    m_actPaste = m_editMenu->addAction(tr("&Paste"), this, &MainWindow::paste);
+    m_actPaste = m_editMenu->addAction(tr("&Paste"), this, SLOT(paste()));
     m_actPaste->setShortcut(QKeySequence::Paste);
     
     m_editMenu->addSeparator();
     
-    m_actSelectAll = m_editMenu->addAction(tr("Select &All"), this, &MainWindow::selectAll);
+    m_actSelectAll = m_editMenu->addAction(tr("Select &All"), this, SLOT(selectAll()));
     m_actSelectAll->setShortcut(QKeySequence::SelectAll);
     
     m_editMenu->addSeparator();
     
-    m_actFindReplace = m_editMenu->addAction(tr("&Find/Replace"), this, &MainWindow::findReplace);
+    m_actFindReplace = m_editMenu->addAction(tr("&Find/Replace"), this, SLOT(findReplace()));
     m_actFindReplace->setShortcut(QKeySequence::Find);
     
-    m_actGoToLine = m_editMenu->addAction(tr("&Go to Line..."), this, &MainWindow::goToLine);
+    m_actGoToLine = m_editMenu->addAction(tr("&Go to Line..."), this, SLOT(goToLine()));
     m_actGoToLine->setShortcut(tr("Ctrl+G"));
 }
 
@@ -155,44 +155,44 @@ void MainWindow::createViewMenu()
 {
     m_viewMenu = menuBar()->addMenu(tr("&View"));
     
-    m_actLineNumbers = m_viewMenu->addAction(tr("&Line Numbers"), this, &MainWindow::toggleLineNumbers);
+    m_actLineNumbers = m_viewMenu->addAction(tr("&Line Numbers"), this, SLOT(toggleLineNumbers(bool)));
     m_actLineNumbers->setCheckable(true);
     m_actLineNumbers->setChecked(true);
     
-    m_actWhitespace = m_viewMenu->addAction(tr("&Whitespace Characters"), this, &MainWindow::toggleWhitespace);
+    m_actWhitespace = m_viewMenu->addAction(tr("&Whitespace Characters"), this, SLOT(toggleWhitespace(bool)));
     m_actWhitespace->setCheckable(true);
     m_actWhitespace->setChecked(false);
     
     m_viewMenu->addSeparator();
     
-    m_actFullScreen = m_viewMenu->addAction(tr("&Full Screen"), this, &MainWindow::toggleFullScreen);
+    m_actFullScreen = m_viewMenu->addAction(tr("&Full Screen"), this, SLOT(toggleFullScreen(bool)));
     m_actFullScreen->setCheckable(true);
     m_actFullScreen->setShortcut(tr("F11"));
     
-    m_actPreviewPane = m_viewMenu->addAction(tr("&Preview Pane"), this, &MainWindow::togglePreviewPane);
+    m_actPreviewPane = m_viewMenu->addAction(tr("&Preview Pane"), this, SLOT(togglePreviewPane(bool)));
     m_actPreviewPane->setCheckable(true);
     m_actPreviewPane->setChecked(true);
     
     m_viewMenu->addSeparator();
     
-    m_actSplitH = m_viewMenu->addAction(tr("Split &Horizontal"), this, &MainWindow::splitHorizontally);
+    m_actSplitH = m_viewMenu->addAction(tr("Split &Horizontal"), this, SLOT(splitHorizontally(bool)));
     m_actSplitH->setCheckable(true);
     m_actSplitH->setChecked(true);
     
-    m_actSplitV = m_viewMenu->addAction(tr("Split &Vertical"), this, &MainWindow::splitVertically);
+    m_actSplitV = m_viewMenu->addAction(tr("Split &Vertical"), this, SLOT(splitVertically(bool)));
     m_actSplitV->setCheckable(true);
     
-    m_actResetLayout = m_viewMenu->addAction(tr("&Reset Layout"), this, &MainWindow::resetLayout);
+    m_actResetLayout = m_viewMenu->addAction(tr("&Reset Layout"), this, SLOT(resetLayout()));
     
     m_viewMenu->addSeparator();
     
-    m_actZoomIn = m_viewMenu->addAction(tr("Zoom &In"), this, &MainWindow::zoomIn);
+    m_actZoomIn = m_viewMenu->addAction(tr("Zoom &In"), this, SLOT(zoomIn()));
     m_actZoomIn->setShortcut(QKeySequence::ZoomIn);
     
-    m_actZoomOut = m_viewMenu->addAction(tr("Zoom &Out"), this, &MainWindow::zoomOut);
+    m_actZoomOut = m_viewMenu->addAction(tr("Zoom &Out"), this, SLOT(zoomOut()));
     m_actZoomOut->setShortcut(QKeySequence::ZoomOut);
     
-    m_actResetZoom = m_viewMenu->addAction(tr("&Reset Zoom"), this, &MainWindow::resetZoom);
+    m_actResetZoom = m_viewMenu->addAction(tr("&Reset Zoom"), this, SLOT(resetZoom()));
     m_actResetZoom->setShortcut(tr("Ctrl+0"));
 }
 
@@ -200,101 +200,92 @@ void MainWindow::createFormatMenu()
 {
     m_formatMenu = menuBar()->addMenu(tr("F&ormat"));
     
-    m_actBold = m_formatMenu->addAction(tr("&Bold"), this, &MainWindow::formatBold);
+    m_actBold = m_formatMenu->addAction(tr("&Bold"), this, SLOT(formatBold()));
     m_actBold->setShortcut(tr("Ctrl+B"));
     
-    m_actItalic = m_formatMenu->addAction(tr("&Italic"), this, &MainWindow::formatItalic);
+    m_actItalic = m_formatMenu->addAction(tr("&Italic"), this, SLOT(formatItalic()));
     m_actItalic->setShortcut(tr("Ctrl+I"));
     
-    m_actUnderline = m_formatMenu->addAction(tr("&Underline"), this, &MainWindow::formatUnderline);
+    m_actUnderline = m_formatMenu->addAction(tr("&Underline"), this, SLOT(formatUnderline()));
     m_actUnderline->setShortcut(tr("Ctrl+U"));
     
-    m_actStrike = m_formatMenu->addAction(tr("&Strikethrough"), this, &MainWindow::formatStrikethrough);
+    m_actStrike = m_formatMenu->addAction(tr("&Strikethrough"), this, SLOT(formatStrikethrough()));
     
     m_formatMenu->addSeparator();
     
-    m_actInlineCode = m_formatMenu->addAction(tr("&Inline Code"), this, &MainWindow::formatInlineCode);
+    m_actInlineCode = m_formatMenu->addAction(tr("&Inline Code"), this, SLOT(formatInlineCode()));
     m_actInlineCode->setShortcut(tr("Ctrl+`"));
     
     m_formatMenu->addSeparator();
     
-    m_actH1 = m_formatMenu->addAction(tr("Header &1"), this, &MainWindow::formatHeader1);
+    m_actH1 = m_formatMenu->addAction(tr("Header &1"), this, SLOT(formatHeader1()));
     m_actH1->setShortcut(tr("Ctrl+1"));
     
-    m_actH2 = m_formatMenu->addAction(tr("Header &2"), this, &MainWindow::formatHeader2);
+    m_actH2 = m_formatMenu->addAction(tr("Header &2"), this, SLOT(formatHeader2()));
     m_actH2->setShortcut(tr("Ctrl+2"));
     
-    m_actH3 = m_formatMenu->addAction(tr("Header &3"), this, &MainWindow::formatHeader3);
+    m_actH3 = m_formatMenu->addAction(tr("Header &3"), this, SLOT(formatHeader3()));
     m_actH3->setShortcut(tr("Ctrl+3"));
     
     m_formatMenu->addSeparator();
     
-    m_actBulletList = m_formatMenu->addAction(tr("&Bullet List"), this, &MainWindow::formatBulletList);
+    m_actBulletList = m_formatMenu->addAction(tr("&Bullet List"), this, SLOT(formatBulletList()));
     m_actBulletList->setShortcut(tr("Ctrl+Shift+B"));
     
-    m_actNumberedList = m_formatMenu->addAction(tr("&Numbered List"), this, &MainWindow::formatNumberedList);
+    m_actNumberedList = m_formatMenu->addAction(tr("&Numbered List"), this, SLOT(formatNumberedList()));
     m_actNumberedList->setShortcut(tr("Ctrl+Shift+N"));
     
-    m_actBlockquote = m_formatMenu->addAction(tr("&Blockquote"), this, &MainWindow::formatBlockquote);
+    m_actBlockquote = m_formatMenu->addAction(tr("&Blockquote"), this, SLOT(formatBlockquote()));
     m_actBlockquote->setShortcut(tr("Ctrl+Shift+Q"));
     
-    m_actCodeBlock = m_formatMenu->addAction(tr("C&ode Block"), this, &MainWindow::formatCodeBlock);
+    m_actCodeBlock = m_formatMenu->addAction(tr("C&ode Block"), this, SLOT(formatCodeBlock()));
     m_actCodeBlock->setShortcut(tr("Ctrl+Shift+C"));
     
     m_formatMenu->addSeparator();
     
-    m_actLink = m_formatMenu->addAction(tr("&Link"), this, &MainWindow::formatLink);
+    m_actLink = m_formatMenu->addAction(tr("&Link"), this, SLOT(formatLink()));
     m_actLink->setShortcut(tr("Ctrl+K"));
     
-    m_actImage = m_formatMenu->addAction(tr("&Image"), this, &MainWindow::formatImage);
+    m_actImage = m_formatMenu->addAction(tr("&Image"), this, SLOT(formatImage()));
     m_actImage->setShortcut(tr("Ctrl+Shift+I"));
     
-    m_actHr = m_formatMenu->addAction(tr("&Horizontal Rule"), this, &MainWindow::formatHorizontalRule);
+    m_actHr = m_formatMenu->addAction(tr("&Horizontal Rule"), this, SLOT(formatHorizontalRule()));
 }
 
 void MainWindow::createToolsMenu()
 {
     m_toolsMenu = menuBar()->addMenu(tr("&Tools"));
     
-    m_actSettings = m_toolsMenu->addAction(tr("&Settings..."), this, &MainWindow::showSettings);
+    m_actSettings = m_toolsMenu->addAction(tr("&Settings..."), this, SLOT(showSettings()));
     m_actSettings->setShortcut(tr("Ctrl+,"));
     
     m_toolsMenu->addSeparator();
     
-    m_actLoadCss = m_toolsMenu->addAction(tr("&Load CSS File..."), this, &MainWindow::loadCssFile);
-    m_actResetCss = m_toolsMenu->addAction(tr("&Reset CSS"), this, &MainWindow::resetCss);
+    m_actLoadCss = m_toolsMenu->addAction(tr("&Load CSS File..."), this, SLOT(loadCssFile()));
+    m_actResetCss = m_toolsMenu->addAction(tr("&Reset CSS"), this, SLOT(resetCss()));
 }
 
 void MainWindow::createHelpMenu()
 {
     m_helpMenu = menuBar()->addMenu(tr("&Help"));
     
-    m_actAbout = m_helpMenu->addAction(tr("&About"), this, &MainWindow::aboutApp);
+    m_actAbout = m_helpMenu->addAction(tr("&About"), this, SLOT(aboutApp()));
     
     m_helpMenu->addSeparator();
     
-    m_actAboutQt = m_helpMenu->addAction(tr("About &Qt"), this, &MainWindow::aboutQt);
+    m_actAboutQt = m_helpMenu->addAction(tr("About &Qt"), this, SLOT(aboutQt()));
 }
 
 void MainWindow::initConnections()
 {
-    // 文本变化连接
-    connect(m_editor, &CodeEditor::textChanged, this, [this]() {
-        m_updateTimer->start();
-        m_isModified = true;
-        updateWindowTitle();
-        updateStatusBar();
-    });
+    // 文本变化连接 - Qt4.8 使用 SIGNAL/SLOT 宏
+    connect(m_editor, SIGNAL(textChanged()), this, SLOT(onTextChanged()));
     
-    // 延迟更新预览
-    connect(m_updateTimer, &QTimer::timeout, this, [this]() {
-        QString markdown = m_editor->toPlainText();
-        m_preview->updatePreview(markdown);
-        m_isModified = false;
-    });
+    // 延迟更新预览 - Qt4.8 使用 SIGNAL/SLOT 宏
+    connect(m_updateTimer, SIGNAL(timeout()), this, SLOT(updatePreviewFromTimer()));
     
-    // 光标位置变化
-    connect(m_editor, &CodeEditor::cursorPositionChanged, this, &MainWindow::updateStatusBar);
+    // 光标位置变化 - Qt4.8 使用 SIGNAL/SLOT 宏
+    connect(m_editor, SIGNAL(cursorPositionChanged()), this, SLOT(updateStatusBar()));
 }
 
 void MainWindow::loadSettings()
@@ -792,7 +783,17 @@ void MainWindow::aboutQt()
 // 其他槽函数
 void MainWindow::onTextChanged()
 {
+    m_updateTimer->start();
+    m_isModified = true;
+    updateWindowTitle();
     updateStatusBar();
+}
+
+void MainWindow::updatePreviewFromTimer()
+{
+    QString markdown = m_editor->toPlainText();
+    m_preview->updatePreview(markdown);
+    m_isModified = false;
 }
 
 void MainWindow::updateWindowTitle()
