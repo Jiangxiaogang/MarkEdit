@@ -1,4 +1,4 @@
-QT += core gui widgets printsupport
+QT += core gui widgets webenginewidgets printsupport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
