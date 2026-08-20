@@ -1,35 +1,36 @@
 ```
 # Compiled and build artifacts
+*.o
 *.obj
-*.exe
+*.a
+*.so
 *.dll
-*.lib
-*.pdb
-*.ilk
-*.exp
-*.sln.docstates
-*.user
-*.userosscache
-*.suo
-*.ncb
-*.log
-*.tmp
+*.exe
+*.out
 
-# Build directories
-Debug/
-Release/
-x64/
-Win32/
+# Qt/C++ build artifacts
+*.pro.user
+*.pro.user.*
+*.qbs.user
+*.qbs.user.*
+moc_*.cpp
+moc_*.h
+qrc_*.cpp
+ui_*.h
+Makefile*
+obj/
+debug/
+release/
 build/
-dist/
 
 # Dependencies
 node_modules/
 vendor/
+.libs/
 
-# Editors
-.vscode/
-.idea/
+# Logs and temp files
+*.log
+*.tmp
 *.swp
 *.swo
 
@@ -38,28 +39,18 @@ vendor/
 .env.local
 *.env.*
 
-# OS generated files
-.DS_Store
-Thumbs.db
-desktop.ini
+# Editors
+.vscode/
+.idea/
+*.swp
+*~
 
 # Coverage reports
 coverage/
 htmlcov/
-*.coverage
-
-# Python specific
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-env/
-venv/
-.venv/
-pip-log.txt
-pip-delete-this-directory.txt
-.tox/
 .coverage
-.nox/
+
+# Distribution artifacts
+dist/
+target/
 ```

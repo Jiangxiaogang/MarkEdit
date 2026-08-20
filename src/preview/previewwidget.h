@@ -1,13 +1,14 @@
 #ifndef PREVIEWWIDGET_H
 #define PREVIEWWIDGET_H
 
-#include <QWebEngineView>
+#include <QWebView>
 #include <QString>
+#include <QNetworkRequest>
 
 class MarkdownParser;
 class StyleSheetLoader;
 
-class PreviewWidget : public QWebEngineView
+class PreviewWidget : public QWebView
 {
     Q_OBJECT
     
@@ -21,6 +22,10 @@ public:
     
 public slots:
     void updatePreview(const QString &markdown);
+    
+private slots:
+    void onLinkHovered(const QString &link, const QString &title, const QString &textContent);
+    void onLinkClicked(const QUrl &url);
     
 private:
     MarkdownParser *m_parser;

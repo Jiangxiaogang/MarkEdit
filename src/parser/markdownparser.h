@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QString>
 #include <QStringList>
-#include <QRegularExpression>
+#include <QRegExp>
 
 class MarkdownParser : public QObject
 {

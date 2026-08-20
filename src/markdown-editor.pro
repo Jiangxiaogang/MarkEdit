@@ -1,6 +1,4 @@
-QT += core gui widgets webenginewidgets
-
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+QT += core gui webkit
 
 CONFIG += c++11
 
