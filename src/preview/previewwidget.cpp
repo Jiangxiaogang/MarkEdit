@@ -6,6 +6,7 @@
 #include <QWebPage>
 #include <QDesktopServices>
 #include <QUrl>
+#include <QNetworkRequest>
 
 PreviewWidget::PreviewWidget(QWidget *parent)
     : QWebView(parent)

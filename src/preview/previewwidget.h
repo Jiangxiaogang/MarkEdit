@@ -3,7 +3,7 @@
 
 #include <QWebView>
 #include <QString>
-#include <QNetworkRequest>
+#include <QUrl>
 
 class MarkdownParser;
 class StyleSheetLoader;
