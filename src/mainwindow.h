@@ -110,7 +110,7 @@ private:
     void createToolsMenu();
     void createHelpMenu();
     void updateMenusState();
-    void closeEvent(QCloseEvent *event) override;
+    void closeEvent(QCloseEvent *event);
 
 private:
     Ui::MainWindow *ui;

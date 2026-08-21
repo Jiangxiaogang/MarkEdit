@@ -1,18 +1,9 @@
 QT += core gui webkit
 
-CONFIG += c++11
+CONFIG -= c++11
 
-# The following define makes your compiler emit warnings if you use
-# any Qt feature that has been marked deprecated (the exact features
-# depend on your Qt version). This helps you to ensure that your code
-# will work with future versions of Qt.
-DEFINES += QT_DEPRECATED_WARNINGS
-
-# You can also make your compiler emit warnings if someone tries to
-# compile your code with private APIs. This is useful if you want to
-# ensure that your code will work with future versions of Qt even if
-# they remove the private APIs you are using today.
-# DEFINES += QT_STRICT_WARNINGS
+# Qt 4.8 compatibility
+DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x040800
 
 SOURCES += \
     main.cpp \

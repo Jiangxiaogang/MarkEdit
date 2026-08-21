@@ -10,7 +10,7 @@
 PreviewWidget::PreviewWidget(QWidget *parent)
     : QWebView(parent)
     , m_parser(new MarkdownParser(this))
-    , m_cssLoader(nullptr)
+    , m_cssLoader(0)
 {
     // 加载默认 CSS
     resetToDefaultCSS();

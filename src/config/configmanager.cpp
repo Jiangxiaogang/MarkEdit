@@ -7,7 +7,7 @@
 
 ConfigManager::ConfigManager(QObject *parent)
     : QObject(parent)
-    , m_settings(nullptr)
+    , m_settings(0)
     , m_showLineNumbers(true)
     , m_showWhitespace(false)
     , m_tabWidth(4)
@@ -67,13 +67,13 @@ void ConfigManager::loadConfig()
     m_settings->endGroup();
     
     m_settings->beginGroup("Window");
-    // 使用 QVariant::fromValue() 来存储 QList<int>，然后正确转换回 QList<int>
-    QVariant defaultSplitterSizes = QVariant::fromValue(QList<int>() << 400 << 400);
-    QVariant splitterVar = m_settings->value("splitterSizes", defaultSplitterSizes);
+    // Qt 4.8: 使用 qVariantFromValue() 来存储 QList<int>
+    QVariant defaultSplitterSizes = qVariantFromValue(QList<int>() << 400 << 400);
+    QVariant splitterVar = m_settings->value("splitterSizes", defaultSplitterValues);
     QList<QVariant> variantList = splitterVar.toList();
     QList<int> sizes;
-    for (const QVariant &v : variantList) {
-        sizes.append(v.toInt());
+    for (int i = 0; i < variantList.size(); ++i) {
+        sizes.append(variantList[i].toInt());
     }
     m_splitterSizes = sizes;
     m_windowGeometry = m_settings->value("geometry", QByteArray()).toByteArray();
@@ -98,8 +98,8 @@ void ConfigManager::saveConfig()
     m_settings->endGroup();
     
     m_settings->beginGroup("Window");
-    // 使用 QVariant::fromValue() 来存储 QList<int>
-    m_settings->setValue("splitterSizes", QVariant::fromValue(m_splitterSizes));
+    // Qt 4.8: 使用 qVariantFromValue() 来存储 QList<int>
+    m_settings->setValue("splitterSizes", qVariantFromValue(m_splitterSizes));
     m_settings->setValue("geometry", m_windowGeometry);
     m_settings->setValue("state", m_windowState);
     m_settings->endGroup();
