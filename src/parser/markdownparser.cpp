@@ -212,7 +212,7 @@ QString MarkdownParser::parseLists(const QString &text)
         outputLines << "</ol>";
     }
     
-    return outputLines.join('\n');
+    return outputLines.join("\n");
 }
 
 QString MarkdownParser::parseBlockquotes(const QString &text)
@@ -247,7 +247,7 @@ QString MarkdownParser::parseBlockquotes(const QString &text)
         outputLines << "</blockquote>";
     }
     
-    return outputLines.join('\n');
+    return outputLines.join("\n");
 }
 
 QString MarkdownParser::parseHorizontalRules(const QString &text)
@@ -295,7 +295,7 @@ QString MarkdownParser::parseParagraphs(const QString &text)
     
     flushParagraph();
     
-    return outputLines.join('\n');
+    return outputLines.join("\n");
 }
 
 QString MarkdownParser::parseTables(const QString &text)
@@ -355,7 +355,7 @@ QString MarkdownParser::parseTables(const QString &text)
         }
     }
     
-    return outputLines.join('\n');
+    return outputLines.join("\n");
 }
 
 QStringList MarkdownParser::parseTableRow(const QString &row, bool isHeader)
