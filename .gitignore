@@ -1,1 +1,50 @@
-(src/preview/previewwidget.cpp and src/preview/previewwidget.h are source files, no build artifacts, dependencies, or temp files in the changes)
+```
+# Qt/Meta-object compiler files
+*.moc
+*.moc.cpp
+*.ui.h
+*.qrc.cpp
+
+# Build directories
+build/
+release/
+debug/
+*.pro.user
+*.pro.user.*
+
+# Dependencies
+*.pri
+
+# Logs and temp files
+*.log
+*.tmp
+
+# Environment
+.env
+.env.local
+.env.*
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Coverage
+.coverage
+coverage/
+htmlcov/
+
+# Python (if applicable)
+__pycache__/
+*.pyc
+*.pyo
+.Python
+*.so
+*.egg-info/
+dist/
+```
