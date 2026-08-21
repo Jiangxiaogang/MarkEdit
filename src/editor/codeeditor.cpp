@@ -19,10 +19,10 @@ CodeEditor::CodeEditor(QWidget *parent)
     , m_showLineNumbers(true)
     , m_showWhitespace(false)
 {
-    // 连接信号槽
-    connect(this, &CodeEditor::blockCountChanged, this, &CodeEditor::updateLineNumberAreaWidth);
-    connect(this, &CodeEditor::updateRequest, this, &CodeEditor::updateLineNumberArea);
-    connect(this, &CodeEditor::cursorPositionChanged, this, &CodeEditor::highlightCurrentLine);
+    // 连接信号槽 - Qt4.8 使用 SIGNAL/SLOT 宏
+    connect(this, SIGNAL(blockCountChanged(int)), this, SLOT(updateLineNumberAreaWidth(int)));
+    connect(this, SIGNAL(updateRequest(QRect,int)), this, SLOT(updateLineNumberArea(QRect,int)));
+    connect(this, SIGNAL(cursorPositionChanged()), this, SLOT(highlightCurrentLine()));
     
     // 初始化
     updateLineNumberAreaWidth(0);

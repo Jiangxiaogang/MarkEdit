@@ -11,7 +11,7 @@ class MarkdownParser : public QObject
     Q_OBJECT
     
 public:
-    explicit MarkdownParser(QObject *parent = nullptr);
+    explicit MarkdownParser(QObject *parent = 0);
     
     QString parse(const QString &markdown);
     

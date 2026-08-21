@@ -15,7 +15,7 @@ public:
     explicit LineNumberArea(CodeEditor *editor);
     
 protected:
-    void paintEvent(QPaintEvent *event) override;
+    void paintEvent(QPaintEvent *event);
     
 private:
     CodeEditor *m_editor;
@@ -26,7 +26,7 @@ class CodeEditor : public QPlainTextEdit
     Q_OBJECT
     
 public:
-    explicit CodeEditor(QWidget *parent = nullptr);
+    explicit CodeEditor(QWidget *parent = 0);
     ~CodeEditor();
     
     void setLineNumbersVisible(bool visible);
@@ -37,9 +37,9 @@ signals:
     void cursorPositionChanged();
     
 protected:
-    void resizeEvent(QResizeEvent *event) override;
-    void paintEvent(QPaintEvent *event) override;
-    void keyPressEvent(QKeyEvent *event) override;
+    void resizeEvent(QResizeEvent *event);
+    void paintEvent(QPaintEvent *event);
+    void keyPressEvent(QKeyEvent *event);
     
 private slots:
     void updateLineNumberAreaWidth(int newBlockCount);
