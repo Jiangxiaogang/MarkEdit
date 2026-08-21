@@ -1,5 +1,18 @@
 #include "markdownparser.h"
 #include <QStringList>
+#include <QRegExp>
+
+// Qt 4.8 兼容：手动实现 HTML 转义
+static QString htmlEscape(const QString &text)
+{
+    QString result = text;
+    result.replace(QLatin1String("&"), QLatin1String("&amp;"));
+    result.replace(QLatin1String("<"), QLatin1String("&lt;"));
+    result.replace(QLatin1String(">"), QLatin1String("&gt;"));
+    result.replace(QLatin1String("\""), QLatin1String("&quot;"));
+    result.replace(QLatin1String("'"), QLatin1String("&#39;"));
+    return result;
+}
 
 MarkdownParser::MarkdownParser(QObject *parent)
     : QObject(parent)
@@ -111,7 +124,7 @@ QString MarkdownParser::parseCodeBlocks(const QString &text)
     int pos = 0;
     while ((pos = codeBlockRegex.indexIn(result, pos)) != -1) {
         QString lang = codeBlockRegex.cap(1);
-        QString code = codeBlockRegex.cap(2).toHtmlEscaped();
+        QString code = htmlEscape(codeBlockRegex.cap(2));
         
         QString replacement;
         if (!lang.isEmpty()) {
@@ -369,7 +382,7 @@ QStringList MarkdownParser::parseTableRow(const QString &row, bool isHeader)
         QString cellContent = part.trimmed();
         
         // 对单元格内容进行 HTML 转义
-        cellContent = cellContent.toHtmlEscaped();
+        cellContent = htmlEscape(cellContent);
         
         // 解析单元格内的粗体、斜体等格式
         cellContent = parseBold(cellContent);

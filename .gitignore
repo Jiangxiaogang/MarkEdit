@@ -1,50 +1,39 @@
 ```
-# Qt/Meta-object compiler files
-*.moc
-*.moc.cpp
-*.ui.h
-*.qrc.cpp
-
-# Build directories
-build/
-release/
-debug/
-*.pro.user
-*.pro.user.*
+# Compiled and build artifacts
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.a
+*.out
 
 # Dependencies
-*.pri
+node_modules/
+venv/
+.venv/
+__pycache__/
+.mypy_cache/
+.pytest_cache/
+target/
+.gradle/
 
 # Logs and temp files
 *.log
 *.tmp
+*.swp
+*.swo
 
 # Environment
 .env
 .env.local
-.env.*
+*.env.*
 
 # Editors
 .vscode/
 .idea/
-*.swp
-*.swo
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Coverage
-.coverage
-coverage/
-htmlcov/
-
-# Python (if applicable)
-__pycache__/
-*.pyc
-*.pyo
-.Python
-*.so
-*.egg-info/
+# Build directories
+build/
 dist/
 ```
