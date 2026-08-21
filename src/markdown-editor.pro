@@ -1,4 +1,4 @@
-QT += core gui webkit
+QT += core gui webkit network
 
 CONFIG -= c++11
 
