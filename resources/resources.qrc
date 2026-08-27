@@ -4,4 +4,7 @@
         <file>styles/default.css</file>
         <file>styles/dark.css</file>
     </qresource>
+    <qresource prefix="/translations">
+        <file>../translations/markedit_zh_CN.qm</file>
+    </qresource>
 </RCC>

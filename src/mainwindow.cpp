@@ -62,11 +62,11 @@ MainWindow::MainWindow(QWidget *parent)
     m_previewTimer->setInterval(300);
 
     // Initial content
-    m_editor->setPlainText(tr("# Welcome to MarkEdit\n\n"
-                              "A cross-platform **Markdown** editor built with Qt.\n\n"
-                              "- Type on the left\n"
-                              "- Preview updates on the right\n\n"
-                              "> Select *Format* from the menu to add Markdown syntax."));
+    m_editor->setPlainText(tr("# 欢迎使用 MarkEdit\n\n"
+                              "一个基于 Qt 的跨平台 **Markdown** 编辑器。\n\n"
+                              "- 在左侧输入内容\n"
+                              "- 右侧实时更新预览\n\n"
+                              "> 从菜单中选择 *格式* 来添加 Markdown 语法。"));
     m_editor->document()->setModified(false);
     setCurrentFile(QString());
     updatePreview();
@@ -841,15 +841,15 @@ void MainWindow::about()
 void MainWindow::markdownGuide()
 {
     const QString guide =
-        "<h1>Markdown Syntax Guide</h1>"
-        "<h2>Headings</h2><pre><code># H1\n## H2\n### H3</code></pre>"
-        "<h2>Emphasis</h2><pre><code>**bold**  *italic*  ~~strike~~  `code`</code></pre>"
-        "<h2>Lists</h2><pre><code>- item\n- item\n\n1. first\n2. second</code></pre>"
-        "<h2>Block quote</h2><pre><code>&gt; quoted text</code></pre>"
-        "<h2>Code block</h2><pre><code>```\ncode here\n```</code></pre>"
-        "<h2>Links &amp; Images</h2><pre><code>[text](https://example.com)\n"
-        "![alt](image.png)</code></pre>"
-        "<h2>Horizontal rule</h2><pre><code>---</code></pre>";
+        "<h1>Markdown 语法指南</h1>"
+        "<h2>标题</h2><pre><code># H1\n## H2\n### H3</code></pre>"
+        "<h2>强调</h2><pre><code>**粗体**  *斜体*  ~~删除线~~  `代码`</code></pre>"
+        "<h2>列表</h2><pre><code>- 项目\n- 项目\n\n1. 第一\n2. 第二</code></pre>"
+        "<h2>引用块</h2><pre><code>&gt; 引用文本</code></pre>"
+        "<h2>代码块</h2><pre><code>```\n代码内容\n```</code></pre>"
+        "<h2>链接和图片</h2><pre><code>[文本](https://example.com)\n"
+        "![说明文字](图片.png)</code></pre>"
+        "<h2>水平线</h2><pre><code>---</code></pre>";
     PreviewWidget *w = new PreviewWidget(this);
     w->setCSS(StyleSheetLoader::getDefaultCSS());
     w->setMarkdown(guide);
