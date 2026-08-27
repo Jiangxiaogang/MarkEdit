@@ -2,199 +2,140 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QSplitter>
-#include <QPlainTextEdit>
-#include <QMenuBar>
-#include <QMenu>
-#include <QAction>
-#include <QStatusBar>
-#include <QToolBar>
-#include <QFontDialog>
-#include <QFileDialog>
-#include <QMessageBox>
-#include <QTimer>
-#include <QSettings>
 
-#include "editor/codeeditor.h"
-#include "preview/previewwidget.h"
-#include "parser/markdownparser.h"
-#include "config/configmanager.h"
+class CodeEditor;
+class PreviewWidget;
+class ConfigManager;
+class StyleSheetLoader;
+class QSplitter;
+class QAction;
+class QLabel;
+class QTimer;
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
-QT_END_NAMESPACE
-
+/**
+ * @brief Main application window.
+ *
+ * Owns the editor / preview splitter, the menu bar, toolbar and status bar,
+ * and wires together all file, edit, view, format, tools and help actions
+ * described in menu.md.
+ */
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-private slots:
-    // 文件菜单
-    void newFile();
-    void openFile();
-    void saveFile();
-    void saveFileAs();
-    void exportToHtml();
-    void exportToPdf();
-    void printFile();
-    void exitApp();
+protected:
+    void closeEvent(QCloseEvent *event) override;
+    void showEvent(QShowEvent *event) override;
 
-    // 编辑菜单
-    void undo();
-    void redo();
-    void cut();
-    void copy();
-    void paste();
-    void selectAll();
-    void findReplace();
-    void goToLine();
+private:
+    // UI construction
+    void initUI();
+    void initMenus();
+    void initToolbar();
+    void initStatusBar();
+    void initConnections();
+    void loadSettings();
+    void saveSettings();
 
-    // 视图菜单
+    // File
+    void onNewFile();
+    void onOpenFile();
+    void onOpenRecent();
+    void onSaveFile();
+    void onSaveAs();
+    bool saveFile(const QString &path);
+    void onExportHtml();
+    void onExportPdf();
+    void onExit();
+
+    // Edit
+    void onSelectAll();
+    void onFind();
+    void onReplace();
+
+    // View
+    void toggleFullScreen();
     void toggleLineNumbers(bool checked);
     void toggleWhitespace(bool checked);
-    void toggleFullScreen(bool checked);
-    void togglePreviewPane(bool checked);
-    void splitHorizontally(bool checked);
-    void splitVertically(bool checked);
-    void resetLayout();
-    void zoomIn();
-    void zoomOut();
-    void resetZoom();
+    void setVerticalSplit();
+    void showEditorOnly();
+    void showPreviewOnly();
+    void toggleStatusBar(bool checked);
 
-    // 格式菜单
+    // Format
     void formatBold();
     void formatItalic();
     void formatUnderline();
     void formatStrikethrough();
-    void formatInlineCode();
-    void formatHeader1();
-    void formatHeader2();
-    void formatHeader3();
-    void formatBulletList();
-    void formatNumberedList();
-    void formatBlockquote();
-    void formatCodeBlock();
-    void formatLink();
-    void formatImage();
-    void formatHorizontalRule();
+    void heading(int level);
+    void bulletList();
+    void orderedList();
+    void blockQuote();
+    void codeBlock();
+    void inlineCode();
+    void insertLink();
+    void insertImage();
+    void insertHorizontalRule();
 
-    // 工具菜单
-    void showSettings();
-    void loadCssFile();
+    // Tools
+    void selectCss();
     void resetCss();
+    void openPreferences();
 
-    // 帮助菜单
-    void aboutApp();
-    void aboutQt();
+    // Help
+    void about();
+    void markdownGuide();
 
-    // 其他槽函数
+    // Preview / editor plumbing
     void onTextChanged();
-    void updatePreviewFromTimer();
-    void updateWindowTitle();
-    void updateStatusBar();
+    void updatePreview();
+    void updateStatus();
+    void syncScrollFromEditor(int value);
+    void syncScrollFromPreview(int value);
 
-private:
-    void initUI();
-    void initMenuBar();
-    void initConnections();
-    void loadSettings();
-    void saveSettings();
-    void createFileMenu();
-    void createEditMenu();
-    void createViewMenu();
-    void createFormatMenu();
-    void createToolsMenu();
-    void createHelpMenu();
-    void updateMenusState();
-    void closeEvent(QCloseEvent *event);
+    // Context menus
+    void editorContextMenu(const QPoint &pos);
+    void previewContextMenu(const QPoint &pos);
 
-private:
-    Ui::MainWindow *ui;
-    
-    // 核心组件
+    // Helpers
+    void updateRecentMenu();
+    void wrapSelection(const QString &before, const QString &after);
+    void applyLinePrefix(const QString &prefix, bool toggle = true);
+    void insertAtCursor(const QString &text);
+    bool maybeSave();
+    void setCurrentFile(const QString &path);
+    void applyConfigToUi();
+
     CodeEditor *m_editor;
     PreviewWidget *m_preview;
     QSplitter *m_splitter;
-    
-    // 解析器和配置
-    MarkdownParser *m_parser;
     ConfigManager *m_config;
-    
-    // 菜单
-    QMenuBar *m_menuBar;
-    QMenu *m_fileMenu;
-    QMenu *m_editMenu;
-    QMenu *m_viewMenu;
-    QMenu *m_formatMenu;
-    QMenu *m_toolsMenu;
-    QMenu *m_helpMenu;
-    
-    // 动作
-    QAction *m_actNew;
-    QAction *m_actOpen;
-    QAction *m_actSave;
-    QAction *m_actSaveAs;
-    QAction *m_actExportHtml;
-    QAction *m_actExportPdf;
-    QAction *m_actPrint;
-    QAction *m_actExit;
-    
-    QAction *m_actUndo;
-    QAction *m_actRedo;
-    QAction *m_actCut;
-    QAction *m_actCopy;
-    QAction *m_actPaste;
-    QAction *m_actSelectAll;
-    QAction *m_actFindReplace;
-    QAction *m_actGoToLine;
-    
-    QAction *m_actLineNumbers;
-    QAction *m_actWhitespace;
-    QAction *m_actFullScreen;
-    QAction *m_actPreviewPane;
-    QAction *m_actSplitH;
-    QAction *m_actSplitV;
-    QAction *m_actResetLayout;
-    QAction *m_actZoomIn;
-    QAction *m_actZoomOut;
-    QAction *m_actResetZoom;
-    
-    QAction *m_actBold;
-    QAction *m_actItalic;
-    QAction *m_actUnderline;
-    QAction *m_actStrike;
-    QAction *m_actInlineCode;
-    QAction *m_actH1;
-    QAction *m_actH2;
-    QAction *m_actH3;
-    QAction *m_actBulletList;
-    QAction *m_actNumberedList;
-    QAction *m_actBlockquote;
-    QAction *m_actCodeBlock;
-    QAction *m_actLink;
-    QAction *m_actImage;
-    QAction *m_actHr;
-    
-    QAction *m_actSettings;
-    QAction *m_actLoadCss;
-    QAction *m_actResetCss;
-    
-    QAction *m_actAbout;
-    QAction *m_actAboutQt;
-    
-    // 状态栏组件
-    QLabel *m_statusLabel;
-    QLabel *m_cursorPosLabel;
-    
-    // 定时器用于延迟更新预览
-    QTimer *m_updateTimer;
-    
-    QString m_currentFilePath;
-    bool m_isModified;
+    StyleSheetLoader *m_styleLoader;
+
+    QTimer *m_previewTimer;
+
+    QString m_currentFile;
+    bool m_syncing;
+    bool m_splitSet;
+
+    // Menu actions kept for enable/disable & state tracking
+    QAction *m_saveAction;
+    QMenu *m_recentMenu;
+    QAction *m_lineNumbersAction;
+    QAction *m_whitespaceAction;
+    QAction *m_statusBarAction;
+    QAction *m_fullScreenAction;
+    QAction *m_verticalSplitAction;
+    QAction *m_editorOnlyAction;
+    QAction *m_previewOnlyAction;
+
+    // Status bar widgets
+    QLabel *m_statusCursor;
+    QLabel *m_statusWords;
 };
 
 #endif // MAINWINDOW_H

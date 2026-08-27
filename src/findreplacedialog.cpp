@@ -1,0 +1,150 @@
+#include "findreplacedialog.h"
+
+#include <QPlainTextEdit>
+#include <QLineEdit>
+#include <QCheckBox>
+#include <QPushButton>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QFormLayout>
+#include <QLabel>
+#include <QTextCursor>
+#include <QRegularExpression>
+
+FindReplaceDialog::FindReplaceDialog(QPlainTextEdit *editor, QWidget *parent)
+    : QDialog(parent)
+    , m_editor(editor)
+{
+    setWindowTitle(tr("Find / Replace"));
+    setModal(true);
+
+    m_findEdit = new QLineEdit(this);
+    m_replaceEdit = new QLineEdit(this);
+    m_caseCheck = new QCheckBox(tr("Case sensitive"), this);
+    m_wholeWordCheck = new QCheckBox(tr("Whole word"), this);
+
+    QPushButton *findBtn = new QPushButton(tr("Find Next"), this);
+    m_replaceBtn = new QPushButton(tr("Replace"), this);
+    m_replaceAllBtn = new QPushButton(tr("Replace All"), this);
+    QPushButton *closeBtn = new QPushButton(tr("Close"), this);
+
+    QFormLayout *form = new QFormLayout;
+    form->addRow(tr("Find:"), m_findEdit);
+    form->addRow(tr("Replace with:"), m_replaceEdit);
+    form->addRow(m_caseCheck);
+    form->addRow(m_wholeWordCheck);
+
+    QHBoxLayout *btnRow = new QHBoxLayout;
+    btnRow->addWidget(findBtn);
+    btnRow->addWidget(m_replaceBtn);
+    btnRow->addWidget(m_replaceAllBtn);
+    btnRow->addWidget(closeBtn);
+
+    QVBoxLayout *main = new QVBoxLayout(this);
+    main->addLayout(form);
+    main->addLayout(btnRow);
+
+    connect(m_findEdit, &QLineEdit::textChanged, this, &FindReplaceDialog::updateButtons);
+    connect(findBtn, &QPushButton::clicked, this, &FindReplaceDialog::findNext);
+    connect(m_replaceBtn, &QPushButton::clicked, this, &FindReplaceDialog::replaceOne);
+    connect(m_replaceAllBtn, &QPushButton::clicked, this, &FindReplaceDialog::replaceAll);
+    connect(closeBtn, &QPushButton::clicked, this, &QDialog::close);
+
+    updateButtons();
+    m_findEdit->setFocus();
+}
+
+void FindReplaceDialog::updateButtons()
+{
+    bool has = !m_findEdit->text().isEmpty();
+    m_replaceBtn->setEnabled(has);
+    m_replaceAllBtn->setEnabled(has);
+}
+
+void FindReplaceDialog::setFindText(const QString &text)
+{
+    m_findEdit->setText(text);
+    m_findEdit->selectAll();
+}
+
+bool FindReplaceDialog::find(bool /*forward*/)
+{
+    QString term = m_findEdit->text();
+    if (term.isEmpty())
+        return false;
+
+    QTextDocument::FindFlags flags;
+    if (m_caseCheck->isChecked())
+        flags |= QTextDocument::FindCaseSensitively;
+    if (m_wholeWordCheck->isChecked())
+        flags |= QTextDocument::FindWholeWords;
+
+    // Start the search right after the current selection / cursor.
+    QTextCursor cursor = m_editor->textCursor();
+    if (cursor.hasSelection())
+        cursor.setPosition(cursor.selectionEnd());
+
+    QTextCursor found = m_editor->document()->find(term, cursor, flags);
+    if (found.isNull()) {
+        // wrap around from the beginning
+        QTextCursor start(m_editor->document());
+        start.movePosition(QTextCursor::Start);
+        found = m_editor->document()->find(term, start, flags);
+    }
+    if (!found.isNull()) {
+        m_editor->setTextCursor(found);
+        return true;
+    }
+    return false;
+}
+
+void FindReplaceDialog::findNext()
+{
+    find(true);
+}
+
+void FindReplaceDialog::replaceOne()
+{
+    QString term = m_findEdit->text();
+    QString replacement = m_replaceEdit->text();
+    if (term.isEmpty())
+        return;
+
+    QTextCursor cursor = m_editor->textCursor();
+    if (!cursor.hasSelection() || cursor.selectedText() != term) {
+        if (!find(true))
+            return;
+        cursor = m_editor->textCursor();
+    }
+    cursor.insertText(replacement);
+    find(true);
+}
+
+void FindReplaceDialog::replaceAll()
+{
+    QString term = m_findEdit->text();
+    QString replacement = m_replaceEdit->text();
+    if (term.isEmpty())
+        return;
+
+    QTextDocument::FindFlags flags;
+    if (m_caseCheck->isChecked())
+        flags |= QTextDocument::FindCaseSensitively;
+    if (m_wholeWordCheck->isChecked())
+        flags |= QTextDocument::FindWholeWords;
+
+    QTextCursor cursor(m_editor->document());
+    cursor.movePosition(QTextCursor::Start);
+    int count = 0;
+    for (;;) {
+        QTextCursor found = m_editor->document()->find(term, cursor, flags);
+        if (found.isNull())
+            break;
+        found.insertText(replacement);
+        cursor = found;
+        cursor.movePosition(QTextCursor::EndOfWord);
+        ++count;
+    }
+    if (count == 0)
+        return;
+}
