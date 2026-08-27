@@ -1,52 +1,70 @@
-# ---- Qt / qmake build artifacts ----
-# Object files & compiled binaries
+```
+# Compiled and build artifacts
 *.o
 *.obj
 *.exe
 *.dll
 *.so
-*.so.*
-*.dylib
 *.a
-*.lib
-*.exp
+*.out
 
-# Qt Creator user settings
-*.pro.user
-*.pro.user.*
-*.qbs.user
-*.qbs.user.*
-
-# qmake generated files
-.qmake.stash
-Makefile
-Makefile.Debug
-Makefile.Release
-object_script.*
-.qmake.cache
-
-# Build output directories
+# Dependencies
+venv/
+.venv/
+__pycache__/
+.mypy_cache/
+.pytest_cache/
+node_modules/
+dist/
 build/
-release/
-debug/
-bin/
-obj/
-.vs/
+target/
+.gradle/
 
-# qrc generated sources
-qrc_*.cpp
-
-# ---- IDE / editor ----
-.vscode/
-.idea/
+# Logs and temp files
+*.log
+*.tmp
 *.swp
 *.swo
-*~
 
-# ---- OS ----
-Thumbs.db
+# Environment
+.env
+.env.local
+*.env.*
+
+# Editors
+.vscode/
+.idea/
+
+# System files
 .DS_Store
-Desktop.ini
+Thumbs.db
 
-# ---- Qt translation / resource temp ----
-*.qm
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# Compressed files
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
+```
