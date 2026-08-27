@@ -1,1 +1,52 @@
-(src/parser/markdownparser.cpp)
+# ---- Qt / qmake build artifacts ----
+# Object files & compiled binaries
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.so.*
+*.dylib
+*.a
+*.lib
+*.exp
+
+# Qt Creator user settings
+*.pro.user
+*.pro.user.*
+*.qbs.user
+*.qbs.user.*
+
+# qmake generated files
+.qmake.stash
+Makefile
+Makefile.Debug
+Makefile.Release
+object_script.*
+.qmake.cache
+
+# Build output directories
+build/
+release/
+debug/
+bin/
+obj/
+.vs/
+
+# qrc generated sources
+qrc_*.cpp
+
+# ---- IDE / editor ----
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ---- OS ----
+Thumbs.db
+.DS_Store
+Desktop.ini
+
+# ---- Qt translation / resource temp ----
+*.qm
