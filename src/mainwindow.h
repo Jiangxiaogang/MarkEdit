@@ -35,7 +35,6 @@ private:
     // UI construction
     void initUI();
     void initMenus();
-    void initToolbar();
     void initStatusBar();
     void initConnections();
     void loadSettings();

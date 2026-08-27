@@ -13,7 +13,6 @@
 #include <QMenuBar>
 #include <QMenu>
 #include <QStatusBar>
-#include <QToolBar>
 #include <QAction>
 #include <QSplitter>
 #include <QFileDialog>
@@ -55,7 +54,6 @@ MainWindow::MainWindow(QWidget *parent)
 {
     initUI();
     initMenus();
-    initToolbar();
     initStatusBar();
     initConnections();
     loadSettings();
@@ -387,48 +385,6 @@ void MainWindow::initMenus()
     guideAct->setShortcut(QKeySequence::HelpContents);
     connect(guideAct, &QAction::triggered, this, &MainWindow::markdownGuide);
     helpMenu->addAction(guideAct);
-}
-
-void MainWindow::initToolbar()
-{
-    QToolBar *tb = new QToolBar(tr("Main Toolbar"), this);
-    tb->setObjectName("mainToolBar");
-    addToolBar(tb);
-
-    QAction *newAct = new QAction(style()->standardIcon(QStyle::SP_FileIcon), tr("New"), this);
-    newAct->setShortcut(QKeySequence::New);
-    connect(newAct, &QAction::triggered, this, &MainWindow::onNewFile);
-    tb->addAction(newAct);
-
-    QAction *openAct = new QAction(style()->standardIcon(QStyle::SP_DirOpenIcon), tr("Open"), this);
-    openAct->setShortcut(QKeySequence::Open);
-    connect(openAct, &QAction::triggered, this, &MainWindow::onOpenFile);
-    tb->addAction(openAct);
-
-    tb->addAction(m_saveAction);
-    tb->addSeparator();
-
-    QAction *undoAct = new QAction(style()->standardIcon(QStyle::SP_ArrowLeft), tr("Undo"), this);
-    connect(undoAct, &QAction::triggered, m_editor, &CodeEditor::undo);
-    tb->addAction(undoAct);
-    QAction *redoAct = new QAction(style()->standardIcon(QStyle::SP_ArrowRight), tr("Redo"), this);
-    connect(redoAct, &QAction::triggered, m_editor, &CodeEditor::redo);
-    tb->addAction(redoAct);
-    tb->addSeparator();
-
-    QAction *boldAct = new QAction(tr("B"), this);
-    boldAct->setToolTip(tr("Bold"));
-    connect(boldAct, &QAction::triggered, this, &MainWindow::formatBold);
-    tb->addAction(boldAct);
-    QAction *italicAct = new QAction(tr("I"), this);
-    italicAct->setToolTip(tr("Italic"));
-    connect(italicAct, &QAction::triggered, this, &MainWindow::formatItalic);
-    tb->addAction(italicAct);
-    tb->addSeparator();
-
-    QAction *refreshAct = new QAction(tr("Refresh Preview"), this);
-    connect(refreshAct, &QAction::triggered, this, &MainWindow::updatePreview);
-    tb->addAction(refreshAct);
 }
 
 void MainWindow::initStatusBar()
@@ -978,21 +934,6 @@ void MainWindow::editorContextMenu(const QPoint &pos)
     menu.addSeparator();
     QAction *find = menu.addAction(tr("Find..."));
     connect(find, &QAction::triggered, this, &MainWindow::onFind);
-    menu.addSeparator();
-    QAction *bold = menu.addAction(tr("Bold"));
-    connect(bold, &QAction::triggered, this, &MainWindow::formatBold);
-    QAction *italic = menu.addAction(tr("Italic"));
-    connect(italic, &QAction::triggered, this, &MainWindow::formatItalic);
-    QAction *strike = menu.addAction(tr("Strikethrough"));
-    connect(strike, &QAction::triggered, this, &MainWindow::formatStrikethrough);
-    menu.addSeparator();
-    QAction *link = menu.addAction(tr("Insert Link..."));
-    connect(link, &QAction::triggered, this, &MainWindow::insertLink);
-    QAction *img = menu.addAction(tr("Insert Image..."));
-    connect(img, &QAction::triggered, this, &MainWindow::insertImage);
-    menu.addSeparator();
-    QAction *font = menu.addAction(tr("Font..."));
-    connect(font, &QAction::triggered, this, &MainWindow::openPreferences);
 
     Q_UNUSED(pos);
     menu.exec(m_editor->viewport()->mapToGlobal(pos));

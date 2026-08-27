@@ -6,6 +6,18 @@
 
 ConfigManager *ConfigManager::m_instance = nullptr;
 
+namespace {
+
+// 统一使用当前目录下的 config.ini（INI 格式）持久化配置，
+// 替代 Windows 默认的注册表存储。
+const QString &configFilePath()
+{
+    static const QString path = QStringLiteral("config.ini");
+    return path;
+}
+
+} // namespace
+
 ConfigManager *ConfigManager::instance()
 {
     if (!m_instance)
@@ -21,7 +33,7 @@ ConfigManager::ConfigManager(QObject *parent)
 
 void ConfigManager::loadConfig()
 {
-    QSettings settings;
+    QSettings settings(configFilePath(), QSettings::IniFormat);
 
     // Editor
     QFont defFont("Consolas");
@@ -52,7 +64,7 @@ void ConfigManager::loadConfig()
 
 void ConfigManager::saveConfig()
 {
-    QSettings settings;
+    QSettings settings(configFilePath(), QSettings::IniFormat);
 
     settings.setValue("editor/font", m_editorFont.toString());
     settings.setValue("editor/show_line_numbers", m_showLineNumbers);
