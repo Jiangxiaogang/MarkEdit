@@ -4,7 +4,7 @@
 #include <QCoreApplication>
 #include <QFileInfo>
 
-ConfigManager *ConfigManager::m_instance = nullptr;
+ConfigManager *ConfigManager::m_instance = 0;
 
 namespace {
 
@@ -12,7 +12,7 @@ namespace {
 // 替代 Windows 默认的注册表存储。
 const QString &configFilePath()
 {
-    static const QString path = QStringLiteral("config.ini");
+    static const QString path = tr("config.ini");
     return path;
 }
 

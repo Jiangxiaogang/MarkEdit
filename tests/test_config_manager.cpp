@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
     cfg->saveConfig();
 
     // Reload from a fresh instance.
-    ConfigManager *cfg2 = new ConfigManager(nullptr);
+    ConfigManager *cfg2 = new ConfigManager(0);
     CHECK(cfg2->showLineNumbers() == false, "showLineNumbers persisted");
     CHECK(cfg2->showWhitespace() == true, "showWhitespace persisted");
     CHECK(cfg2->tabWidth() == 2, "tabWidth persisted");
