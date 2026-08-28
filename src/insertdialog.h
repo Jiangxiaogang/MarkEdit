@@ -13,7 +13,7 @@ public:
     /**
      * @brief kind selects the dialog mode ("link" or "image").
      */
-    explicit InsertDialog(const QString &kind, QWidget *parent = nullptr);
+    explicit InsertDialog(const QString &kind, QWidget *parent = 0);
 
     QString text() const;
     QString url() const;

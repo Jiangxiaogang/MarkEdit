@@ -12,11 +12,11 @@ class SettingsDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit SettingsDialog(ConfigManager *config, QWidget *parent = nullptr);
+    explicit SettingsDialog(ConfigManager *config, QWidget *parent = 0);
 
 private slots:
     void chooseCssFile();
-    void accept() override;
+    void accept();
 
 private:
     ConfigManager *m_config;

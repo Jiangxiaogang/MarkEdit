@@ -74,7 +74,7 @@ signals:
     void configurationChanged();
 
 private:
-    explicit ConfigManager(QObject *parent = nullptr);
+    explicit ConfigManager(QObject *parent = 0);
     ConfigManager(const ConfigManager &) = delete;
     ConfigManager &operator=(const ConfigManager &) = delete;
 
