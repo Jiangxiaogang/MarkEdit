@@ -44,11 +44,11 @@ FindReplaceDialog::FindReplaceDialog(QPlainTextEdit *editor, QWidget *parent)
     main->addLayout(form);
     main->addLayout(btnRow);
 
-    connect(m_findEdit, &QLineEdit::textChanged, this, &FindReplaceDialog::updateButtons);
-    connect(findBtn, &QPushButton::clicked, this, &FindReplaceDialog::findNext);
-    connect(m_replaceBtn, &QPushButton::clicked, this, &FindReplaceDialog::replaceOne);
-    connect(m_replaceAllBtn, &QPushButton::clicked, this, &FindReplaceDialog::replaceAll);
-    connect(closeBtn, &QPushButton::clicked, this, &QDialog::close);
+    connect(m_findEdit, SIGNAL(textChanged(QString)), this, SLOT(updateButtons()));
+    connect(findBtn, SIGNAL(clicked()), this, SLOT(findNext()));
+    connect(m_replaceBtn, SIGNAL(clicked()), this, SLOT(replaceOne()));
+    connect(m_replaceAllBtn, SIGNAL(clicked()), this, SLOT(replaceAll()));
+    connect(closeBtn, SIGNAL(clicked()), this, SLOT(close()));
 
     updateButtons();
     m_findEdit->setFocus();
