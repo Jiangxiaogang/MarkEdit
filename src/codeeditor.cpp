@@ -69,7 +69,7 @@ void CodeEditor::setSyntaxHighlightingEnabled(bool enabled)
     if (enabled) {
         m_highlighter->setDocument(document());
     } else {
-        m_highlighter->setDocument(nullptr);
+        m_highlighter->setDocument(0);
         // Remove any colours already applied by the highlighter.
         QTextCursor cursor(document());
         cursor.select(QTextCursor::Document);

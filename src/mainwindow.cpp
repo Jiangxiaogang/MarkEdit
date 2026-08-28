@@ -43,9 +43,9 @@ static const char *APP_NAME = "MarkEdit";
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , m_editor(nullptr)
-    , m_preview(nullptr)
-    , m_splitter(nullptr)
+    , m_editor(0)
+    , m_preview(0)
+    , m_splitter(0)
     , m_config(ConfigManager::instance())
     , m_styleLoader(new StyleSheetLoader(this))
     , m_previewTimer(new QTimer(this))
@@ -62,7 +62,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_previewTimer->setInterval(300);
 
     // Initial content
-    m_editor->setPlainText(QStringLiteral(
+    m_editor->setPlainText(tr(
         "# 欢迎使用 MarkEdit\n\n"
         "一个基于 Qt 的跨平台 **Markdown** 编辑器。\n\n"
         "- 在左侧输入内容\n"
@@ -98,6 +98,7 @@ void MainWindow::initUI()
 
 void MainWindow::initConnections()
 {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     connect(m_editor, &CodeEditor::textChanged, this, &MainWindow::onTextChanged);
     connect(m_editor, &CodeEditor::cursorPositionChanged, this, &MainWindow::updateStatus);
     connect(m_editor->verticalScrollBar(), &QScrollBar::valueChanged,
@@ -118,6 +119,25 @@ void MainWindow::initConnections()
     m_preview->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(m_preview, &QWidget::customContextMenuRequested,
             this, &MainWindow::previewContextMenu);
+#else
+    connect(m_editor, SIGNAL(textChanged()), this, SLOT(onTextChanged()));
+    connect(m_editor, SIGNAL(cursorPositionChanged()), this, SLOT(updateStatus()));
+    connect(m_editor->verticalScrollBar(), SIGNAL(valueChanged(int)),
+            this, SLOT(syncScrollFromEditor(int)));
+    connect(m_preview, SIGNAL(scrolled(int)), this, SLOT(syncScrollFromPreview(int)));
+
+    // cssFailed signal not available in Qt4, skip it
+    // configurationChanged signal handled via macro connections
+
+    connect(m_previewTimer, SIGNAL(timeout()), this, SLOT(updatePreview()));
+
+    m_editor->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_editor, SIGNAL(customContextMenuRequested(const QPoint&)),
+            this, SLOT(editorContextMenu(const QPoint&)));
+    m_preview->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_preview, SIGNAL(customContextMenuRequested(const QPoint&)),
+            this, SLOT(previewContextMenu(const QPoint&)));
+#endif
 }
 
 // --------------------------------------------------------------------------
@@ -126,59 +146,59 @@ void MainWindow::initConnections()
 void MainWindow::initMenus()
 {
     // ---- File ----
-    QMenu *fileMenu = menuBar()->addMenu(QStringLiteral("文件 (&F)"));
+    QMenu *fileMenu = menuBar()->addMenu(tr("文件 (&F)"));
     QAction *newAct = new QAction(QIcon::fromTheme("document-new",
-        style()->standardIcon(QStyle::SP_FileIcon)), QStringLiteral("新建 (&N)"), this);
+        style()->standardIcon(QStyle::SP_FileIcon)), tr("新建 (&N)"), this);
     newAct->setShortcut(QKeySequence::New);
     connect(newAct, &QAction::triggered, this, &MainWindow::onNewFile);
     fileMenu->addAction(newAct);
 
     QAction *openAct = new QAction(QIcon::fromTheme("document-open",
-        style()->standardIcon(QStyle::SP_DirOpenIcon)), QStringLiteral("打开 (&O)..."), this);
+        style()->standardIcon(QStyle::SP_DirOpenIcon)), tr("打开 (&O)..."), this);
     openAct->setShortcut(QKeySequence::Open);
     connect(openAct, &QAction::triggered, this, &MainWindow::onOpenFile);
     fileMenu->addAction(openAct);
 
-    m_recentMenu = new QMenu(QStringLiteral("打开最近的文件"), this);
+    m_recentMenu = new QMenu(tr("打开最近的文件"), this);
     m_recentMenu->setIcon(style()->standardIcon(QStyle::SP_DirIcon));
     fileMenu->addMenu(m_recentMenu);
     updateRecentMenu();
 
     m_saveAction = new QAction(QIcon::fromTheme("document-save",
-        style()->standardIcon(QStyle::SP_DialogSaveButton)), QStringLiteral("保存 (&S)"), this);
+        style()->standardIcon(QStyle::SP_DialogSaveButton)), tr("保存 (&S)"), this);
     m_saveAction->setShortcut(QKeySequence::Save);
     m_saveAction->setEnabled(false);
     connect(m_saveAction, &QAction::triggered, this, &MainWindow::onSaveFile);
     fileMenu->addAction(m_saveAction);
 
-    QAction *saveAsAct = new QAction(QStringLiteral("另存为 (&A)..."), this);
-    saveAsAct->setShortcut(QKeySequence(QStringLiteral("Ctrl+Shift+S")));
+    QAction *saveAsAct = new QAction(tr("另存为 (&A)..."), this);
+    saveAsAct->setShortcut(QKeySequence(tr("Ctrl+Shift+S")));
     connect(saveAsAct, &QAction::triggered, this, &MainWindow::onSaveAs);
     fileMenu->addAction(saveAsAct);
 
     fileMenu->addSeparator();
 
-    QAction *exportHtmlAct = new QAction(QStringLiteral("导出为 HTML (&H)"), this);
-    exportHtmlAct->setShortcut(QKeySequence(QStringLiteral("Ctrl+E")));
+    QAction *exportHtmlAct = new QAction(tr("导出为 HTML (&H)"), this);
+    exportHtmlAct->setShortcut(QKeySequence(tr("Ctrl+E")));
     connect(exportHtmlAct, &QAction::triggered, this, &MainWindow::onExportHtml);
     fileMenu->addAction(exportHtmlAct);
 
-    QAction *exportPdfAct = new QAction(QStringLiteral("导出为 PDF (&P)"), this);
+    QAction *exportPdfAct = new QAction(tr("导出为 PDF (&P)"), this);
     exportPdfAct->setShortcut(QKeySequence::Print);
     connect(exportPdfAct, &QAction::triggered, this, &MainWindow::onExportPdf);
     fileMenu->addAction(exportPdfAct);
 
     fileMenu->addSeparator();
 
-    QAction *exitAct = new QAction(QStringLiteral("退出 (&X)"), this);
-    exitAct->setShortcut(QKeySequence(QStringLiteral("Alt+F4")));
+    QAction *exitAct = new QAction(tr("退出 (&X)"), this);
+    exitAct->setShortcut(QKeySequence(tr("Alt+F4")));
     connect(exitAct, &QAction::triggered, this, &MainWindow::onExit);
     fileMenu->addAction(exitAct);
 
     // ---- Edit ----
-    QMenu *editMenu = menuBar()->addMenu(QStringLiteral("编辑 (&E)"));
+    QMenu *editMenu = menuBar()->addMenu(tr("编辑 (&E)"));
     QAction *undoAct = new QAction(QIcon::fromTheme("edit-undo",
-        style()->standardIcon(QStyle::SP_ArrowLeft)), QStringLiteral("撤销 (&U)"), this);
+        style()->standardIcon(QStyle::SP_ArrowLeft)), tr("撤销 (&U)"), this);
     undoAct->setShortcut(QKeySequence::Undo);
     undoAct->setEnabled(false);
     connect(undoAct, &QAction::triggered, m_editor, &CodeEditor::undo);
@@ -186,7 +206,7 @@ void MainWindow::initMenus()
     editMenu->addAction(undoAct);
 
     QAction *redoAct = new QAction(QIcon::fromTheme("edit-redo",
-        style()->standardIcon(QStyle::SP_ArrowRight)), QStringLiteral("重做 (&R)"), this);
+        style()->standardIcon(QStyle::SP_ArrowRight)), tr("重做 (&R)"), this);
     redoAct->setShortcut(QKeySequence::Redo);
     redoAct->setEnabled(false);
     connect(redoAct, &QAction::triggered, m_editor, &CodeEditor::redo);
@@ -196,193 +216,193 @@ void MainWindow::initMenus()
     editMenu->addSeparator();
 
     QAction *cutAct = new QAction(QIcon::fromTheme("edit-cut",
-        style()->standardIcon(QStyle::SP_DialogCancelButton)), QStringLiteral("剪切 (&T)"), this);
+        style()->standardIcon(QStyle::SP_DialogCancelButton)), tr("剪切 (&T)"), this);
     cutAct->setShortcut(QKeySequence::Cut);
     connect(cutAct, &QAction::triggered, m_editor, &CodeEditor::cut);
     editMenu->addAction(cutAct);
 
-    QAction *copyAct = new QAction(QIcon::fromTheme("edit-copy"), QStringLiteral("复制 (&C)"), this);
+    QAction *copyAct = new QAction(QIcon::fromTheme("edit-copy"), tr("复制 (&C)"), this);
     copyAct->setShortcut(QKeySequence::Copy);
     connect(copyAct, &QAction::triggered, m_editor, &CodeEditor::copy);
     editMenu->addAction(copyAct);
 
     QAction *pasteAct = new QAction(QIcon::fromTheme("edit-paste",
-        style()->standardIcon(QStyle::SP_DialogOkButton)), QStringLiteral("粘贴 (&P)"), this);
+        style()->standardIcon(QStyle::SP_DialogOkButton)), tr("粘贴 (&P)"), this);
     pasteAct->setShortcut(QKeySequence::Paste);
     connect(pasteAct, &QAction::triggered, m_editor, &CodeEditor::paste);
     editMenu->addAction(pasteAct);
 
-    QAction *selAllAct = new QAction(QStringLiteral("全选 (&A)"), this);
+    QAction *selAllAct = new QAction(tr("全选 (&A)"), this);
     selAllAct->setShortcut(QKeySequence::SelectAll);
     connect(selAllAct, &QAction::triggered, this, &MainWindow::onSelectAll);
     editMenu->addAction(selAllAct);
 
     editMenu->addSeparator();
 
-    QAction *findAct = new QAction(QIcon::fromTheme("edit-find"), QStringLiteral("查找 (&F)..."), this);
+    QAction *findAct = new QAction(QIcon::fromTheme("edit-find"), tr("查找 (&F)..."), this);
     findAct->setShortcut(QKeySequence::Find);
     connect(findAct, &QAction::triggered, this, &MainWindow::onFind);
     editMenu->addAction(findAct);
 
-    QAction *replaceAct = new QAction(QStringLiteral("替换 (&R)..."), this);
+    QAction *replaceAct = new QAction(tr("替换 (&R)..."), this);
     replaceAct->setShortcut(QKeySequence::Replace);
     connect(replaceAct, &QAction::triggered, this, &MainWindow::onReplace);
     editMenu->addAction(replaceAct);
 
     // ---- View ----
-    QMenu *viewMenu = menuBar()->addMenu(QStringLiteral("视图 (&V)"));
-    m_fullScreenAction = new QAction(QStringLiteral("全屏 (&F)"), this);
-    m_fullScreenAction->setShortcut(QKeySequence(QStringLiteral("F11")));
+    QMenu *viewMenu = menuBar()->addMenu(tr("视图 (&V)"));
+    m_fullScreenAction = new QAction(tr("全屏 (&F)"), this);
+    m_fullScreenAction->setShortcut(QKeySequence(tr("F11")));
     m_fullScreenAction->setCheckable(true);
     connect(m_fullScreenAction, &QAction::triggered, this, &MainWindow::toggleFullScreen);
     viewMenu->addAction(m_fullScreenAction);
 
     viewMenu->addSeparator();
 
-    m_lineNumbersAction = new QAction(QStringLiteral("显示行号 (&L)"), this);
+    m_lineNumbersAction = new QAction(tr("显示行号 (&L)"), this);
     m_lineNumbersAction->setCheckable(true);
     connect(m_lineNumbersAction, &QAction::toggled, this, &MainWindow::toggleLineNumbers);
     viewMenu->addAction(m_lineNumbersAction);
 
-    m_whitespaceAction = new QAction(QStringLiteral("显示空白字符 (&W)"), this);
-    m_whitespaceAction->setShortcut(QKeySequence(QStringLiteral("Ctrl+Shift+B")));
+    m_whitespaceAction = new QAction(tr("显示空白字符 (&W)"), this);
+    m_whitespaceAction->setShortcut(QKeySequence(tr("Ctrl+Shift+B")));
     m_whitespaceAction->setCheckable(true);
     connect(m_whitespaceAction, &QAction::toggled, this, &MainWindow::toggleWhitespace);
     viewMenu->addAction(m_whitespaceAction);
 
     viewMenu->addSeparator();
 
-    m_verticalSplitAction = new QAction(QStringLiteral("垂直分割 (&V)"), this);
+    m_verticalSplitAction = new QAction(tr("垂直分割 (&V)"), this);
     m_verticalSplitAction->setCheckable(true);
     m_verticalSplitAction->setChecked(true);
     connect(m_verticalSplitAction, &QAction::triggered, this, &MainWindow::setVerticalSplit);
     viewMenu->addAction(m_verticalSplitAction);
 
-    m_editorOnlyAction = new QAction(QStringLiteral("仅编辑器 (&E)"), this);
+    m_editorOnlyAction = new QAction(tr("仅编辑器 (&E)"), this);
     m_editorOnlyAction->setCheckable(true);
     connect(m_editorOnlyAction, &QAction::triggered, this, &MainWindow::showEditorOnly);
     viewMenu->addAction(m_editorOnlyAction);
 
-    m_previewOnlyAction = new QAction(QStringLiteral("仅预览 (&P)"), this);
+    m_previewOnlyAction = new QAction(tr("仅预览 (&P)"), this);
     m_previewOnlyAction->setCheckable(true);
     connect(m_previewOnlyAction, &QAction::triggered, this, &MainWindow::showPreviewOnly);
     viewMenu->addAction(m_previewOnlyAction);
 
     viewMenu->addSeparator();
 
-    m_statusBarAction = new QAction(QStringLiteral("状态栏 (&S)"), this);
+    m_statusBarAction = new QAction(tr("状态栏 (&S)"), this);
     m_statusBarAction->setCheckable(true);
     m_statusBarAction->setChecked(true);
     connect(m_statusBarAction, &QAction::toggled, this, &MainWindow::toggleStatusBar);
     viewMenu->addAction(m_statusBarAction);
 
     // ---- Format ----
-    QMenu *formatMenu = menuBar()->addMenu(QStringLiteral("格式 (&O)"));
-    QAction *boldAct = new QAction(QStringLiteral("粗体 (&B)"), this);
+    QMenu *formatMenu = menuBar()->addMenu(tr("格式 (&O)"));
+    QAction *boldAct = new QAction(tr("粗体 (&B)"), this);
     boldAct->setShortcut(QKeySequence::Bold);
     connect(boldAct, &QAction::triggered, this, &MainWindow::formatBold);
     formatMenu->addAction(boldAct);
 
-    QAction *italicAct = new QAction(QStringLiteral("斜体 (&I)"), this);
+    QAction *italicAct = new QAction(tr("斜体 (&I)"), this);
     italicAct->setShortcut(QKeySequence::Italic);
     connect(italicAct, &QAction::triggered, this, &MainWindow::formatItalic);
     formatMenu->addAction(italicAct);
 
-    QAction *underlineAct = new QAction(QStringLiteral("下划线 (&U)"), this);
-    underlineAct->setShortcut(QKeySequence(QStringLiteral("Ctrl+U")));
+    QAction *underlineAct = new QAction(tr("下划线 (&U)"), this);
+    underlineAct->setShortcut(QKeySequence(tr("Ctrl+U")));
     connect(underlineAct, &QAction::triggered, this, &MainWindow::formatUnderline);
     formatMenu->addAction(underlineAct);
 
-    QAction *strikeAct = new QAction(QStringLiteral("删除线 (&S)"), this);
-    strikeAct->setShortcut(QKeySequence(QStringLiteral("Ctrl+T")));
+    QAction *strikeAct = new QAction(tr("删除线 (&S)"), this);
+    strikeAct->setShortcut(QKeySequence(tr("Ctrl+T")));
     connect(strikeAct, &QAction::triggered, this, &MainWindow::formatStrikethrough);
     formatMenu->addAction(strikeAct);
 
     formatMenu->addSeparator();
 
-    QAction *h1 = new QAction(QStringLiteral("标题 &1 (&1)"), this);
-    h1->setShortcut(QKeySequence(QStringLiteral("Ctrl+1")));
+    QAction *h1 = new QAction(tr("标题 &1 (&1)"), this);
+    h1->setShortcut(QKeySequence(tr("Ctrl+1")));
     connect(h1, &QAction::triggered, this, [this]() { heading(1); });
     formatMenu->addAction(h1);
 
-    QAction *h2 = new QAction(QStringLiteral("标题 &2 (&2)"), this);
-    h2->setShortcut(QKeySequence(QStringLiteral("Ctrl+2")));
+    QAction *h2 = new QAction(tr("标题 &2 (&2)"), this);
+    h2->setShortcut(QKeySequence(tr("Ctrl+2")));
     connect(h2, &QAction::triggered, this, [this]() { heading(2); });
     formatMenu->addAction(h2);
 
-    QAction *h3 = new QAction(QStringLiteral("标题 &3 (&3)"), this);
-    h3->setShortcut(QKeySequence(QStringLiteral("Ctrl+3")));
+    QAction *h3 = new QAction(tr("标题 &3 (&3)"), this);
+    h3->setShortcut(QKeySequence(tr("Ctrl+3")));
     connect(h3, &QAction::triggered, this, [this]() { heading(3); });
     formatMenu->addAction(h3);
 
     formatMenu->addSeparator();
 
-    QAction *ulAct = new QAction(QStringLiteral("无序列表 (&U)"), this);
-    ulAct->setShortcut(QKeySequence(QStringLiteral("Ctrl+L")));
+    QAction *ulAct = new QAction(tr("无序列表 (&U)"), this);
+    ulAct->setShortcut(QKeySequence(tr("Ctrl+L")));
     connect(ulAct, &QAction::triggered, this, &MainWindow::bulletList);
     formatMenu->addAction(ulAct);
 
-    QAction *olAct = new QAction(QStringLiteral("有序列表 (&O)"), this);
-    olAct->setShortcut(QKeySequence(QStringLiteral("Ctrl+Shift+L")));
+    QAction *olAct = new QAction(tr("有序列表 (&O)"), this);
+    olAct->setShortcut(QKeySequence(tr("Ctrl+Shift+L")));
     connect(olAct, &QAction::triggered, this, &MainWindow::orderedList);
     formatMenu->addAction(olAct);
 
-    QAction *quoteAct = new QAction(QStringLiteral("引用块 (&B)"), this);
-    quoteAct->setShortcut(QKeySequence(QStringLiteral("Ctrl+Q")));
+    QAction *quoteAct = new QAction(tr("引用块 (&B)"), this);
+    quoteAct->setShortcut(QKeySequence(tr("Ctrl+Q")));
     connect(quoteAct, &QAction::triggered, this, &MainWindow::blockQuote);
     formatMenu->addAction(quoteAct);
 
-    QAction *codeAct = new QAction(QStringLiteral("代码块 (&C)"), this);
-    codeAct->setShortcut(QKeySequence(QStringLiteral("Ctrl+K")));
+    QAction *codeAct = new QAction(tr("代码块 (&C)"), this);
+    codeAct->setShortcut(QKeySequence(tr("Ctrl+K")));
     connect(codeAct, &QAction::triggered, this, &MainWindow::codeBlock);
     formatMenu->addAction(codeAct);
 
-    QAction *inlineCodeAct = new QAction(QStringLiteral("行内代码 (&I)"), this);
-    inlineCodeAct->setShortcut(QKeySequence(QStringLiteral("Ctrl+'")));
+    QAction *inlineCodeAct = new QAction(tr("行内代码 (&I)"), this);
+    inlineCodeAct->setShortcut(QKeySequence(tr("Ctrl+'")));
     connect(inlineCodeAct, &QAction::triggered, this, &MainWindow::inlineCode);
     formatMenu->addAction(inlineCodeAct);
 
     formatMenu->addSeparator();
 
-    QAction *linkAction = new QAction(QStringLiteral("插入链接 (&L)..."), this);
+    QAction *linkAction = new QAction(tr("插入链接 (&L)..."), this);
     connect(linkAction, &QAction::triggered, this, &MainWindow::insertLink);
     formatMenu->addAction(linkAction);
 
-    QAction *imgAction = new QAction(QStringLiteral("插入图片 (&I)..."), this);
+    QAction *imgAction = new QAction(tr("插入图片 (&I)..."), this);
     connect(imgAction, &QAction::triggered, this, &MainWindow::insertImage);
     formatMenu->addAction(imgAction);
 
-    QAction *hrAction = new QAction(QStringLiteral("插入水平线 (&H)"), this);
+    QAction *hrAction = new QAction(tr("插入水平线 (&H)"), this);
     connect(hrAction, &QAction::triggered, this, &MainWindow::insertHorizontalRule);
     formatMenu->addAction(hrAction);
 
     // ---- Tools ----
-    QMenu *toolsMenu = menuBar()->addMenu(QStringLiteral("工具 (&T)"));
-    QAction *cssAct = new QAction(QStringLiteral("选择 CSS 样式 (&S)..."), this);
+    QMenu *toolsMenu = menuBar()->addMenu(tr("工具 (&T)"));
+    QAction *cssAct = new QAction(tr("选择 CSS 样式 (&S)..."), this);
     connect(cssAct, &QAction::triggered, this, &MainWindow::selectCss);
     toolsMenu->addAction(cssAct);
 
-    QAction *resetCssAct = new QAction(QStringLiteral("重置 CSS 样式 (&R)"), this);
+    QAction *resetCssAct = new QAction(tr("重置 CSS 样式 (&R)"), this);
     connect(resetCssAct, &QAction::triggered, this, &MainWindow::resetCss);
     toolsMenu->addAction(resetCssAct);
 
     toolsMenu->addSeparator();
 
     QAction *prefAct = new QAction(QIcon::fromTheme("preferences-system"),
-        QStringLiteral("首选项 (&P)..."), this);
-    prefAct->setShortcut(QKeySequence(QStringLiteral("Ctrl+,")));
+        tr("首选项 (&P)..."), this);
+    prefAct->setShortcut(QKeySequence(tr("Ctrl+,")));
     connect(prefAct, &QAction::triggered, this, &MainWindow::openPreferences);
     toolsMenu->addAction(prefAct);
 
     // ---- Help ----
-    QMenu *helpMenu = menuBar()->addMenu(QStringLiteral("帮助 (&H)"));
-    QAction *aboutAct = new QAction(QStringLiteral("关于 (&A)"), this);
+    QMenu *helpMenu = menuBar()->addMenu(tr("帮助 (&H)"));
+    QAction *aboutAct = new QAction(tr("关于 (&A)"), this);
     connect(aboutAct, &QAction::triggered, this, &MainWindow::about);
     helpMenu->addAction(aboutAct);
 
     helpMenu->addSeparator();
 
-    QAction *guideAct = new QAction(QStringLiteral("Markdown 语法指南 (&S)"), this);
+    QAction *guideAct = new QAction(tr("Markdown 语法指南 (&S)"), this);
     guideAct->setShortcut(QKeySequence::HelpContents);
     connect(guideAct, &QAction::triggered, this, &MainWindow::markdownGuide);
     helpMenu->addAction(guideAct);
@@ -390,15 +410,15 @@ void MainWindow::initMenus()
 
 void MainWindow::initStatusBar()
 {
-    m_statusCursor = new QLabel(QStringLiteral("行 1, 列 1"));
+    m_statusCursor = new QLabel(tr("行 1, 列 1"));
     m_statusCursor->setMinimumWidth(120);
     statusBar()->addPermanentWidget(m_statusCursor);
 
-    m_statusWords = new QLabel(QStringLiteral("字数：0"));
+    m_statusWords = new QLabel(tr("字数：0"));
     m_statusWords->setMinimumWidth(100);
     statusBar()->addPermanentWidget(m_statusWords);
 
-    statusBar()->showMessage(QStringLiteral("就绪"));
+    statusBar()->showMessage(tr("就绪"));
 }
 
 void MainWindow::loadSettings()
@@ -449,13 +469,13 @@ void MainWindow::onOpenFile()
 {
     if (!maybeSave())
         return;
-    QString path = QFileDialog::getOpenFileName(this, QStringLiteral("打开 Markdown 文件"),
-        QString(), QStringLiteral("Markdown 文件 (*.md *.markdown *.txt);;所有文件 (*)"));
+    QString path = QFileDialog::getOpenFileName(this, tr("打开 Markdown 文件"),
+        QString(), tr("Markdown 文件 (*.md *.markdown *.txt);;所有文件 (*)"));
     if (path.isEmpty())
         return;
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QMessageBox::warning(this, QStringLiteral("打开"), QStringLiteral("无法打开文件:\n%1").arg(path));
+        QMessageBox::warning(this, tr("打开"), tr("无法打开文件:\n%1").arg(path));
         return;
     }
     QTextStream in(&file);
@@ -474,7 +494,7 @@ void MainWindow::onOpenRecent()
         return;
     QString path = a->data().toString();
     if (!QFile::exists(path)) {
-        QMessageBox::warning(this, QStringLiteral("打开最近的文件"), QStringLiteral("文件已不存在:\n%1").arg(path));
+        QMessageBox::warning(this, tr("打开最近的文件"), tr("文件已不存在:\n%1").arg(path));
         m_config->addRecentFile(path); // re-sorts; will be refreshed on next add
         m_config->clearRecentFiles();
         // rebuild a clean list without the missing file
@@ -490,7 +510,7 @@ void MainWindow::onOpenRecent()
         return;
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QMessageBox::warning(this, QStringLiteral("打开最近的文件"), QStringLiteral("无法打开:\n%1").arg(path));
+        QMessageBox::warning(this, tr("打开最近的文件"), tr("无法打开:\n%1").arg(path));
         return;
     }
     QTextStream in(&file);
@@ -514,9 +534,9 @@ void MainWindow::onSaveFile()
 
 void MainWindow::onSaveAs()
 {
-    QString path = QFileDialog::getSaveFileName(this, QStringLiteral("保存 Markdown 文件"),
+    QString path = QFileDialog::getSaveFileName(this, tr("保存 Markdown 文件"),
         m_currentFile.isEmpty() ? "untitled.md" : m_currentFile,
-        QStringLiteral("Markdown 文件 (*.md);;所有文件 (*)"));
+        tr("Markdown 文件 (*.md);;所有文件 (*)"));
     if (path.isEmpty())
         return;
     if (saveFile(path)) {
@@ -529,22 +549,22 @@ bool MainWindow::saveFile(const QString &path)
 {
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QMessageBox::warning(this, QStringLiteral("保存"), QStringLiteral("无法保存文件:\n%1").arg(path));
+        QMessageBox::warning(this, tr("保存"), tr("无法保存文件:\n%1").arg(path));
         return false;
     }
     QTextStream out(&file);
     out.setCodec("UTF-8");
     out << m_editor->toPlainText();
     file.close();
-    statusBar()->showMessage(QStringLiteral("已保存 %1").arg(path), 3000);
+    statusBar()->showMessage(tr("已保存 %1").arg(path), 3000);
     return true;
 }
 
 void MainWindow::onExportHtml()
 {
-    QString path = QFileDialog::getSaveFileName(this, QStringLiteral("导出 HTML"),
+    QString path = QFileDialog::getSaveFileName(this, tr("导出 HTML"),
         m_currentFile.isEmpty() ? "output.html" : QFileInfo(m_currentFile).baseName() + ".html",
-        QStringLiteral("HTML 文件 (*.html *.htm);;所有文件 (*)"));
+        tr("HTML 文件 (*.html *.htm);;所有文件 (*)"));
     if (path.isEmpty())
         return;
     MarkdownParser parser;
@@ -557,28 +577,28 @@ void MainWindow::onExportHtml()
         .arg(css).arg(body);
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QMessageBox::warning(this, QStringLiteral("导出"), QStringLiteral("无法写入文件:\n%1").arg(path));
+        QMessageBox::warning(this, tr("导出"), tr("无法写入文件:\n%1").arg(path));
         return;
     }
     QTextStream out(&file);
     out.setCodec("UTF-8");
     out << html;
     file.close();
-    statusBar()->showMessage(QStringLiteral("已导出 HTML: %1").arg(path), 3000);
+    statusBar()->showMessage(tr("已导出 HTML: %1").arg(path), 3000);
 }
 
 void MainWindow::onExportPdf()
 {
-    QString path = QFileDialog::getSaveFileName(this, QStringLiteral("导出 PDF"),
+    QString path = QFileDialog::getSaveFileName(this, tr("导出 PDF"),
         m_currentFile.isEmpty() ? "output.pdf" : QFileInfo(m_currentFile).baseName() + ".pdf",
-        QStringLiteral("PDF 文件 (*.pdf);;所有文件 (*)"));
+        tr("PDF 文件 (*.pdf);;所有文件 (*)"));
     if (path.isEmpty())
         return;
     QPrinter printer(QPrinter::HighResolution);
     printer.setOutputFormat(QPrinter::PdfFormat);
     printer.setOutputFileName(path);
     m_preview->print(&printer);
-    statusBar()->showMessage(QStringLiteral("已导出 PDF: %1").arg(path), 3000);
+    statusBar()->showMessage(tr("已导出 PDF: %1").arg(path), 3000);
 }
 
 // --------------------------------------------------------------------------
@@ -591,7 +611,7 @@ void MainWindow::onSelectAll()
 
 void MainWindow::onFind()
 {
-    static FindReplaceDialog *dlg = nullptr;
+    static FindReplaceDialog *dlg = 0;
     if (!dlg)
         dlg = new FindReplaceDialog(m_editor, this);
     if (!dlg->isVisible()) {
@@ -606,7 +626,7 @@ void MainWindow::onFind()
 
 void MainWindow::onReplace()
 {
-    static FindReplaceDialog *dlg = nullptr;
+    static FindReplaceDialog *dlg = 0;
     if (!dlg)
         dlg = new FindReplaceDialog(m_editor, this);
     dlg->show();
@@ -810,8 +830,8 @@ void MainWindow::insertHorizontalRule()
 // --------------------------------------------------------------------------
 void MainWindow::selectCss()
 {
-    QString path = QFileDialog::getOpenFileName(this, QStringLiteral("选择 CSS 样式文件"),
-        m_config->cssFilePath(), QStringLiteral("CSS 文件 (*.css);;所有文件 (*)"));
+    QString path = QFileDialog::getOpenFileName(this, tr("选择 CSS 样式文件"),
+        m_config->cssFilePath(), tr("CSS 文件 (*.css);;所有文件 (*)"));
     if (path.isEmpty())
         return;
     m_config->setCssFilePath(path);
@@ -825,7 +845,7 @@ void MainWindow::resetCss()
     m_config->setCssFilePath(":/styles/default.css");
     m_config->saveConfig();
     m_preview->setCSS(StyleSheetLoader::getDefaultCSS());
-    statusBar()->showMessage(QStringLiteral("CSS 样式已重置为默认值"), 3000);
+    statusBar()->showMessage(tr("CSS 样式已重置为默认值"), 3000);
 }
 
 void MainWindow::openPreferences()
@@ -859,7 +879,7 @@ void MainWindow::markdownGuide()
     w->setCSS(StyleSheetLoader::getDefaultCSS());
     w->setMarkdown(guide);
     QDialog dlg(this);
-    dlg.setWindowTitle(QStringLiteral("Markdown 语法指南"));
+    dlg.setWindowTitle(tr("Markdown 语法指南"));
     dlg.resize(640, 520);
     QVBoxLayout *lay = new QVBoxLayout(&dlg);
     lay->addWidget(w);
@@ -886,11 +906,11 @@ void MainWindow::updateStatus()
     QTextCursor cur = m_editor->textCursor();
     int line = cur.blockNumber() + 1;
     int col = cur.positionInBlock() + 1;
-    m_statusCursor->setText(QStringLiteral("行 %1, 列 %2").arg(line).arg(col));
+    m_statusCursor->setText(tr("行 %1, 列 %2").arg(line).arg(col));
 
     QString text = m_editor->toPlainText();
     int words = text.split(QRegExp("\\s+"), QString::SkipEmptyParts).count();
-    m_statusWords->setText(QStringLiteral("字数：%1").arg(words));
+    m_statusWords->setText(tr("字数：%1").arg(words));
 }
 
 void MainWindow::syncScrollFromEditor(int value)
@@ -922,22 +942,22 @@ void MainWindow::syncScrollFromPreview(int value)
 void MainWindow::editorContextMenu(const QPoint &pos)
 {
     QMenu menu(this);
-    QAction *undo = menu.addAction(QStringLiteral("撤销"));
+    QAction *undo = menu.addAction(tr("撤销"));
     connect(undo, &QAction::triggered, m_editor, &CodeEditor::undo);
-    QAction *redo = menu.addAction(QStringLiteral("重做"));
+    QAction *redo = menu.addAction(tr("重做"));
     connect(redo, &QAction::triggered, m_editor, &CodeEditor::redo);
     menu.addSeparator();
-    QAction *cut = menu.addAction(QStringLiteral("剪切"));
+    QAction *cut = menu.addAction(tr("剪切"));
     connect(cut, &QAction::triggered, m_editor, &CodeEditor::cut);
-    QAction *copy = menu.addAction(QStringLiteral("复制"));
+    QAction *copy = menu.addAction(tr("复制"));
     connect(copy, &QAction::triggered, m_editor, &CodeEditor::copy);
-    QAction *paste = menu.addAction(QStringLiteral("粘贴"));
+    QAction *paste = menu.addAction(tr("粘贴"));
     connect(paste, &QAction::triggered, m_editor, &CodeEditor::paste);
     menu.addSeparator();
-    QAction *selAll = menu.addAction(QStringLiteral("全选"));
+    QAction *selAll = menu.addAction(tr("全选"));
     connect(selAll, &QAction::triggered, this, &MainWindow::onSelectAll);
     menu.addSeparator();
-    QAction *find = menu.addAction(QStringLiteral("查找..."));
+    QAction *find = menu.addAction(tr("查找..."));
     connect(find, &QAction::triggered, this, &MainWindow::onFind);
 
     Q_UNUSED(pos);
@@ -947,11 +967,11 @@ void MainWindow::editorContextMenu(const QPoint &pos)
 void MainWindow::previewContextMenu(const QPoint &pos)
 {
     QMenu menu(this);
-    QAction *copy = menu.addAction(QStringLiteral("复制"));
+    QAction *copy = menu.addAction(tr("复制"));
     connect(copy, &QAction::triggered, this, [this]() {
         m_preview->triggerPageAction(QWebPage::Copy);
     });
-    QAction *selAll = menu.addAction(QStringLiteral("全选"));
+    QAction *selAll = menu.addAction(tr("全选"));
     connect(selAll, &QAction::triggered, this, [this]() {
         m_preview->triggerPageAction(QWebPage::SelectAll);
     });
@@ -1028,8 +1048,8 @@ bool MainWindow::maybeSave()
 {
     if (!m_editor->document()->isModified())
         return true;
-    QMessageBox::StandardButton ret = QMessageBox::warning(this, QStringLiteral("MarkEdit"),
-        QStringLiteral("文档已被修改。\n是否保存更改？"),
+    QMessageBox::StandardButton ret = QMessageBox::warning(this, tr("MarkEdit"),
+        tr("文档已被修改。\n是否保存更改？"),
         QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
     if (ret == QMessageBox::Save) {
         onSaveFile();
@@ -1047,7 +1067,7 @@ void MainWindow::setCurrentFile(const QString &path)
     m_currentFile = path;
     QString title = APP_NAME;
     if (path.isEmpty())
-        title = QStringLiteral("未命名") + " - " + title;
+        title = tr("未命名") + " - " + title;
     else {
         title = QFileInfo(path).fileName() + " - " + title;
         m_config->addRecentFile(path);
@@ -1064,7 +1084,7 @@ void MainWindow::updateRecentMenu()
     m_recentMenu->clear();
     QStringList recent = m_config->recentFiles(10);
     if (recent.isEmpty()) {
-        QAction *none = new QAction(QStringLiteral("(无最近文件)"), this);
+        QAction *none = new QAction(tr("(无最近文件)"), this);
         none->setEnabled(false);
         m_recentMenu->addAction(none);
         return;
@@ -1077,7 +1097,7 @@ void MainWindow::updateRecentMenu()
         m_recentMenu->addAction(a);
     }
     m_recentMenu->addSeparator();
-    QAction *clear = new QAction(QStringLiteral("清空列表"), this);
+    QAction *clear = new QAction(tr("清空列表"), this);
     connect(clear, &QAction::triggered, this, [this]() {
         m_config->clearRecentFiles();
         m_config->saveConfig();

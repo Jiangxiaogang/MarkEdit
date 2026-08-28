@@ -25,11 +25,19 @@ PreviewWidget::PreviewWidget(QWidget *parent)
 
     m_scrollTimer = new QTimer(this);
     m_scrollTimer->setInterval(100);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     connect(m_scrollTimer, &QTimer::timeout, this, &PreviewWidget::onScrollTimeout);
-    m_scrollTimer->start();
+#else
+    connect(m_scrollTimer, SIGNAL(timeout()), this, SLOT(onScrollTimeout()));
+#endif
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     connect(this, &QWebView::linkClicked, this, &PreviewWidget::onLinkClicked);
     connect(this, &QWebView::loadFinished, this, &PreviewWidget::onLoadFinished);
+#else
+    connect(this, SIGNAL(linkClicked(const QUrl&)), this, SLOT(onLinkClicked(const QUrl&)));
+    connect(this, SIGNAL(loadFinished(bool)), this, SLOT(onLoadFinished(bool)));
+#endif
 }
 
 PreviewWidget::~PreviewWidget()
@@ -69,13 +77,13 @@ QString PreviewWidget::generateHtml(const QString &body) const
 
 int PreviewWidget::scrollMaximum() const
 {
-    QWebFrame *frame = page() ? page()->mainFrame() : nullptr;
+    QWebFrame *frame = page() ? page()->mainFrame() : 0;
     return frame ? frame->scrollBarMaximum(Qt::Vertical) : 0;
 }
 
 int PreviewWidget::scrollValue() const
 {
-    QWebFrame *frame = page() ? page()->mainFrame() : nullptr;
+    QWebFrame *frame = page() ? page()->mainFrame() : 0;
     return frame ? frame->scrollBarValue(Qt::Vertical) : 0;
 }
 
@@ -89,7 +97,7 @@ void PreviewWidget::setScrollRatio(float ratio)
 
 void PreviewWidget::applyRatio(float ratio)
 {
-    QWebFrame *frame = page() ? page()->mainFrame() : nullptr;
+    QWebFrame *frame = page() ? page()->mainFrame() : 0;
     if (!frame)
         return;
     int max = frame->scrollBarMaximum(Qt::Vertical);

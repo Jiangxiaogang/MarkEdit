@@ -9,7 +9,7 @@
 AboutDialog::AboutDialog(QWidget *parent)
     : QDialog(parent)
 {
-    setWindowTitle(QStringLiteral("关于 MarkEdit"));
+    setWindowTitle(tr("关于 MarkEdit"));
     setModal(true);
 
     QLabel *title = new QLabel(QString("<h2>MarkEdit</h2>"));
