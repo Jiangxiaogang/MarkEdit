@@ -80,9 +80,9 @@ SettingsDialog::SettingsDialog(ConfigManager *config, QWidget *parent)
     main->addWidget(tabs);
     main->addLayout(btnRow);
 
-    connect(browseBtn, &QPushButton::clicked, this, &SettingsDialog::chooseCssFile);
-    connect(okBtn, &QPushButton::clicked, this, &SettingsDialog::accept);
-    connect(cancelBtn, &QPushButton::clicked, this, &QDialog::reject);
+    connect(browseBtn, SIGNAL(clicked()), this, SLOT(chooseCssFile()));
+    connect(okBtn, SIGNAL(clicked()), this, SLOT(accept()));
+    connect(cancelBtn, SIGNAL(clicked()), this, SLOT(reject()));
 }
 
 void SettingsDialog::chooseCssFile()

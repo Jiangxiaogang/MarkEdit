@@ -28,7 +28,7 @@ AboutDialog::AboutDialog(QWidget *parent)
     details->setWordWrap(true);
 
     QDialogButtonBox *box = new QDialogButtonBox(QDialogButtonBox::Ok);
-    connect(box, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(box, SIGNAL(accepted()), this, SLOT(accept()));
 
     QVBoxLayout *main = new QVBoxLayout(this);
     main->addWidget(title);

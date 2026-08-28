@@ -34,8 +34,8 @@ InsertDialog::InsertDialog(const QString &kind, QWidget *parent)
     main->addLayout(form);
     main->addLayout(btnRow);
 
-    connect(okBtn, &QPushButton::clicked, this, &QDialog::accept);
-    connect(cancelBtn, &QPushButton::clicked, this, &QDialog::reject);
+    connect(okBtn, SIGNAL(clicked()), this, SLOT(accept()));
+    connect(cancelBtn, SIGNAL(clicked()), this, SLOT(reject()));
 
     m_textEdit->setFocus();
 }
