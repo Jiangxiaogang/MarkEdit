@@ -1,6 +1,6 @@
 #include "markdownhighlighter.h"
 
-#include <QRegularExpression>
+#include <QRegExp>
 #include <QTextCharFormat>
 
 namespace {
@@ -34,13 +34,15 @@ MarkdownHighlighter::MarkdownHighlighter(QTextDocument *document)
 }
 
 void MarkdownHighlighter::applyRegex(const QString &text,
-                                     const QRegularExpression &re,
+                                     const QRegExp &re,
                                      const QTextCharFormat &format)
 {
-    QRegularExpressionMatchIterator it = re.globalMatch(text);
-    while (it.hasNext()) {
-        QRegularExpressionMatch m = it.next();
-        setFormat(m.capturedStart(), m.capturedLength(), format);
+    int pos = 0;
+    while ((pos = re.indexIn(text, pos)) != -1) {
+        int len = re.matchedLength();
+        setFormat(pos, len, format);
+        pos += len;
+        if (len == 0) ++pos; // prevent infinite loop on zero-length match
     }
 }
 
@@ -50,61 +52,61 @@ void MarkdownHighlighter::highlightBlock(const QString &text)
     if (state < 0)
         state = Normal;
 
-    QRegularExpression fenceRe("^\\s*(`{3,}|~{3,})(.*)$");
-    QRegularExpression closeRe("^\\s*(`{3,}|~{3,})\\s*$");
+    QRegExp fenceRe("^\\s*(`{3,}|~{3,})(.*)$");
+    QRegExp closeRe("^\\s*(`{3,}|~{3,})\\s*$");
 
     // ---- Inside a fenced code block: colour the entire line as code ----
     if (state == InCodeBlock) {
         setFormat(0, text.length(), m_codeFmt);
-        setCurrentBlockState(closeRe.match(text).hasMatch() ? Normal : InCodeBlock);
+        setCurrentBlockState(closeRe.exactMatch(text) ? Normal : InCodeBlock);
         return;
     }
 
     // ---- Opening fence line ----
-    if (fenceRe.match(text).hasMatch()) {
+    if (fenceRe.exactMatch(text)) {
         setFormat(0, text.length(), m_codeFmt);
         setCurrentBlockState(InCodeBlock);
         return;
     }
 
     // ---- Heading (whole line) ----
-    if (QRegularExpression("^(#{1,6})\\s+").match(text).hasMatch()) {
+    if (QRegExp("^(#{1,6})\\s+").exactMatch(text)) {
         setFormat(0, text.length(), m_headingFmt);
         setCurrentBlockState(Normal);
         return;
     }
 
     // ---- Horizontal rule (whole line) ----
-    if (QRegularExpression("^(\\s*([-*_])\\s*){3,}$").match(text).hasMatch()) {
+    if (QRegExp("^(\\s*([-*_])\\s*){3,}$").exactMatch(text)) {
         setFormat(0, text.length(), m_hrFmt);
         setCurrentBlockState(Normal);
         return;
     }
 
     // ---- Block quote marker (just the leading '>') ----
-    QRegularExpressionMatch bq = QRegularExpression("^(\\s*>)").match(text);
-    if (bq.hasMatch())
-        setFormat(bq.capturedStart(1), bq.capturedLength(1), m_quoteFmt);
+    QRegExp bqRe("^(\\s*>)");
+    if (bqRe.indexIn(text) != -1)
+        setFormat(bqRe.pos(1), bqRe.cap(1).length(), m_quoteFmt);
 
     // ---- List marker (just the bullet / number) ----
-    QRegularExpressionMatch lm = QRegularExpression("^(\\s*)([-*+]|\\d+\\.)(\\s+)").match(text);
-    if (lm.hasMatch())
-        setFormat(lm.capturedStart(2), lm.capturedLength(2), m_listFmt);
+    QRegExp lmRe("^(\\s*)([-*+]|\\d+\\.)(\\s+)");
+    if (lmRe.indexIn(text) != -1)
+        setFormat(lmRe.pos(2), lmRe.cap(2).length(), m_listFmt);
 
     // ---- Inline emphasis / structure ----
     // Bold first so ** and __ are consumed before single * and _.
-    applyRegex(text, QRegularExpression("\\*\\*(.+?)\\*\\*"), m_boldFmt);
-    applyRegex(text, QRegularExpression("(?<!\\w)__(?!\\s)(.+?)(?<!\\s)__(?!\\w)"), m_boldFmt);
+    applyRegex(text, QRegExp("\\*\\*(.+?)\\*\\*"), m_boldFmt);
+    applyRegex(text, QRegExp("(?<!\\w)__(?!\\s)(.+?)(?<!\\s)__(?!\\w)"), m_boldFmt);
     // Italic: prevent matching the '*' that belongs to a '**' pair.
-    applyRegex(text, QRegularExpression("(?<!\\*)\\*(?!\\*)(.+?)(?<!\\*)\\*(?!\\*)"), m_italicFmt);
-    applyRegex(text, QRegularExpression("(?<!\\w)_(?!\\s)(.+?)(?<!\\s)_(?!\\w)"), m_italicFmt);
-    applyRegex(text, QRegularExpression("~~(.+?)~~"), m_strikeFmt);
-    applyRegex(text, QRegularExpression("!\\[([^\\]]*)\\]\\(([^\\)]+)\\)"), m_linkFmt);
-    applyRegex(text, QRegularExpression("\\[([^\\]]*)\\]\\(([^\\)]+)\\)"), m_linkFmt);
-    applyRegex(text, QRegularExpression("\\|"), m_tableFmt);
+    applyRegex(text, QRegExp("(?<!\\*)\\*(?!\\*)(.+?)(?<!\\*)\\*(?!\\*)"), m_italicFmt);
+    applyRegex(text, QRegExp("(?<!\\w)_(?!\\s)(.+?)(?<!\\s)_(?!\\w)"), m_italicFmt);
+    applyRegex(text, QRegExp("~~(.+?)~~"), m_strikeFmt);
+    applyRegex(text, QRegExp("!\\[([^\\]]*)\\]\\(([^\\)]+)\\)"), m_linkFmt);
+    applyRegex(text, QRegExp("\\[([^\\]]*)\\]\\(([^\\)]+)\\)"), m_linkFmt);
+    applyRegex(text, QRegExp("\\|"), m_tableFmt);
     // Inline code is applied last so it overrides any emphasis markers that
     // happen to appear inside backticks.
-    applyRegex(text, QRegularExpression("`[^`\\n]+`"), m_codeFmt);
+    applyRegex(text, QRegExp("`[^`\\n]+`"), m_codeFmt);
 
     setCurrentBlockState(Normal);
 }

@@ -2,6 +2,7 @@
 #define MARKDOWNHIGHLIGHTER_H
 
 #include <QSyntaxHighlighter>
+#include <QRegExp>
 
 /**
  * @brief Lightweight Markdown syntax highlighter for the source editor.
@@ -21,7 +22,7 @@ protected:
     void highlightBlock(const QString &text) override;
 
 private:
-    void applyRegex(const QString &text, const QRegularExpression &re,
+    void applyRegex(const QString &text, const QRegExp &re,
                     const QTextCharFormat &format);
 
     enum BlockState { Normal = 0, InCodeBlock = 1 };

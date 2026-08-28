@@ -9,7 +9,7 @@
 #include <QFormLayout>
 #include <QLabel>
 #include <QTextCursor>
-#include <QRegularExpression>
+#include <QRegExp>
 
 FindReplaceDialog::FindReplaceDialog(QPlainTextEdit *editor, QWidget *parent)
     : QDialog(parent)
