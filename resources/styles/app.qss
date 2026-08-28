@@ -1,0 +1,66 @@
+/* MarkEdit 应用程序样式表 - 修复菜单栏文字居中问题 */
+
+/* 确保菜单栏文字左对齐 */
+QMenuBar {
+    background-color: #f8f9fa;
+    padding: 2px;
+}
+
+QMenuBar::item {
+    padding: 4px 8px;
+    background-color: transparent;
+    text-align: left;
+}
+
+QMenuBar::item:selected {
+    background-color: #e9ecef;
+    border-radius: 3px;
+}
+
+QMenuBar::item:pressed {
+    background-color: #dee2e6;
+    border-radius: 3px;
+}
+
+/* 菜单样式 */
+QMenu {
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 4px 0;
+}
+
+QMenu::item {
+    padding: 4px 24px 4px 8px;
+    text-align: left;
+}
+
+QMenu::item:selected {
+    background-color: #0078d4;
+    color: white;
+}
+
+QMenu::separator {
+    height: 1px;
+    background-color: #e0e0e0;
+    margin: 4px 0;
+}
+
+/* 状态栏样式 */
+QStatusBar {
+    background-color: #f8f9fa;
+    border-top: 1px solid #e0e0e0;
+}
+
+QStatusBar::item {
+    border: none;
+}
+
+/* 工具提示样式 */
+QToolTip {
+    background-color: #333;
+    color: white;
+    border: 1px solid #555;
+    border-radius: 3px;
+    padding: 4px 8px;
+}

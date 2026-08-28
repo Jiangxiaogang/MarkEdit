@@ -3,6 +3,7 @@
     <qresource prefix="/">
         <file>styles/default.css</file>
         <file>styles/dark.css</file>
+        <file>styles/app.qss</file>
     </qresource>
     <qresource prefix="/translations">
         <file>../translations/markedit_zh_CN.qm</file>
