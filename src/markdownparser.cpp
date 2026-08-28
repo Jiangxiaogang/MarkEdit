@@ -165,14 +165,9 @@ QString MarkdownParser::parseList(const QStringList &lines, int &i) const
         QString cur = lines[i];
         if (cur.trimmed().isEmpty())
             break;
-        QRegExpMatch m;
-        if (ordered)
-            m = orderedRe.exactMatch(cur);
-        else
-            m = unorderedRe.exactMatch(cur);
-        if (!m)
-            break;
         QRegExp &re = ordered ? orderedRe : unorderedRe;
+        if (!re.exactMatch(cur))
+            break;
         html += QString("  <li>%1</li>\n").arg(parseInline(re.cap(ordered ? 1 : 2).trimmed()));
         ++i;
     }

@@ -1,17 +1,10 @@
-#-------------------------------------------------
-# MarkEdit - A cross-platform Markdown editor
-# Qt 5.4 / qmake project file
-#-------------------------------------------------
-
-QT       += core gui widgets printsupport webkitwidgets
-
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
-
-TARGET = MarkEdit
-TEMPLATE = app
-
-# C++11 (Qt 5.4 compatible)
-CONFIG += c++11
+#
+QT       += core gui widgets printsupport webkit
+TARGET    = MarkEdit
+TEMPLATE  = app
+CONFIG   += c++11
+QMAKE_CFLAGS += -std=c11        # C 语言标准
+QMAKE_CXXFLAGS += -std=c++11    # C++ 语言标准
 
 # Source files
 SOURCES += \
@@ -49,14 +42,6 @@ RESOURCES += resources/resources.qrc
 
 # Translations
 TRANSLATIONS += translations/markedit_zh_CN.ts
-
-# Default CSS style shipped with the application
-# (copied into the binary resources so it is always available)
-# -> see resources/resources.qrc
-
-# Install layout (optional)
-# target.path = /usr/local/bin
-# INSTALLS += target
 
 # Enable warning-friendly build
 QMAKE_CXXFLAGS_WARN_ON = -Wall

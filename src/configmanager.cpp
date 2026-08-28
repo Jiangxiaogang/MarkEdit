@@ -12,7 +12,7 @@ namespace {
 // 替代 Windows 默认的注册表存储。
 const QString &configFilePath()
 {
-    static const QString path = tr("config.ini");
+    static const QString path = "config.ini";
     return path;
 }
 

@@ -25,19 +25,10 @@ PreviewWidget::PreviewWidget(QWidget *parent)
 
     m_scrollTimer = new QTimer(this);
     m_scrollTimer->setInterval(100);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-    connect(m_scrollTimer, &QTimer::timeout, this, &PreviewWidget::onScrollTimeout);
-#else
     connect(m_scrollTimer, SIGNAL(timeout()), this, SLOT(onScrollTimeout()));
-#endif
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-    connect(this, &QWebView::linkClicked, this, &PreviewWidget::onLinkClicked);
-    connect(this, &QWebView::loadFinished, this, &PreviewWidget::onLoadFinished);
-#else
     connect(this, SIGNAL(linkClicked(const QUrl&)), this, SLOT(onLinkClicked(const QUrl&)));
     connect(this, SIGNAL(loadFinished(bool)), this, SLOT(onLoadFinished(bool)));
-#endif
 }
 
 PreviewWidget::~PreviewWidget()

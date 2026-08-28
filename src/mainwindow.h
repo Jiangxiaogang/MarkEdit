@@ -99,9 +99,12 @@ private:
     // Context menus
     void editorContextMenu(const QPoint &pos);
     void previewContextMenu(const QPoint &pos);
+    void previewCopy();
+    void previewSelectAll();
 
     // Helpers
     void updateRecentMenu();
+    void clearRecentFilesAction();
     void wrapSelection(const QString &before, const QString &after);
     void applyLinePrefix(const QString &prefix, bool toggle = true);
     void insertAtCursor(const QString &text);
