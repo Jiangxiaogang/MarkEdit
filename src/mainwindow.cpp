@@ -29,7 +29,7 @@
 #include <QTextCursor>
 #include <QTextBlock>
 #include <QTextDocument>
-#include <QRegularExpression>
+#include <QRegExp>
 #include <QDesktopServices>
 #include <QClipboard>
 #include <QApplication>
@@ -696,7 +696,9 @@ void MainWindow::heading(int level)
     for (; block.isValid() && block.position() <= endBlock.position(); block = block.next()) {
         QString line = block.text();
         QString stripped = line;
-        stripped.remove(QRegularExpression("^#{1,6}\\s+"));
+        QRegExp headerRe("^#{1,6}\\s+");
+        if (headerRe.indexIn(stripped) == 0)
+            stripped.remove(0, headerRe.matchedLength());
         if (line.startsWith(prefix))
             newText += stripped + "\n";
         else
@@ -731,7 +733,9 @@ void MainWindow::orderedList()
     for (; block.isValid() && block.position() <= endBlock.position(); block = block.next()) {
         QString line = block.text();
         QString stripped = line;
-        stripped.remove(QRegularExpression("^\\s*\\d+\\.\\s+"));
+        QRegExp listRe("^\\s*\\d+\\.\\s+");
+        if (listRe.indexIn(stripped) == 0)
+            stripped.remove(0, listRe.matchedLength());
         newText += QString("%1. %2\n").arg(n++).arg(stripped);
     }
     if (newText.endsWith("\n"))
@@ -885,7 +889,7 @@ void MainWindow::updateStatus()
     m_statusCursor->setText(QStringLiteral("行 %1, 列 %2").arg(line).arg(col));
 
     QString text = m_editor->toPlainText();
-    int words = text.split(QRegularExpression("\\s+"), QString::SkipEmptyParts).count();
+    int words = text.split(QRegExp("\\s+"), QString::SkipEmptyParts).count();
     m_statusWords->setText(QStringLiteral("字数：%1").arg(words));
 }
 

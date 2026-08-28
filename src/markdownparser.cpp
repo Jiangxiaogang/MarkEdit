@@ -1,6 +1,6 @@
 #include "markdownparser.h"
 
-#include <QRegularExpression>
+#include <QRegExp>
 #include <QStringList>
 
 MarkdownParser::MarkdownParser(QObject *parent)
@@ -39,32 +39,69 @@ QString MarkdownParser::parseInline(const QString &text) const
     }
 
     // Images: ![alt](url)  (must be processed before links)
-    QRegularExpression imgRe("!\\[([^\\]]*)\\]\\(([^\\)]+)\\)");
-    out.replace(imgRe, "<img src=\"\\2\" alt=\"\\1\">");
+    QRegExp imgRe("!\\[([^\\]]*)\\]\\(([^\\)]+)\\)");
+    pos = 0;
+    while ((pos = imgRe.indexIn(out, pos)) != -1) {
+        QString replacement = QString("<img src=\"%2\" alt=\"%1\">")
+            .arg(imgRe.cap(1)).arg(imgRe.cap(2));
+        out.replace(pos, imgRe.matchedLength(), replacement);
+        pos += replacement.length();
+    }
 
     // Links: [text](url)
-    QRegularExpression linkRe("\\[([^\\]]*)\\]\\(([^\\)]+)\\)");
-    out.replace(linkRe, "<a href=\"\\2\">\\1</a>");
+    QRegExp linkRe("\\[([^\\]]*)\\]\\(([^\\)]+)\\)");
+    pos = 0;
+    while ((pos = linkRe.indexIn(out, pos)) != -1) {
+        QString replacement = QString("<a href=\"%2\">%1</a>")
+            .arg(linkRe.cap(1)).arg(linkRe.cap(2));
+        out.replace(pos, linkRe.matchedLength(), replacement);
+        pos += replacement.length();
+    }
 
     // Bold: **text**
-    QRegularExpression boldStarRe("\\*\\*(.+?)\\*\\*");
-    out.replace(boldStarRe, "<strong>\\1</strong>");
+    QRegExp boldStarRe("\\*\\*(.+?)\\*\\*");
+    pos = 0;
+    while ((pos = boldStarRe.indexIn(out, pos)) != -1) {
+        QString replacement = QString("<strong>%1</strong>").arg(boldStarRe.cap(1));
+        out.replace(pos, boldStarRe.matchedLength(), replacement);
+        pos += replacement.length();
+    }
 
     // Bold: __text__  (word-boundary aware so intra-word underscores stay literal)
-    QRegularExpression boldUnderscoreRe("(?<!\\w)__(?!\\s)(.*?)(?<!\\s)__(?!\\w)");
-    out.replace(boldUnderscoreRe, "<strong>\\1</strong>");
+    QRegExp boldUnderscoreRe("(?<!\\w)__(?!\\s)(.*?)(?<!\\s)__(?!\\w)");
+    pos = 0;
+    while ((pos = boldUnderscoreRe.indexIn(out, pos)) != -1) {
+        QString replacement = QString("<strong>%1</strong>").arg(boldUnderscoreRe.cap(1));
+        out.replace(pos, boldUnderscoreRe.matchedLength(), replacement);
+        pos += replacement.length();
+    }
 
     // Italic: *text*
-    QRegularExpression italicStarRe("\\*(.+?)\\*");
-    out.replace(italicStarRe, "<em>\\1</em>");
+    QRegExp italicStarRe("\\*(.+?)\\*");
+    pos = 0;
+    while ((pos = italicStarRe.indexIn(out, pos)) != -1) {
+        QString replacement = QString("<em>%1</em>").arg(italicStarRe.cap(1));
+        out.replace(pos, italicStarRe.matchedLength(), replacement);
+        pos += replacement.length();
+    }
 
     // Italic: _text_  (word-boundary aware so intra-word underscores stay literal)
-    QRegularExpression italicUnderscoreRe("(?<!\\w)_(?!\\s)(.+?)(?<!\\s)_(?!\\w)");
-    out.replace(italicUnderscoreRe, "<em>\\1</em>");
+    QRegExp italicUnderscoreRe("(?<!\\w)_(?!\\s)(.+?)(?<!\\s)_(?!\\w)");
+    pos = 0;
+    while ((pos = italicUnderscoreRe.indexIn(out, pos)) != -1) {
+        QString replacement = QString("<em>%1</em>").arg(italicUnderscoreRe.cap(1));
+        out.replace(pos, italicUnderscoreRe.matchedLength(), replacement);
+        pos += replacement.length();
+    }
 
     // Strikethrough: ~~text~~
-    QRegularExpression strikeRe("~~(.+?)~~");
-    out.replace(strikeRe, "<del>\\1</del>");
+    QRegExp strikeRe("~~(.+?)~~");
+    pos = 0;
+    while ((pos = strikeRe.indexIn(out, pos)) != -1) {
+        QString replacement = QString("<del>%1</del>").arg(strikeRe.cap(1));
+        out.replace(pos, strikeRe.matchedLength(), replacement);
+        pos += replacement.length();
+    }
 
     // Restore inline code spans.
     for (int i = 0; i < codes.size(); ++i)
@@ -75,18 +112,17 @@ QString MarkdownParser::parseInline(const QString &text) const
 
 QString MarkdownParser::parseHeading(const QString &line) const
 {
-    QRegularExpression re("^(#{1,6})\\s+(.*)$");
-    QRegularExpressionMatch m = re.match(line);
-    if (!m.hasMatch())
+    QRegExp re("^(#{1,6})\\s+(.*)$");
+    if (!re.exactMatch(line))
         return QString();
-    int level = m.captured(1).length();
-    return QString("<h%1>%2</h%1>\n").arg(level).arg(parseInline(m.captured(2).trimmed()));
+    int level = re.cap(1).length();
+    return QString("<h%1>%2</h%1>\n").arg(level).arg(parseInline(re.cap(2).trimmed()));
 }
 
 QString MarkdownParser::parseHorizontalRule(const QString &line) const
 {
-    QRegularExpression re("^(\\s*([-*_])\\s*){3,}$");
-    if (re.match(line).hasMatch())
+    QRegExp re("^(\\s*([-*_])\\s*){3,}$");
+    if (re.exactMatch(line))
         return "<hr>\n";
     return QString();
 }
@@ -96,15 +132,14 @@ QString MarkdownParser::parseCodeBlock(const QStringList &lines, int &i) const
     // lines[i] is a fence opening: ``` or ~~~
     QString fence = lines[i];
     QString lang;
-    QRegularExpression fenceRe("^(\\s*)(`{3,}|~{3,})\\s*(.*)$");
-    QRegularExpressionMatch fm = fenceRe.match(fence);
-    if (fm.hasMatch())
-        lang = fm.captured(3).trimmed();
+    QRegExp fenceRe("^(\\s*)(`{3,}|~{3,})\\s*(.*)$");
+    if (fenceRe.exactMatch(fence))
+        lang = fenceRe.cap(3).trimmed();
 
     QStringList code;
     ++i;
-    QRegularExpression closeRe("^(\\s*)(`{3,}|~{3,})\\s*$");
-    while (i < lines.size() && !closeRe.match(lines[i]).hasMatch()) {
+    QRegExp closeRe("^(\\s*)(`{3,}|~{3,})\\s*$");
+    while (i < lines.size() && !closeRe.exactMatch(lines[i])) {
         code.append(lines[i]);
         ++i;
     }
@@ -119,10 +154,10 @@ QString MarkdownParser::parseCodeBlock(const QStringList &lines, int &i) const
 QString MarkdownParser::parseList(const QStringList &lines, int &i) const
 {
     QString first = lines[i];
-    QRegularExpression orderedRe("^\\s*\\d+\\.\\s+(.*)$");
-    QRegularExpression unorderedRe("^\\s*([-*+])\\s+(.*)$");
+    QRegExp orderedRe("^\\s*\\d+\\.\\s+(.*)$");
+    QRegExp unorderedRe("^\\s*([-*+])\\s+(.*)$");
 
-    bool ordered = orderedRe.match(first).hasMatch();
+    bool ordered = orderedRe.exactMatch(first);
     QString tag = ordered ? "ol" : "ul";
 
     QString html = QString("<%1>\n").arg(tag);
@@ -130,14 +165,15 @@ QString MarkdownParser::parseList(const QStringList &lines, int &i) const
         QString cur = lines[i];
         if (cur.trimmed().isEmpty())
             break;
-        QRegularExpressionMatch m;
+        QRegExpMatch m;
         if (ordered)
-            m = orderedRe.match(cur);
+            m = orderedRe.exactMatch(cur);
         else
-            m = unorderedRe.match(cur);
-        if (!m.hasMatch())
+            m = unorderedRe.exactMatch(cur);
+        if (!m)
             break;
-        html += QString("  <li>%1</li>\n").arg(parseInline(m.captured(ordered ? 1 : 2).trimmed()));
+        QRegExp &re = ordered ? orderedRe : unorderedRe;
+        html += QString("  <li>%1</li>\n").arg(parseInline(re.cap(ordered ? 1 : 2).trimmed()));
         ++i;
     }
     html += QString("</%1>\n").arg(tag);
@@ -147,12 +183,11 @@ QString MarkdownParser::parseList(const QStringList &lines, int &i) const
 QString MarkdownParser::parseBlockQuote(const QStringList &lines, int &i) const
 {
     QStringList quote;
-    QRegularExpression re("^\\s*>\\s?(.*)$");
+    QRegExp re("^\\s*>\\s?(.*)$");
     while (i < lines.size()) {
-        QRegularExpressionMatch m = re.match(lines[i]);
-        if (!m.hasMatch())
+        if (!re.exactMatch(lines[i]))
             break;
-        quote.append(m.captured(1));
+        quote.append(re.cap(1));
         ++i;
     }
     return QString("<blockquote>\n%1</blockquote>\n").arg(parseInline(quote.join(" ")).replace("\n", " "));
@@ -166,10 +201,10 @@ QString MarkdownParser::parseParagraph(const QStringList &lines, int &i) const
         QString l = lines[i];
         if (parseHeading(l).isEmpty() == false) break;
         if (parseHorizontalRule(l).isEmpty() == false) break;
-        if (QRegularExpression("^\\s*([-*+])\\s+").match(l).hasMatch()) break;
-        if (QRegularExpression("^\\s*\\d+\\.\\s+").match(l).hasMatch()) break;
-        if (QRegularExpression("^\\s*>\\s?").match(l).hasMatch()) break;
-        if (QRegularExpression("^(\\s*)(`{3,}|~{3,})").match(l).hasMatch()) break;
+        if (QRegExp("^\\s*([-*+])\\s+").indexIn(l) != -1) break;
+        if (QRegExp("^\\s*\\d+\\.\\s+").indexIn(l) != -1) break;
+        if (QRegExp("^\\s*>\\s?").indexIn(l) != -1) break;
+        if (QRegExp("^(\\s*)(`{3,}|~{3,})").indexIn(l) != -1) break;
 
         para.append(l);
         ++i;
@@ -217,10 +252,10 @@ bool MarkdownParser::isTableDelimiter(const QString &line, QStringList &aligns) 
     if (cells.isEmpty())
         return false;
 
-    QRegularExpression dashRe("^:?-+:?$");
+    QRegExp dashRe("^:?-+:?$");
     for (const QString &cell : cells) {
         QString c = cell.trimmed();
-        if (!dashRe.match(c).hasMatch())
+        if (!dashRe.exactMatch(c))
             return false;
         QString align;
         if (c.startsWith(':') && c.endsWith(':'))
@@ -314,16 +349,16 @@ QString MarkdownParser::parseBlock(const QStringList &lines, int &i) const
         return table;
 
     // Fenced code block
-    if (QRegularExpression("^(\\s*)(`{3,}|~{3,})").match(line).hasMatch())
+    if (QRegExp("^(\\s*)(`{3,}|~{3,})").indexIn(line) != -1)
         return parseCodeBlock(lines, i);
 
     // Block quote
-    if (QRegularExpression("^\\s*>\\s?").match(line).hasMatch())
+    if (QRegExp("^\\s*>\\s?").indexIn(line) != -1)
         return parseBlockQuote(lines, i);
 
     // Lists
-    if (QRegularExpression("^\\s*([-*+])\\s+").match(line).hasMatch() ||
-        QRegularExpression("^\\s*\\d+\\.\\s+").match(line).hasMatch())
+    if (QRegExp("^\\s*([-*+])\\s+").indexIn(line) != -1 ||
+        QRegExp("^\\s*\\d+\\.\\s+").indexIn(line) != -1)
         return parseList(lines, i);
 
     // Paragraph (falls through to blank handling)
