@@ -15,6 +15,14 @@ int main(int argc, char *argv[])
     QApplication::setApplicationName("MarkEdit");
     QApplication::setApplicationVersion("1.0.0");
 
+    // 加载应用程序样式表以修复菜单栏文字居中问题
+    QFile styleFile(":/styles/app.qss");
+    if (styleFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QString styleSheet = QString::fromUtf8(styleFile.readAll());
+        app.setStyleSheet(styleSheet);
+        styleFile.close();
+    }
+
     // Ensure UTF-8 handling for source / preview text.
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
 
