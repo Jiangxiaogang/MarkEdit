@@ -16,10 +16,10 @@ class MarkdownHighlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
 public:
-    explicit MarkdownHighlighter(QTextDocument *document = nullptr);
+    explicit MarkdownHighlighter(QTextDocument *document = 0);
 
 protected:
-    void highlightBlock(const QString &text) override;
+    void highlightBlock(const QString &text);
 
 private:
     void applyRegex(const QString &text, const QRegExp &re,

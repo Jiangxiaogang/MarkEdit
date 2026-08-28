@@ -12,7 +12,7 @@ class FindReplaceDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit FindReplaceDialog(QPlainTextEdit *editor, QWidget *parent = nullptr);
+    explicit FindReplaceDialog(QPlainTextEdit *editor, QWidget *parent = 0);
     void setFindText(const QString &text);
 
 private slots:

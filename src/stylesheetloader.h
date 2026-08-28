@@ -14,7 +14,7 @@ class StyleSheetLoader : public QObject
 {
     Q_OBJECT
 public:
-    explicit StyleSheetLoader(QObject *parent = nullptr);
+    explicit StyleSheetLoader(QObject *parent = 0);
 
     /**
      * @brief Load CSS from @p filePath. Returns the CSS text on success,

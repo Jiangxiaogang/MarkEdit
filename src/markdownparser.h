@@ -26,7 +26,7 @@ class MarkdownParser : public QObject
 {
     Q_OBJECT
 public:
-    explicit MarkdownParser(QObject *parent = nullptr);
+    explicit MarkdownParser(QObject *parent = 0);
 
     /**
      * @brief Parse @p markdown and return an HTML fragment (body content).
