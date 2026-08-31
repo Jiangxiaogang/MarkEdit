@@ -335,17 +335,16 @@ void MainWindow::initMenuBar()
     toolsMenu->addSeparator();
 
     QAction *prefAct = new QAction(QIcon::fromTheme("preferences-system"), tr("选项(&P)..."), this);
-    prefAct->setShortcut(QKeySequence(tr("Ctrl+,")));
     connect(prefAct, SIGNAL(triggered()), this, SLOT(openPreferences()));
     toolsMenu->addAction(prefAct);
 
     //==========================================================
     QMenu *helpMenu = menuBar()->addMenu(tr("帮助(&H)"));
-    QAction *aboutAct = new QAction(QIcon::fromTheme("help-about"), tr("关于(&A)"), this);
+    QAction *aboutAct = new QAction(QIcon::fromTheme("help-about"), tr("关于(&A)..."), this);
     connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
     helpMenu->addAction(aboutAct);
 
-    QAction *guideAct = new QAction(QIcon::fromTheme("help-contents"), tr("指南(&S)"), this);
+    QAction *guideAct = new QAction(QIcon::fromTheme("help-contents"), tr("指南(&S)..."), this);
     guideAct->setShortcut(QKeySequence::HelpContents);
     connect(guideAct, SIGNAL(triggered()), this, SLOT(markdownGuide()));
     helpMenu->addAction(guideAct);
@@ -860,7 +859,7 @@ void MainWindow::updateStatus()
     QTextCursor cur = m_editor->textCursor();
     int line = cur.blockNumber() + 1;
     int col = cur.positionInBlock() + 1;
-    m_statusCursor->setText(tr("行 %1, 列 %2").arg(line).arg(col));
+    m_statusCursor->setText(tr("行:%1, 列:%2").arg(line).arg(col));
 }
 
 void MainWindow::syncScrollFromEditor(int value)
