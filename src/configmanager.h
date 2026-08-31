@@ -6,13 +6,6 @@
 #include <QString>
 #include <QStringList>
 
-/**
- * @brief Persistent user settings manager.
- *
- * Stores editor / preview / window preferences via QSettings (INI format)
- * and keeps a list of recently opened files. Implemented as a singleton so
- * that every part of the application shares the same configuration instance.
- */
 class ConfigManager : public QObject
 {
     Q_OBJECT
@@ -50,6 +43,11 @@ public:
 
     int tabWidth() const;
     void setTabWidth(int width);
+
+    // ---- Encoding ----
+    // "Auto" means auto-detect on open; otherwise a codec name (e.g. "GB18030").
+    QString defaultEncoding() const;
+    void setDefaultEncoding(const QString &encoding);
 
     // ---- Preview settings ----
     QString cssFilePath() const;
@@ -90,6 +88,9 @@ private:
     bool m_showWhitespace;
     bool m_showSyntaxHighlighting;
     int m_tabWidth;
+
+    // Encoding
+    QString m_defaultEncoding;
 
     // Preview
     QString m_cssFilePath;

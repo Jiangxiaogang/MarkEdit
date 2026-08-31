@@ -40,6 +40,7 @@ void ConfigManager::loadConfig()
     m_showWhitespace = settings.value("editor/show_whitespace", false).toBool();
     m_showSyntaxHighlighting = settings.value("editor/syntax_highlighting", true).toBool();
     m_tabWidth = settings.value("editor/tab_width", 4).toInt();
+    m_defaultEncoding = settings.value("editor/default_encoding", "UTF-8").toString();
 
     // Preview
     m_cssFilePath = settings.value("preview/css_file_path", "styles/default.css").toString();
@@ -64,6 +65,7 @@ void ConfigManager::saveConfig()
     settings.setValue("editor/show_whitespace", m_showWhitespace);
     settings.setValue("editor/syntax_highlighting", m_showSyntaxHighlighting);
     settings.setValue("editor/tab_width", m_tabWidth);
+    settings.setValue("editor/default_encoding", m_defaultEncoding);
 
     settings.setValue("preview/css_file_path", m_cssFilePath);
     settings.setValue("preview/sync_scroll", m_syncScroll);
@@ -130,6 +132,16 @@ int ConfigManager::tabWidth() const
 void ConfigManager::setTabWidth(int width)
 {
     m_tabWidth = width;
+}
+
+// ---- Encoding ----
+QString ConfigManager::defaultEncoding() const
+{
+    return m_defaultEncoding;
+}
+void ConfigManager::setDefaultEncoding(const QString &encoding)
+{
+    m_defaultEncoding = encoding;
 }
 
 // ---- Preview settings ----

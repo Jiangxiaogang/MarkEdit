@@ -84,6 +84,9 @@ private slots:
 
     // Tools
     void openPreferences();
+    void onEncodingTriggered(QAction* action);
+    void onEncodingSelected(const QString &codecName);
+    void updateEncodingMenu();
 
     // Help
     void about();
@@ -112,6 +115,10 @@ private slots:
     void setCurrentFile(const QString &path);
     void applyConfigToUi();
 
+    // File encoding: detect on load and preserve on save
+    bool loadFile(const QString &path);
+    bool loadFileWithEncoding(const QString &path, const QString &encoding);
+
 private:
     CodeEditor *m_editor;
     PreviewWidget *m_preview;
@@ -122,12 +129,15 @@ private:
     QTimer *m_previewTimer;
 
     QString m_currentFile;
+    QString m_fileEncoding;
     bool m_syncing;
     bool m_splitSet;
 
     // Menu actions kept for enable/disable & state tracking
     QAction *m_saveAction;
     QMenu *m_recentMenu;
+    QMenu *m_encodingMenu;
+    QList<QAction *> m_encodingActions;
     QAction *m_lineWrapAction;
     QAction *m_lineNumberAction;
     QAction *m_whitespaceAction;
@@ -139,6 +149,7 @@ private:
 
     // Status bar widgets
     QLabel *m_statusCursor;
+    QLabel *m_statusEncoding;
 };
 
 #endif // MAINWINDOW_H

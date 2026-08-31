@@ -9,6 +9,7 @@
 #include "insertdialog.h"
 #include "aboutdialog.h"
 
+#include <QDebug>
 #include <QMenuBar>
 #include <QMenu>
 #include <QStatusBar>
@@ -18,6 +19,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QTextStream>
+#include <QTextCodec>
 #include <QFile>
 #include <QFileInfo>
 #include <QTimer>
@@ -44,6 +46,7 @@ MainWindow::MainWindow(QWidget *parent)
     , m_config(ConfigManager::instance())
     , m_styleLoader(new StyleSheetLoader(this))
     , m_previewTimer(new QTimer(this))
+    , m_fileEncoding(m_config->defaultEncoding())
     , m_syncing(false)
     , m_splitSet(false)
 {
@@ -332,6 +335,30 @@ void MainWindow::initMenuBar()
 
     //==========================================================
     QMenu *toolsMenu = menuBar()->addMenu(tr("工具(&T)"));
+
+    m_encodingMenu = new QMenu(tr("编码(&E)"), this);
+    toolsMenu->addMenu(m_encodingMenu);
+
+    QStringList codecNames;
+    codecNames << "System";
+    codecNames << "UTF-8";
+    codecNames << "UTF-16";
+    codecNames << "UTF-32";
+
+    QActionGroup *encodingGroup = new QActionGroup(this);
+    encodingGroup->setExclusive(true);
+    foreach (const QString& codec, codecNames)
+    {
+        QAction *act = new QAction(codec, this);
+        act->setCheckable(true);
+        act->setData(codec);
+        act->setActionGroup(encodingGroup);
+        m_encodingActions.append(act);
+        m_encodingMenu->addAction(act);
+    }
+    connect(encodingGroup, SIGNAL(triggered(QAction*)), this, SLOT(onEncodingTriggered(QAction*)));
+    updateEncodingMenu();
+
     toolsMenu->addSeparator();
 
     QAction *prefAct = new QAction(QIcon::fromTheme("preferences-system"), tr("选项(&P)..."), this);
@@ -352,11 +379,13 @@ void MainWindow::initMenuBar()
 
 void MainWindow::initStatusBar()
 {
+    m_statusEncoding = new QLabel("编码:"+m_fileEncoding);
+    m_statusEncoding->setMinimumWidth(120);
+    statusBar()->addWidget(m_statusEncoding);
+
     m_statusCursor = new QLabel(tr("行:1, 列:1"));
     m_statusCursor->setMinimumWidth(120);
     statusBar()->addPermanentWidget(m_statusCursor);
-
-    statusBar()->showMessage(tr("就绪"));
 }
 
 void MainWindow::loadSettings()
@@ -401,6 +430,7 @@ void MainWindow::onNewFile()
     m_editor->clear();
     m_editor->document()->setModified(false);
     setCurrentFile(QString());
+    updateEncodingMenu();
     updatePreview();
 }
 
@@ -408,23 +438,10 @@ void MainWindow::onOpenFile()
 {
     if (!maybeSave())
         return;
-    QString path = QFileDialog::getOpenFileName(this, tr("打开 Markdown 文件"),
-                   QString(), tr("Markdown 文件 (*.md *.markdown *.txt);;所有文件 (*)"));
+    QString path = QFileDialog::getOpenFileName(this, tr("打开文件"), QString(), tr("Markdown(*.md);;所有文件 (*)"));
     if (path.isEmpty())
         return;
-    QFile file(path);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        QMessageBox::warning(this, tr("打开"), tr("无法打开文件:\n%1").arg(path));
-        return;
-    }
-    QTextStream in(&file);
-    in.setCodec("UTF-8");
-    m_editor->setPlainText(in.readAll());
-    file.close();
-    m_editor->document()->setModified(false);
-    setCurrentFile(path);
-    updatePreview();
+    loadFile(path);
 }
 
 void MainWindow::onOpenRecent()
@@ -436,9 +453,8 @@ void MainWindow::onOpenRecent()
     if (!QFile::exists(path))
     {
         QMessageBox::warning(this, tr("打开最近的文件"), tr("文件已不存在:\n%1").arg(path));
-        m_config->addRecentFile(path); // re-sorts; will be refreshed on next add
+        m_config->addRecentFile(path);
         m_config->clearRecentFiles();
-        // rebuild a clean list without the missing file
         QStringList cleaned;
         for (const QString &f : m_config->recentFiles())
             if (f != path) cleaned.append(f);
@@ -449,19 +465,62 @@ void MainWindow::onOpenRecent()
     }
     if (!maybeSave())
         return;
+    loadFile(path);
+}
+
+bool MainWindow::loadFile(const QString &path)
+{
+    return loadFileWithEncoding(path, m_config->defaultEncoding());
+}
+
+bool MainWindow::loadFileWithEncoding(const QString &path, const QString &encoding)
+{
     QFile file(path);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    if (!file.open(QIODevice::ReadOnly))
     {
-        QMessageBox::warning(this, tr("打开最近的文件"), tr("无法打开:\n%1").arg(path));
-        return;
+        QMessageBox::warning(this, tr("打开"), tr("无法打开文件:\n%1").arg(path));
+        return false;
     }
-    QTextStream in(&file);
-    in.setCodec("UTF-8");
-    m_editor->setPlainText(in.readAll());
+    QByteArray raw = file.readAll();
     file.close();
+
+    QTextCodec *codec = QTextCodec::codecForName(encoding.toAscii());
+    QString txt = codec->toUnicode(raw);
+    m_editor->setPlainText(txt);
     m_editor->document()->setModified(false);
+    m_fileEncoding = QString::fromLatin1(codec->name());
+    m_statusEncoding->setText("编码:"+m_fileEncoding);
     setCurrentFile(path);
+    updateEncodingMenu();
     updatePreview();
+    return true;
+}
+
+void MainWindow::onEncodingSelected(const QString &codecName)
+{
+    if (m_currentFile.isEmpty())
+        return;
+
+    if (m_editor->document()->isModified() && !maybeSave())
+        return;
+
+    if (!loadFileWithEncoding(m_currentFile, codecName))
+        return;
+
+    m_config->setDefaultEncoding(codecName);
+    m_config->saveConfig();
+}
+
+void MainWindow::updateEncodingMenu()
+{
+    if (!m_encodingMenu)
+        return;
+
+    m_encodingMenu->setEnabled(!m_currentFile.isEmpty());
+    foreach (QAction *act, m_encodingActions)
+    {
+        act->setChecked(act->data().toString() == m_fileEncoding);
+    }
 }
 
 void MainWindow::onSaveFile()
@@ -498,7 +557,10 @@ bool MainWindow::saveFile(const QString &path)
         return false;
     }
     QTextStream out(&file);
-    out.setCodec("UTF-8");
+    QTextCodec *codec = QTextCodec::codecForName(m_fileEncoding.toLatin1());
+    if (!codec)
+        codec = QTextCodec::codecForName("UTF-8");
+    out.setCodec(codec);
     out << m_editor->toPlainText();
     file.close();
     statusBar()->showMessage(tr("已保存 %1").arg(path), 3000);
@@ -805,6 +867,15 @@ void MainWindow::openPreferences()
 {
     SettingsDialog dlg(m_config, this);
     dlg.exec();
+}
+
+void MainWindow::onEncodingTriggered(QAction* action)
+{
+    if (action)
+    {
+        QString codec = action->data().toString();
+        onEncodingSelected(codec);
+    }
 }
 
 // --------------------------------------------------------------------------
