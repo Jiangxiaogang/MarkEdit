@@ -82,8 +82,6 @@ private slots:
     void insertHorizontalRule();
 
     // Tools
-    void selectCss();
-    void resetCss();
     void openPreferences();
 
     // Help
@@ -139,7 +137,6 @@ private:
 
     // Status bar widgets
     QLabel *m_statusCursor;
-    QLabel *m_statusWords;
 };
 
 #endif // MAINWINDOW_H

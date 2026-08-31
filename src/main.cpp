@@ -3,11 +3,10 @@
 
 #include <QApplication>
 #include <QTextCodec>
-#include <QTranslator>
-#include <QLocale>
 
 int main(int argc, char *argv[])
 {
+    printf("111\n");
     QApplication app(argc, argv);
     QApplication::setOrganizationName("MarkEdit");
     QApplication::setApplicationName("MarkEdit");

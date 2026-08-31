@@ -2,7 +2,6 @@
 
 #include <QFile>
 #include <QTextStream>
-#include <QDebug>
 
 StyleSheetLoader::StyleSheetLoader(QObject *parent)
     : QObject(parent)

@@ -8,15 +8,11 @@ ConfigManager *ConfigManager::m_instance = 0;
 
 namespace
 {
-
-    // 统一使用当前目录下的 config.ini（INI 格式）持久化配置，
-    // 替代 Windows 默认的注册表存储。
     const QString &configFilePath()
     {
         static const QString path = "config.ini";
         return path;
     }
-
 } // namespace
 
 ConfigManager *ConfigManager::instance()
@@ -37,14 +33,8 @@ void ConfigManager::loadConfig()
     QSettings settings(configFilePath(), QSettings::IniFormat);
 
     // Editor
-    QFont defFont("Consolas");
-    defFont.setPointSize(12);
-    QVariant fontVar = settings.value("editor/font");
-    if (fontVar.isValid())
-        m_editorFont.fromString(fontVar.toString());
-    else
-        m_editorFont = defFont;
-
+    QVariant fontVar = settings.value("editor/font", "Simsun,12,-1,5,50,0,0,0,0,0");
+    m_editorFont.fromString(fontVar.toString());
     m_showLineNumbers = settings.value("editor/show_line_numbers", true).toBool();
     m_showWhitespace = settings.value("editor/show_whitespace", false).toBool();
     m_showSyntaxHighlighting = settings.value("editor/syntax_highlighting", true).toBool();
