@@ -379,13 +379,13 @@ void MainWindow::initMenuBar()
 
 void MainWindow::initStatusBar()
 {
-    m_statusEncoding = new QLabel("编码:"+m_fileEncoding);
-    m_statusEncoding->setMinimumWidth(120);
-    statusBar()->addWidget(m_statusEncoding);
-
     m_statusCursor = new QLabel(tr("行:1, 列:1"));
-    m_statusCursor->setMinimumWidth(120);
+    m_statusCursor->setMinimumWidth(200);
     statusBar()->addPermanentWidget(m_statusCursor);
+
+    m_statusEncoding = new QLabel("编码:"+m_fileEncoding);
+    m_statusEncoding->setMinimumWidth(100);
+    statusBar()->addPermanentWidget(m_statusEncoding);
 }
 
 void MainWindow::loadSettings()
@@ -891,19 +891,19 @@ void MainWindow::markdownGuide()
 {
     const QString guide =
         "<h1>Markdown语法指南</h1>"
-        "<h2>标题</h2><pre><code># H1\n## H2\n### H3</code></pre>"
-        "<h2>强调</h2><pre><code>**粗体**  *斜体*  ~~删除线~~  `代码`</code></pre>"
-        "<h2>列表</h2><pre><code>- 项目\n- 项目\n\n1. 第一\n2. 第二</code></pre>"
-        "<h2>引用块</h2><pre><code>&gt; 引用文本</code></pre>"
-        "<h2>代码块</h2><pre><code>```\n代码内容\n```</code></pre>"
-        "<h2>链接和图片</h2><pre><code>[文本](https://example.com)\n"
+        "<h2>标题</h2><br><pre><code># H1\n## H2\n### H3</code></pre>"
+        "<h2>强调</h2><br><pre><code>**粗体**  *斜体*  ~~删除线~~  `代码`</code></pre>"
+        "<h2>列表</h2><br><pre><code>- 项目\n- 项目\n\n1. 第一\n2. 第二</code></pre>"
+        "<h2>引用块</h2><br><pre><code>&gt; 引用文本</code></pre>"
+        "<h2>代码块</h2><br><pre><code>```\n代码内容\n```</code></pre>"
+        "<h2>链接和图片</h2><br><pre><code>[文本](https://example.com)\n"
         "![说明文字](图片.png)</code></pre>"
         "<h2>水平线</h2><pre><code>---</code></pre>";
     PreviewWidget *w = new PreviewWidget(this);
-    w->setCSS(StyleSheetLoader::getDefaultCSS());
+    //w->setCSS(StyleSheetLoader::getDefaultCSS());
     w->setMarkdown(guide);
     QDialog dlg(this);
-    dlg.setWindowTitle(tr("Markdown 语法指南"));
+    dlg.setWindowTitle(tr("语法指南"));
     dlg.resize(640, 520);
     QVBoxLayout *lay = new QVBoxLayout(&dlg);
     lay->addWidget(w);

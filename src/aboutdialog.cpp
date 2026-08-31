@@ -19,7 +19,7 @@ AboutDialog::AboutDialog(QWidget *parent)
     version->setAlignment(Qt::AlignCenter);
 
     QString info = QString(
-                       "<p align='center'>一个基于 Qt %1 的跨平台 Markdown 编辑器。</p>"
+                       "<p align='center'>基于Qt %1的Markdown编辑器。</p>"
                        "<p align='center'>版权所有 &copy; 2026 MarkEdit 贡献者。<br>"
                        "采用 MIT 许可证授权。</p>")
                    .arg(QT_VERSION_STR);

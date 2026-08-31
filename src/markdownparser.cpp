@@ -20,9 +20,6 @@ QString MarkdownParser::escapeHtml(const QString &text) const
 QString MarkdownParser::parseInline(const QString &text) const
 {
     QString out = escapeHtml(text);
-
-    // Extract inline code spans first so their content is not touched by the
-    // emphasis / link replacements below. A private placeholder is used.
     QStringList codes;
     int pos = 0;
     while (true)

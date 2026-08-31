@@ -5,9 +5,6 @@
 
 namespace
 {
-
-    // Build a character format that only carries a foreground colour. This is what
-    // guarantees the highlighter never changes font family, weight, style or size.
     QTextCharFormat colorFormat(const QColor &color)
     {
         QTextCharFormat f;
@@ -20,8 +17,6 @@ namespace
 MarkdownHighlighter::MarkdownHighlighter(QTextDocument *document)
     : QSyntaxHighlighter(document)
 {
-    // GitHub-inspired palette, tuned to stay readable on a light editor
-    // background. Only the colour matters here.
     m_headingFmt = colorFormat(QColor("#1f6feb"));
     m_codeFmt    = colorFormat(QColor("#cf222e"));
     m_quoteFmt   = colorFormat(QColor("#57606a"));

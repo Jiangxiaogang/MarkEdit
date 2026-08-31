@@ -12,15 +12,15 @@ InsertDialog::InsertDialog(const QString &kind, QWidget *parent)
 {
     setModal(true);
     if (kind == "image")
-        setWindowTitle(tr("Insert Image"));
+        setWindowTitle(tr("插入图像"));
     else
-        setWindowTitle(tr("Insert Link"));
+        setWindowTitle(tr("插入链接"));
 
     m_textEdit = new QLineEdit(this);
     m_urlEdit = new QLineEdit(this);
 
-    QPushButton *okBtn = new QPushButton(tr("OK"));
-    QPushButton *cancelBtn = new QPushButton(tr("Cancel"));
+    QPushButton *okBtn = new QPushButton(tr("确定"));
+    QPushButton *cancelBtn = new QPushButton(tr("取消"));
     QHBoxLayout *btnRow = new QHBoxLayout;
     btnRow->addStretch();
     btnRow->addWidget(okBtn);

@@ -18,9 +18,6 @@ PreviewWidget::PreviewWidget(QWidget *parent)
     , m_pendingRatio(-1.0f)
 {
     setObjectName("previewWidget");
-
-    // Delegate link clicks so we can open them in the external browser
-    // instead of navigating inside the preview pane.
     page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
 
     m_scrollTimer = new QTimer(this);
