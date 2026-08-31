@@ -18,7 +18,7 @@ SettingsDialog::SettingsDialog(ConfigManager *config, QWidget *parent)
     : QDialog(parent)
     , m_config(config)
 {
-    setWindowTitle(tr("Preferences"));
+    setWindowTitle(tr("首选项"));
     setModal(true);
 
     QTabWidget *tabs = new QTabWidget(this);
@@ -30,9 +30,9 @@ SettingsDialog::SettingsDialog(ConfigManager *config, QWidget *parent)
     m_fontSize->setRange(6, 72);
     m_tabWidth = new QSpinBox;
     m_tabWidth->setRange(2, 8);
-    m_lineNumbers = new QCheckBox(tr("Show line numbers"));
-    m_whitespace = new QCheckBox(tr("Show whitespace characters"));
-    m_syntaxHighlight = new QCheckBox(tr("Syntax highlighting"));
+    m_lineNumbers = new QCheckBox(tr("显示行号"));
+    m_whitespace = new QCheckBox(tr("显示空白字符"));
+    m_syntaxHighlight = new QCheckBox(tr("语法高亮"));
 
     QFont cur = m_config->editorFont();
     m_fontCombo->setCurrentFont(cur);
@@ -43,34 +43,34 @@ SettingsDialog::SettingsDialog(ConfigManager *config, QWidget *parent)
     m_syntaxHighlight->setChecked(m_config->showSyntaxHighlighting());
 
     QFormLayout *editorLayout = new QFormLayout(editorTab);
-    editorLayout->addRow(tr("Font:"), m_fontCombo);
-    editorLayout->addRow(tr("Font size:"), m_fontSize);
-    editorLayout->addRow(tr("Tab width:"), m_tabWidth);
+    editorLayout->addRow(tr("字体:"), m_fontCombo);
+    editorLayout->addRow(tr("字号:"), m_fontSize);
+    editorLayout->addRow(tr("制表符宽度:"), m_tabWidth);
     editorLayout->addRow(m_lineNumbers);
     editorLayout->addRow(m_whitespace);
     editorLayout->addRow(m_syntaxHighlight);
-    tabs->addTab(editorTab, tr("Editor"));
+    tabs->addTab(editorTab, tr("编辑器"));
 
     // ---- Preview tab ----
     QWidget *previewTab = new QWidget;
     m_cssPath = new QLineEdit;
     m_cssPath->setText(m_config->cssFilePath());
-    QPushButton *browseBtn = new QPushButton(tr("Browse..."));
-    m_syncScroll = new QCheckBox(tr("Synchronise scroll with editor"));
-    m_autoRefresh = new QCheckBox(tr("Auto refresh preview"));
+    QPushButton *browseBtn = new QPushButton(tr("浏览..."));
+    m_syncScroll = new QCheckBox(tr("与编辑器同步滚动"));
+    m_autoRefresh = new QCheckBox(tr("自动刷新预览"));
 
     QHBoxLayout *cssRow = new QHBoxLayout;
     cssRow->addWidget(m_cssPath);
     cssRow->addWidget(browseBtn);
 
     QFormLayout *previewLayout = new QFormLayout(previewTab);
-    previewLayout->addRow(tr("CSS file:"), cssRow);
+    previewLayout->addRow(tr("CSS 文件:"), cssRow);
     previewLayout->addRow(m_syncScroll);
     previewLayout->addRow(m_autoRefresh);
-    tabs->addTab(previewTab, tr("Preview"));
+    tabs->addTab(previewTab, tr("预览"));
 
-    QPushButton *okBtn = new QPushButton(tr("OK"));
-    QPushButton *cancelBtn = new QPushButton(tr("Cancel"));
+    QPushButton *okBtn = new QPushButton(tr("确定"));
+    QPushButton *cancelBtn = new QPushButton(tr("取消"));
     QHBoxLayout *btnRow = new QHBoxLayout;
     btnRow->addStretch();
     btnRow->addWidget(okBtn);
@@ -87,9 +87,9 @@ SettingsDialog::SettingsDialog(ConfigManager *config, QWidget *parent)
 
 void SettingsDialog::chooseCssFile()
 {
-    QString path = QFileDialog::getOpenFileName(this, tr("Select CSS file"),
+    QString path = QFileDialog::getOpenFileName(this, tr("选择 CSS 文件"),
                    m_cssPath->text(),
-                   tr("CSS files (*.css);;All files (*)"));
+                   tr("CSS 文件 (*.css);;所有文件 (*)"));
     if (!path.isEmpty())
         m_cssPath->setText(path);
 }

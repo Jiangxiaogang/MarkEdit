@@ -15,22 +15,22 @@ FindReplaceDialog::FindReplaceDialog(QPlainTextEdit *editor, QWidget *parent)
     : QDialog(parent)
     , m_editor(editor)
 {
-    setWindowTitle(tr("Find / Replace"));
+    setWindowTitle(tr("查找 / 替换"));
     setModal(true);
 
     m_findEdit = new QLineEdit(this);
     m_replaceEdit = new QLineEdit(this);
-    m_caseCheck = new QCheckBox(tr("Case sensitive"), this);
-    m_wholeWordCheck = new QCheckBox(tr("Whole word"), this);
+    m_caseCheck = new QCheckBox(tr("区分大小写"), this);
+    m_wholeWordCheck = new QCheckBox(tr("全字匹配"), this);
 
-    QPushButton *findBtn = new QPushButton(tr("Find Next"), this);
-    m_replaceBtn = new QPushButton(tr("Replace"), this);
-    m_replaceAllBtn = new QPushButton(tr("Replace All"), this);
-    QPushButton *closeBtn = new QPushButton(tr("Close"), this);
+    QPushButton *findBtn = new QPushButton(tr("查找下一个"), this);
+    m_replaceBtn = new QPushButton(tr("替换"), this);
+    m_replaceAllBtn = new QPushButton(tr("全部替换"), this);
+    QPushButton *closeBtn = new QPushButton(tr("关闭"), this);
 
     QFormLayout *form = new QFormLayout;
-    form->addRow(tr("Find:"), m_findEdit);
-    form->addRow(tr("Replace with:"), m_replaceEdit);
+    form->addRow(tr("查找:"), m_findEdit);
+    form->addRow(tr("替换为:"), m_replaceEdit);
     form->addRow(m_caseCheck);
     form->addRow(m_wholeWordCheck);
 
