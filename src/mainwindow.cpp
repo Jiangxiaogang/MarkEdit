@@ -23,6 +23,7 @@
 #include <QScrollBar>
 #include <QLabel>
 #include <QCloseEvent>
+#include <QSignalMapper>
 #include <QShowEvent>
 #include <QPrinter>
 #include <QTextCursor>
@@ -280,18 +281,24 @@ void MainWindow::initConnections()
 
     QAction *h1 = new QAction(tr("标题 &1 (&1)"), this);
     h1->setShortcut(QKeySequence(tr("Ctrl+1")));
-    connect(h1, SIGNAL(triggered()), this, SLOT(heading(1)));
     formatMenu->addAction(h1);
 
     QAction *h2 = new QAction(tr("标题 &2 (&2)"), this);
     h2->setShortcut(QKeySequence(tr("Ctrl+2")));
-    connect(h2, SIGNAL(triggered()), this, SLOT(heading(2)));
     formatMenu->addAction(h2);
 
     QAction *h3 = new QAction(tr("标题 &3 (&3)"), this);
     h3->setShortcut(QKeySequence(tr("Ctrl+3")));
-    connect(h3, SIGNAL(triggered()), this, SLOT(heading(3)));
     formatMenu->addAction(h3);
+
+    QSignalMapper *headingMapper = new QSignalMapper(this);
+    connect(h1, SIGNAL(triggered()), headingMapper, SLOT(map()));
+    headingMapper->setMapping(h1, 1);
+    connect(h2, SIGNAL(triggered()), headingMapper, SLOT(map()));
+    headingMapper->setMapping(h2, 2);
+    connect(h3, SIGNAL(triggered()), headingMapper, SLOT(map()));
+    headingMapper->setMapping(h3, 3);
+    connect(headingMapper, SIGNAL(mapped(int)), this, SLOT(heading(int)));
 
     formatMenu->addSeparator();
 

@@ -3,6 +3,7 @@ QT       += core gui widgets printsupport webkit
 TARGET    = MarkEdit
 TEMPLATE  = app
 CONFIG   += c++11
+CONFIG   += release
 QMAKE_CFLAGS += -std=c11        # C 语言标准
 QMAKE_CXXFLAGS += -std=c++11    # C++ 语言标准
 

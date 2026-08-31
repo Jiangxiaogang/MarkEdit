@@ -32,7 +32,7 @@ protected:
     void showEvent(QShowEvent *event);
 
 private:
-    // UI construction
+    // UI construction (called directly, not via signals)
     void initUI();
     void initMenus();
     void initStatusBar();
@@ -40,6 +40,7 @@ private:
     void loadSettings();
     void saveSettings();
 
+private slots:
     // File
     void onNewFile();
     void onOpenFile();
@@ -112,6 +113,7 @@ private:
     void setCurrentFile(const QString &path);
     void applyConfigToUi();
 
+private:
     CodeEditor *m_editor;
     PreviewWidget *m_preview;
     QSplitter *m_splitter;
