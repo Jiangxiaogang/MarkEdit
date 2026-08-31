@@ -20,29 +20,28 @@ CodeEditor::CodeEditor(QWidget *parent)
     , m_syntaxHighlighting(true)
 {
     setObjectName("codeEditor");
-    setFrameShape(QFrame::NoFrame);   // remove the editor's border
+    setFrameShape(QFrame::NoFrame);
 
-    connect(this, SIGNAL(blockCountChanged(int)),
-            this, SLOT(updateLineNumberAreaWidth(int)));
-    connect(this, SIGNAL(updateRequest(QRect, int)),
-            this, SLOT(updateLineNumberArea(QRect, int)));
-    connect(this, SIGNAL(cursorPositionChanged()),
-            this, SLOT(highlightCurrentLine()));
+    connect(this, SIGNAL(blockCountChanged(int)),this, SLOT(updateLineNumberAreaWidth(int)));
+    connect(this, SIGNAL(updateRequest(QRect, int)),this, SLOT(updateLineNumberArea(QRect, int)));
+    connect(this, SIGNAL(cursorPositionChanged()),this, SLOT(highlightCurrentLine()));
 
     updateLineNumberAreaWidth(0);
     highlightCurrentLine();
-
-    // Apply whitespace visibility according to current flag
-    QTextOption option = document()->defaultTextOption();
-    option.setFlags(option.flags() | QTextOption::ShowTabsAndSpaces);
-    document()->setDefaultTextOption(option);
+    setLineWrapEnabled(false);
 }
 
 CodeEditor::~CodeEditor()
 {
 }
 
-void CodeEditor::setLineNumbersVisible(bool visible)
+void CodeEditor::setLineWrapEnabled(bool enabled)
+{
+    m_lineWarp = enabled;
+    setLineWrapMode(m_lineWarp ? WidgetWidth : NoWrap);
+}
+
+void CodeEditor::setLineNumberVisible(bool visible)
 {
     m_showLineNumbers = visible;
     m_lineNumberArea->setVisible(visible);
@@ -54,8 +53,7 @@ void CodeEditor::setWhitespaceVisible(bool visible)
     m_showWhitespace = visible;
     QTextOption option = document()->defaultTextOption();
     if (visible)
-        option.setFlags(option.flags() | QTextOption::ShowTabsAndSpaces |
-                        QTextOption::ShowLineAndParagraphSeparators);
+        option.setFlags(option.flags() | QTextOption::ShowTabsAndSpaces);
     else
         option.setFlags(option.flags() & ~QTextOption::ShowTabsAndSpaces &
                         ~QTextOption::ShowLineAndParagraphSeparators);
@@ -73,7 +71,6 @@ void CodeEditor::setSyntaxHighlightingEnabled(bool enabled)
     else
     {
         m_highlighter->setDocument(0);
-        // Remove any colours already applied by the highlighter.
         QTextCursor cursor(document());
         cursor.select(QTextCursor::Document);
         cursor.setCharFormat(QTextCharFormat());
@@ -82,8 +79,6 @@ void CodeEditor::setSyntaxHighlightingEnabled(bool enabled)
 
 void CodeEditor::setTabWidth(int width)
 {
-    // QPlainTextEdit's tab stop is expressed in pixels. The configured value
-    // is a number of space characters, so scale it by the space width.
     setTabStopWidth(width * fontMetrics().width(QLatin1Char(' ')));
 }
 
@@ -94,17 +89,13 @@ void CodeEditor::setEditorFont(const QFont &font)
 
 int CodeEditor::lineNumberAreaWidth() const
 {
-    if (!m_showLineNumbers)
-        return 0;
-    int digits = 1;
-    int max = qMax(1, blockCount());
-    while (max >= 10)
+    if (m_showLineNumbers)
     {
-        max /= 10;
-        ++digits;
+        int max = qMax(1, blockCount());
+        int space = fontMetrics().width(QString::number(max * 10));
+        return space;
     }
-    int space = 3 + fontMetrics().width(QLatin1Char('9')) * digits;
-    return space;
+    return 0;
 }
 
 void CodeEditor::updateLineNumberAreaWidth(int /*newBlockCount*/)

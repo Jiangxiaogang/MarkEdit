@@ -23,27 +23,13 @@ public:
     explicit CodeEditor(QWidget *parent = 0);
     ~CodeEditor();
 
-    void setLineNumbersVisible(bool visible);
-    bool lineNumbersVisible() const
-    {
-        return m_showLineNumbers;
-    }
-
+    void setLineWrapEnabled(bool enabled);
+    void setLineNumberVisible(bool visible);
     void setWhitespaceVisible(bool visible);
-    bool whitespaceVisible() const
-    {
-        return m_showWhitespace;
-    }
-
     void setSyntaxHighlightingEnabled(bool enabled);
-
     void setTabWidth(int width);
-
     void setEditorFont(const QFont &font);
-
     int lineNumberAreaWidth() const;
-
-    // Called by LineNumberArea
     void lineNumberAreaPaintEvent(QPaintEvent *event);
 
 protected:
@@ -58,6 +44,7 @@ private slots:
 private:
     LineNumberArea *m_lineNumberArea;
     MarkdownHighlighter *m_highlighter;
+    bool m_lineWarp;
     bool m_showLineNumbers;
     bool m_showWhitespace;
     bool m_syntaxHighlighting;

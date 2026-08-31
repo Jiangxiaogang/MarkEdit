@@ -35,13 +35,14 @@ void ConfigManager::loadConfig()
     // Editor
     QVariant fontVar = settings.value("editor/font", "Simsun,12,-1,5,50,0,0,0,0,0");
     m_editorFont.fromString(fontVar.toString());
-    m_showLineNumbers = settings.value("editor/show_line_numbers", true).toBool();
+    m_lineWrap = settings.value("editor/line_wrap", false).toBool();
+    m_showLineNumber = settings.value("editor/show_line_number", true).toBool();
     m_showWhitespace = settings.value("editor/show_whitespace", false).toBool();
     m_showSyntaxHighlighting = settings.value("editor/syntax_highlighting", true).toBool();
     m_tabWidth = settings.value("editor/tab_width", 4).toInt();
 
     // Preview
-    m_cssFilePath = settings.value("preview/css_file_path", ":/styles/default.css").toString();
+    m_cssFilePath = settings.value("preview/css_file_path", "styles/default.css").toString();
     m_syncScroll = settings.value("preview/sync_scroll", true).toBool();
     m_autoRefresh = settings.value("preview/auto_refresh", true).toBool();
 
@@ -58,7 +59,8 @@ void ConfigManager::saveConfig()
     QSettings settings(configFilePath(), QSettings::IniFormat);
 
     settings.setValue("editor/font", m_editorFont.toString());
-    settings.setValue("editor/show_line_numbers", m_showLineNumbers);
+    settings.setValue("editor/line_wrap", m_lineWrap);
+    settings.setValue("editor/show_line_number", m_showLineNumber);
     settings.setValue("editor/show_whitespace", m_showWhitespace);
     settings.setValue("editor/syntax_highlighting", m_showSyntaxHighlighting);
     settings.setValue("editor/tab_width", m_tabWidth);
@@ -85,13 +87,22 @@ void ConfigManager::setEditorFont(const QFont &font)
     m_editorFont = font;
 }
 
-bool ConfigManager::showLineNumbers() const
+bool ConfigManager::lineWrap() const
 {
-    return m_showLineNumbers;
+    return m_lineWrap;
 }
-void ConfigManager::setShowLineNumbers(bool show)
+void ConfigManager::setLineWrap(bool enabled)
 {
-    m_showLineNumbers = show;
+    m_lineWrap = enabled;
+}
+
+bool ConfigManager::showLineNumber() const
+{
+    return m_showLineNumber;
+}
+void ConfigManager::setShowLineNumber(bool show)
+{
+    m_showLineNumber = show;
 }
 
 bool ConfigManager::showWhitespace() const

@@ -34,7 +34,7 @@ protected:
 private:
     // UI construction (called directly, not via signals)
     void initUI();
-    void initMenus();
+    void initMenuBar();
     void initStatusBar();
     void initConnections();
     void loadSettings();
@@ -59,7 +59,8 @@ private slots:
 
     // View
     void toggleFullScreen();
-    void toggleLineNumbers(bool checked);
+    void toggleLineWrap(bool checked);
+    void toggleLineNumber(bool checked);
     void toggleWhitespace(bool checked);
     void setVerticalSplit();
     void showEditorOnly();
@@ -127,7 +128,8 @@ private:
     // Menu actions kept for enable/disable & state tracking
     QAction *m_saveAction;
     QMenu *m_recentMenu;
-    QAction *m_lineNumbersAction;
+    QAction *m_lineWrapAction;
+    QAction *m_lineNumberAction;
     QAction *m_whitespaceAction;
     QAction *m_statusBarAction;
     QAction *m_fullScreenAction;

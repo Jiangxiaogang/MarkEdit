@@ -30,25 +30,16 @@ SettingsDialog::SettingsDialog(ConfigManager *config, QWidget *parent)
     m_fontSize->setRange(6, 72);
     m_tabWidth = new QSpinBox;
     m_tabWidth->setRange(2, 8);
-    m_lineNumbers = new QCheckBox(tr("显示行号"));
-    m_whitespace = new QCheckBox(tr("显示空白字符"));
-    m_syntaxHighlight = new QCheckBox(tr("语法高亮"));
 
     QFont cur = m_config->editorFont();
     m_fontCombo->setCurrentFont(cur);
     m_fontSize->setValue(cur.pointSize());
     m_tabWidth->setValue(m_config->tabWidth());
-    m_lineNumbers->setChecked(m_config->showLineNumbers());
-    m_whitespace->setChecked(m_config->showWhitespace());
-    m_syntaxHighlight->setChecked(m_config->showSyntaxHighlighting());
 
     QFormLayout *editorLayout = new QFormLayout(editorTab);
     editorLayout->addRow(tr("字体:"), m_fontCombo);
     editorLayout->addRow(tr("字号:"), m_fontSize);
     editorLayout->addRow(tr("制表符宽度:"), m_tabWidth);
-    editorLayout->addRow(m_lineNumbers);
-    editorLayout->addRow(m_whitespace);
-    editorLayout->addRow(m_syntaxHighlight);
     tabs->addTab(editorTab, tr("编辑器"));
 
     // ---- Preview tab ----
@@ -56,8 +47,6 @@ SettingsDialog::SettingsDialog(ConfigManager *config, QWidget *parent)
     m_cssPath = new QLineEdit;
     m_cssPath->setText(m_config->cssFilePath());
     QPushButton *browseBtn = new QPushButton(tr("浏览..."));
-    m_syncScroll = new QCheckBox(tr("与编辑器同步滚动"));
-    m_autoRefresh = new QCheckBox(tr("自动刷新预览"));
 
     QHBoxLayout *cssRow = new QHBoxLayout;
     cssRow->addWidget(m_cssPath);
@@ -65,8 +54,6 @@ SettingsDialog::SettingsDialog(ConfigManager *config, QWidget *parent)
 
     QFormLayout *previewLayout = new QFormLayout(previewTab);
     previewLayout->addRow(tr("CSS 文件:"), cssRow);
-    previewLayout->addRow(m_syncScroll);
-    previewLayout->addRow(m_autoRefresh);
     tabs->addTab(previewTab, tr("预览"));
 
     QPushButton *okBtn = new QPushButton(tr("确定"));
@@ -99,13 +86,8 @@ void SettingsDialog::accept()
     QFont f = m_fontCombo->currentFont();
     f.setPointSize(m_fontSize->value());
     m_config->setEditorFont(f);
-    m_config->setShowLineNumbers(m_lineNumbers->isChecked());
-    m_config->setShowWhitespace(m_whitespace->isChecked());
-    m_config->setShowSyntaxHighlighting(m_syntaxHighlight->isChecked());
     m_config->setTabWidth(m_tabWidth->value());
     m_config->setCssFilePath(m_cssPath->text());
-    m_config->setSyncScroll(m_syncScroll->isChecked());
-    m_config->setAutoRefresh(m_autoRefresh->isChecked());
     m_config->saveConfig();
     QDialog::accept();
 }

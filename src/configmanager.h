@@ -36,8 +36,11 @@ public:
     QFont editorFont() const;
     void setEditorFont(const QFont &font);
 
-    bool showLineNumbers() const;
-    void setShowLineNumbers(bool show);
+    bool lineWrap() const;
+    void setLineWrap(bool enabled);
+
+    bool showLineNumber() const;
+    void setShowLineNumber(bool show);
 
     bool showWhitespace() const;
     void setShowWhitespace(bool show);
@@ -82,7 +85,8 @@ private:
 
     // Editor
     QFont m_editorFont;
-    bool m_showLineNumbers;
+    bool m_lineWrap;
+    bool m_showLineNumber;
     bool m_showWhitespace;
     bool m_showSyntaxHighlighting;
     int m_tabWidth;
