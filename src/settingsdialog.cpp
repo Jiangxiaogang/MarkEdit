@@ -88,8 +88,8 @@ SettingsDialog::SettingsDialog(ConfigManager *config, QWidget *parent)
 void SettingsDialog::chooseCssFile()
 {
     QString path = QFileDialog::getOpenFileName(this, tr("Select CSS file"),
-                                                m_cssPath->text(),
-                                                tr("CSS files (*.css);;All files (*)"));
+                   m_cssPath->text(),
+                   tr("CSS files (*.css);;All files (*)"));
     if (!path.isEmpty())
         m_cssPath->setText(path);
 }

@@ -27,7 +27,7 @@ PreviewWidget::PreviewWidget(QWidget *parent)
     m_scrollTimer->setInterval(100);
     connect(m_scrollTimer, SIGNAL(timeout()), this, SLOT(onScrollTimeout()));
 
-    connect(this, SIGNAL(linkClicked(const QUrl&)), this, SLOT(onLinkClicked(const QUrl&)));
+    connect(this, SIGNAL(linkClicked(const QUrl &)), this, SLOT(onLinkClicked(const QUrl &)));
     connect(this, SIGNAL(loadFinished(bool)), this, SLOT(onLoadFinished(bool)));
 }
 
@@ -60,10 +60,10 @@ void PreviewWidget::refresh()
 QString PreviewWidget::generateHtml(const QString &body) const
 {
     return QString(
-        "<!DOCTYPE html><html><head><meta charset=\"utf-8\">"
-        "<style>%1</style></head><body>%2</body></html>")
-        .arg(m_css)
-        .arg(body);
+               "<!DOCTYPE html><html><head><meta charset=\"utf-8\">"
+               "<style>%1</style></head><body>%2</body></html>")
+           .arg(m_css)
+           .arg(body);
 }
 
 int PreviewWidget::scrollMaximum() const
@@ -112,7 +112,8 @@ void PreviewWidget::onScrollTimeout()
     if (!m_emitScroll)
         return;
     int v = scrollValue();
-    if (v != m_lastScroll) {
+    if (v != m_lastScroll)
+    {
         m_lastScroll = v;
         emit scrolled(v);
     }
@@ -122,7 +123,8 @@ void PreviewWidget::onLinkClicked(const QUrl &url)
 {
     // Open external / local links in the default browser instead of navigating
     // inside the preview pane.
-    if (url.scheme().startsWith("http") || url.scheme().startsWith("file")) {
+    if (url.scheme().startsWith("http") || url.scheme().startsWith("file"))
+    {
         QDesktopServices::openUrl(url);
     }
 }

@@ -85,13 +85,15 @@ bool FindReplaceDialog::find(bool /*forward*/)
         cursor.setPosition(cursor.selectionEnd());
 
     QTextCursor found = m_editor->document()->find(term, cursor, flags);
-    if (found.isNull()) {
+    if (found.isNull())
+    {
         // wrap around from the beginning
         QTextCursor start(m_editor->document());
         start.movePosition(QTextCursor::Start);
         found = m_editor->document()->find(term, start, flags);
     }
-    if (!found.isNull()) {
+    if (!found.isNull())
+    {
         m_editor->setTextCursor(found);
         return true;
     }
@@ -111,7 +113,8 @@ void FindReplaceDialog::replaceOne()
         return;
 
     QTextCursor cursor = m_editor->textCursor();
-    if (!cursor.hasSelection() || cursor.selectedText() != term) {
+    if (!cursor.hasSelection() || cursor.selectedText() != term)
+    {
         if (!find(true))
             return;
         cursor = m_editor->textCursor();
@@ -136,7 +139,8 @@ void FindReplaceDialog::replaceAll()
     QTextCursor cursor(m_editor->document());
     cursor.movePosition(QTextCursor::Start);
     int count = 0;
-    for (;;) {
+    for (;;)
+    {
         QTextCursor found = m_editor->document()->find(term, cursor, flags);
         if (found.isNull())
             break;

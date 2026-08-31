@@ -38,7 +38,7 @@ HEADERS += \
     src/aboutdialog.h
 
 # Resources (icons)
-RESOURCES += resources/resources.qrc
+RESOURCES +=
 
 # Translations
 TRANSLATIONS += translations/markedit_zh_CN.ts

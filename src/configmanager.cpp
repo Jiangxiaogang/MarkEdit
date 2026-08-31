@@ -6,15 +6,16 @@
 
 ConfigManager *ConfigManager::m_instance = 0;
 
-namespace {
-
-// 统一使用当前目录下的 config.ini（INI 格式）持久化配置，
-// 替代 Windows 默认的注册表存储。
-const QString &configFilePath()
+namespace
 {
-    static const QString path = "config.ini";
-    return path;
-}
+
+    // 统一使用当前目录下的 config.ini（INI 格式）持久化配置，
+    // 替代 Windows 默认的注册表存储。
+    const QString &configFilePath()
+    {
+        static const QString path = "config.ini";
+        return path;
+    }
 
 } // namespace
 
@@ -85,37 +86,97 @@ void ConfigManager::saveConfig()
 }
 
 // ---- Editor settings ----
-QFont ConfigManager::editorFont() const { return m_editorFont; }
-void ConfigManager::setEditorFont(const QFont &font) { m_editorFont = font; }
+QFont ConfigManager::editorFont() const
+{
+    return m_editorFont;
+}
+void ConfigManager::setEditorFont(const QFont &font)
+{
+    m_editorFont = font;
+}
 
-bool ConfigManager::showLineNumbers() const { return m_showLineNumbers; }
-void ConfigManager::setShowLineNumbers(bool show) { m_showLineNumbers = show; }
+bool ConfigManager::showLineNumbers() const
+{
+    return m_showLineNumbers;
+}
+void ConfigManager::setShowLineNumbers(bool show)
+{
+    m_showLineNumbers = show;
+}
 
-bool ConfigManager::showWhitespace() const { return m_showWhitespace; }
-void ConfigManager::setShowWhitespace(bool show) { m_showWhitespace = show; }
+bool ConfigManager::showWhitespace() const
+{
+    return m_showWhitespace;
+}
+void ConfigManager::setShowWhitespace(bool show)
+{
+    m_showWhitespace = show;
+}
 
-bool ConfigManager::showSyntaxHighlighting() const { return m_showSyntaxHighlighting; }
-void ConfigManager::setShowSyntaxHighlighting(bool show) { m_showSyntaxHighlighting = show; }
+bool ConfigManager::showSyntaxHighlighting() const
+{
+    return m_showSyntaxHighlighting;
+}
+void ConfigManager::setShowSyntaxHighlighting(bool show)
+{
+    m_showSyntaxHighlighting = show;
+}
 
-int ConfigManager::tabWidth() const { return m_tabWidth; }
-void ConfigManager::setTabWidth(int width) { m_tabWidth = width; }
+int ConfigManager::tabWidth() const
+{
+    return m_tabWidth;
+}
+void ConfigManager::setTabWidth(int width)
+{
+    m_tabWidth = width;
+}
 
 // ---- Preview settings ----
-QString ConfigManager::cssFilePath() const { return m_cssFilePath; }
-void ConfigManager::setCssFilePath(const QString &path) { m_cssFilePath = path; }
+QString ConfigManager::cssFilePath() const
+{
+    return m_cssFilePath;
+}
+void ConfigManager::setCssFilePath(const QString &path)
+{
+    m_cssFilePath = path;
+}
 
-bool ConfigManager::syncScroll() const { return m_syncScroll; }
-void ConfigManager::setSyncScroll(bool sync) { m_syncScroll = sync; }
+bool ConfigManager::syncScroll() const
+{
+    return m_syncScroll;
+}
+void ConfigManager::setSyncScroll(bool sync)
+{
+    m_syncScroll = sync;
+}
 
-bool ConfigManager::autoRefresh() const { return m_autoRefresh; }
-void ConfigManager::setAutoRefresh(bool refresh) { m_autoRefresh = refresh; }
+bool ConfigManager::autoRefresh() const
+{
+    return m_autoRefresh;
+}
+void ConfigManager::setAutoRefresh(bool refresh)
+{
+    m_autoRefresh = refresh;
+}
 
 // ---- Window state ----
-QByteArray ConfigManager::windowGeometry() const { return m_windowGeometry; }
-void ConfigManager::setWindowGeometry(const QByteArray &geometry) { m_windowGeometry = geometry; }
+QByteArray ConfigManager::windowGeometry() const
+{
+    return m_windowGeometry;
+}
+void ConfigManager::setWindowGeometry(const QByteArray &geometry)
+{
+    m_windowGeometry = geometry;
+}
 
-QByteArray ConfigManager::windowState() const { return m_windowState; }
-void ConfigManager::setWindowState(const QByteArray &state) { m_windowState = state; }
+QByteArray ConfigManager::windowState() const
+{
+    return m_windowState;
+}
+void ConfigManager::setWindowState(const QByteArray &state)
+{
+    m_windowState = state;
+}
 
 // ---- Recent files ----
 QStringList ConfigManager::recentFiles(int max) const

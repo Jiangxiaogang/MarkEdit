@@ -1,5 +1,4 @@
 #include "mainwindow.h"
-
 #include "codeeditor.h"
 #include "previewwidget.h"
 #include "stylesheetloader.h"
@@ -61,12 +60,7 @@ MainWindow::MainWindow(QWidget *parent)
     m_previewTimer->setInterval(300);
 
     // Initial content
-    m_editor->setPlainText(tr(
-        "# 欢迎使用 MarkEdit\n\n"
-        "一个基于 Qt 的跨平台 **Markdown** 编辑器。\n\n"
-        "- 在左侧输入内容\n"
-        "- 右侧实时更新预览\n\n"
-        "> 从菜单中选择 *格式* 来添加 Markdown 语法。"));
+    m_editor->setPlainText(tr("# 欢迎使用MarkEdit\n"));
     m_editor->document()->setModified(false);
     setCurrentFile(QString());
     updatePreview();
@@ -85,7 +79,6 @@ void MainWindow::initUI()
 {
     m_editor = new CodeEditor(this);
     m_preview = new PreviewWidget(this);
-
     m_splitter = new QSplitter(Qt::Horizontal, this);
     m_splitter->addWidget(m_editor);
     m_splitter->addWidget(m_preview);
@@ -102,29 +95,24 @@ void MainWindow::initConnections()
     connect(m_editor->verticalScrollBar(), SIGNAL(valueChanged(int)),
             this, SLOT(syncScrollFromEditor(int)));
     connect(m_preview, SIGNAL(scrolled(int)), this, SLOT(syncScrollFromPreview(int)));
-
-    // cssFailed signal not available in Qt4, skip it
-    // configurationChanged signal handled via macro connections
-
     connect(m_previewTimer, SIGNAL(timeout()), this, SLOT(updatePreview()));
 
     m_editor->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(m_editor, SIGNAL(customContextMenuRequested(const QPoint&)),
-            this, SLOT(editorContextMenu(const QPoint&)));
+    connect(m_editor, SIGNAL(customContextMenuRequested(const QPoint &)),
+            this, SLOT(editorContextMenu(const QPoint &)));
     m_preview->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(m_preview, SIGNAL(customContextMenuRequested(const QPoint&)),
-            this, SLOT(previewContextMenu(const QPoint&)));
+    connect(m_preview, SIGNAL(customContextMenuRequested(const QPoint &)),
+            this, SLOT(previewContextMenu(const QPoint &)));
 
-    // ---- File ----
     QMenu *fileMenu = menuBar()->addMenu(tr("文件 (&F)"));
     QAction *newAct = new QAction(QIcon::fromTheme("document-new",
-        style()->standardIcon(QStyle::SP_FileIcon)), tr("新建 (&N)"), this);
+                                  style()->standardIcon(QStyle::SP_FileIcon)), tr("新建 (&N)"), this);
     newAct->setShortcut(QKeySequence::New);
     connect(newAct, SIGNAL(triggered()), this, SLOT(onNewFile()));
     fileMenu->addAction(newAct);
 
     QAction *openAct = new QAction(QIcon::fromTheme("document-open",
-        style()->standardIcon(QStyle::SP_DirOpenIcon)), tr("打开 (&O)..."), this);
+                                   style()->standardIcon(QStyle::SP_DirOpenIcon)), tr("打开 (&O)..."), this);
     openAct->setShortcut(QKeySequence::Open);
     connect(openAct, SIGNAL(triggered()), this, SLOT(onOpenFile()));
     fileMenu->addAction(openAct);
@@ -135,7 +123,7 @@ void MainWindow::initConnections()
     updateRecentMenu();
 
     m_saveAction = new QAction(QIcon::fromTheme("document-save",
-        style()->standardIcon(QStyle::SP_DialogSaveButton)), tr("保存 (&S)"), this);
+                               style()->standardIcon(QStyle::SP_DialogSaveButton)), tr("保存 (&S)"), this);
     m_saveAction->setShortcut(QKeySequence::Save);
     m_saveAction->setEnabled(false);
     connect(m_saveAction, SIGNAL(triggered()), this, SLOT(onSaveFile()));
@@ -168,7 +156,7 @@ void MainWindow::initConnections()
     // ---- Edit ----
     QMenu *editMenu = menuBar()->addMenu(tr("编辑 (&E)"));
     QAction *undoAct = new QAction(QIcon::fromTheme("edit-undo",
-        style()->standardIcon(QStyle::SP_ArrowLeft)), tr("撤销 (&U)"), this);
+                                   style()->standardIcon(QStyle::SP_ArrowLeft)), tr("撤销 (&U)"), this);
     undoAct->setShortcut(QKeySequence::Undo);
     undoAct->setEnabled(false);
     connect(undoAct, SIGNAL(triggered()), m_editor, SLOT(undo()));
@@ -176,7 +164,7 @@ void MainWindow::initConnections()
     editMenu->addAction(undoAct);
 
     QAction *redoAct = new QAction(QIcon::fromTheme("edit-redo",
-        style()->standardIcon(QStyle::SP_ArrowRight)), tr("重做 (&R)"), this);
+                                   style()->standardIcon(QStyle::SP_ArrowRight)), tr("重做 (&R)"), this);
     redoAct->setShortcut(QKeySequence::Redo);
     redoAct->setEnabled(false);
     connect(redoAct, SIGNAL(triggered()), m_editor, SLOT(redo()));
@@ -186,7 +174,7 @@ void MainWindow::initConnections()
     editMenu->addSeparator();
 
     QAction *cutAct = new QAction(QIcon::fromTheme("edit-cut",
-        style()->standardIcon(QStyle::SP_DialogCancelButton)), tr("剪切 (&T)"), this);
+                                  style()->standardIcon(QStyle::SP_DialogCancelButton)), tr("剪切 (&T)"), this);
     cutAct->setShortcut(QKeySequence::Cut);
     connect(cutAct, SIGNAL(triggered()), m_editor, SLOT(cut()));
     editMenu->addAction(cutAct);
@@ -197,7 +185,7 @@ void MainWindow::initConnections()
     editMenu->addAction(copyAct);
 
     QAction *pasteAct = new QAction(QIcon::fromTheme("edit-paste",
-        style()->standardIcon(QStyle::SP_DialogOkButton)), tr("粘贴 (&P)"), this);
+                                    style()->standardIcon(QStyle::SP_DialogOkButton)), tr("粘贴 (&P)"), this);
     pasteAct->setShortcut(QKeySequence::Paste);
     connect(pasteAct, SIGNAL(triggered()), m_editor, SLOT(paste()));
     editMenu->addAction(pasteAct);
@@ -359,7 +347,7 @@ void MainWindow::initConnections()
     toolsMenu->addSeparator();
 
     QAction *prefAct = new QAction(QIcon::fromTheme("preferences-system"),
-        tr("首选项 (&P)..."), this);
+                                   tr("首选项 (&P)..."), this);
     prefAct->setShortcut(QKeySequence(tr("Ctrl+,")));
     connect(prefAct, SIGNAL(triggered()), this, SLOT(openPreferences()));
     toolsMenu->addAction(prefAct);
@@ -449,11 +437,12 @@ void MainWindow::onOpenFile()
     if (!maybeSave())
         return;
     QString path = QFileDialog::getOpenFileName(this, tr("打开 Markdown 文件"),
-        QString(), tr("Markdown 文件 (*.md *.markdown *.txt);;所有文件 (*)"));
+                   QString(), tr("Markdown 文件 (*.md *.markdown *.txt);;所有文件 (*)"));
     if (path.isEmpty())
         return;
     QFile file(path);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
         QMessageBox::warning(this, tr("打开"), tr("无法打开文件:\n%1").arg(path));
         return;
     }
@@ -472,7 +461,8 @@ void MainWindow::onOpenRecent()
     if (!a)
         return;
     QString path = a->data().toString();
-    if (!QFile::exists(path)) {
+    if (!QFile::exists(path))
+    {
         QMessageBox::warning(this, tr("打开最近的文件"), tr("文件已不存在:\n%1").arg(path));
         m_config->addRecentFile(path); // re-sorts; will be refreshed on next add
         m_config->clearRecentFiles();
@@ -488,7 +478,8 @@ void MainWindow::onOpenRecent()
     if (!maybeSave())
         return;
     QFile file(path);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
         QMessageBox::warning(this, tr("打开最近的文件"), tr("无法打开:\n%1").arg(path));
         return;
     }
@@ -505,7 +496,8 @@ void MainWindow::onSaveFile()
 {
     if (m_currentFile.isEmpty())
         onSaveAs();
-    else {
+    else
+    {
         saveFile(m_currentFile);
         m_editor->document()->setModified(false);
     }
@@ -514,11 +506,12 @@ void MainWindow::onSaveFile()
 void MainWindow::onSaveAs()
 {
     QString path = QFileDialog::getSaveFileName(this, tr("保存 Markdown 文件"),
-        m_currentFile.isEmpty() ? "untitled.md" : m_currentFile,
-        tr("Markdown 文件 (*.md);;所有文件 (*)"));
+                   m_currentFile.isEmpty() ? "untitled.md" : m_currentFile,
+                   tr("Markdown 文件 (*.md);;所有文件 (*)"));
     if (path.isEmpty())
         return;
-    if (saveFile(path)) {
+    if (saveFile(path))
+    {
         setCurrentFile(path);
         m_editor->document()->setModified(false);
     }
@@ -527,7 +520,8 @@ void MainWindow::onSaveAs()
 bool MainWindow::saveFile(const QString &path)
 {
     QFile file(path);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
         QMessageBox::warning(this, tr("保存"), tr("无法保存文件:\n%1").arg(path));
         return false;
     }
@@ -542,20 +536,21 @@ bool MainWindow::saveFile(const QString &path)
 void MainWindow::onExportHtml()
 {
     QString path = QFileDialog::getSaveFileName(this, tr("导出 HTML"),
-        m_currentFile.isEmpty() ? "output.html" : QFileInfo(m_currentFile).baseName() + ".html",
-        tr("HTML 文件 (*.html *.htm);;所有文件 (*)"));
+                   m_currentFile.isEmpty() ? "output.html" : QFileInfo(m_currentFile).baseName() + ".html",
+                   tr("HTML 文件 (*.html *.htm);;所有文件 (*)"));
     if (path.isEmpty())
         return;
     MarkdownParser parser;
     QString body = parser.parse(m_editor->toPlainText());
     QString css = m_styleLoader->loadFromFile(m_config->cssFilePath());
     QString html = QString(
-        "<!DOCTYPE html><html><head><meta charset=\"utf-8\">"
-        "<title>%1</title><style>%2</style></head><body>%3</body></html>")
-        .arg(QFileInfo(m_currentFile).baseName())
-        .arg(css).arg(body);
+                       "<!DOCTYPE html><html><head><meta charset=\"utf-8\">"
+                       "<title>%1</title><style>%2</style></head><body>%3</body></html>")
+                   .arg(QFileInfo(m_currentFile).baseName())
+                   .arg(css).arg(body);
     QFile file(path);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
         QMessageBox::warning(this, tr("导出"), tr("无法写入文件:\n%1").arg(path));
         return;
     }
@@ -569,8 +564,8 @@ void MainWindow::onExportHtml()
 void MainWindow::onExportPdf()
 {
     QString path = QFileDialog::getSaveFileName(this, tr("导出 PDF"),
-        m_currentFile.isEmpty() ? "output.pdf" : QFileInfo(m_currentFile).baseName() + ".pdf",
-        tr("PDF 文件 (*.pdf);;所有文件 (*)"));
+                   m_currentFile.isEmpty() ? "output.pdf" : QFileInfo(m_currentFile).baseName() + ".pdf",
+                   tr("PDF 文件 (*.pdf);;所有文件 (*)"));
     if (path.isEmpty())
         return;
     QPrinter printer(QPrinter::HighResolution);
@@ -593,7 +588,8 @@ void MainWindow::onFind()
     static FindReplaceDialog *dlg = 0;
     if (!dlg)
         dlg = new FindReplaceDialog(m_editor, this);
-    if (!dlg->isVisible()) {
+    if (!dlg->isVisible())
+    {
         QTextCursor cur = m_editor->textCursor();
         if (cur.hasSelection())
             dlg->setFindText(cur.selectedText());
@@ -674,11 +670,26 @@ void MainWindow::toggleStatusBar(bool checked)
 // --------------------------------------------------------------------------
 // Format operations
 // --------------------------------------------------------------------------
-void MainWindow::formatBold()      { wrapSelection("**", "**"); }
-void MainWindow::formatItalic()    { wrapSelection("*", "*"); }
-void MainWindow::formatUnderline() { wrapSelection("<u>", "</u>"); }
-void MainWindow::formatStrikethrough() { wrapSelection("~~", "~~"); }
-void MainWindow::inlineCode()      { wrapSelection("`", "`"); }
+void MainWindow::formatBold()
+{
+    wrapSelection("**", "**");
+}
+void MainWindow::formatItalic()
+{
+    wrapSelection("*", "*");
+}
+void MainWindow::formatUnderline()
+{
+    wrapSelection("<u>", "</u>");
+}
+void MainWindow::formatStrikethrough()
+{
+    wrapSelection("~~", "~~");
+}
+void MainWindow::inlineCode()
+{
+    wrapSelection("`", "`");
+}
 
 void MainWindow::heading(int level)
 {
@@ -692,7 +703,8 @@ void MainWindow::heading(int level)
     QTextBlock block = m_editor->document()->findBlock(start);
     QTextBlock endBlock = m_editor->document()->findBlock(end);
     QString newText;
-    for (; block.isValid() && block.position() <= endBlock.position(); block = block.next()) {
+    for (; block.isValid() && block.position() <= endBlock.position(); block = block.next())
+    {
         QString line = block.text();
         QString stripped = line;
         QRegExp headerRe("^#{1,6}\\s+");
@@ -729,7 +741,8 @@ void MainWindow::orderedList()
     QTextBlock endBlock = m_editor->document()->findBlock(end);
     QString newText;
     int n = 1;
-    for (; block.isValid() && block.position() <= endBlock.position(); block = block.next()) {
+    for (; block.isValid() && block.position() <= endBlock.position(); block = block.next())
+    {
         QString line = block.text();
         QString stripped = line;
         QRegExp listRe("^\\s*\\d+\\.\\s+");
@@ -754,10 +767,13 @@ void MainWindow::blockQuote()
 void MainWindow::codeBlock()
 {
     QTextCursor cur = m_editor->textCursor();
-    if (cur.hasSelection()) {
+    if (cur.hasSelection())
+    {
         QString sel = cur.selectedText();
         cur.insertText("\n```\n" + sel + "\n```\n");
-    } else {
+    }
+    else
+    {
         int pos = cur.position();
         cur.insertText("\n```\n\n```\n");
         cur.setPosition(pos + 5); // inside the fence
@@ -771,7 +787,8 @@ void MainWindow::insertLink()
     QTextCursor cur = m_editor->textCursor();
     if (cur.hasSelection())
         dlg.setText(cur.selectedText());
-    if (dlg.exec() == QDialog::Accepted) {
+    if (dlg.exec() == QDialog::Accepted)
+    {
         QString text = dlg.text().isEmpty() && cur.hasSelection() ? cur.selectedText() : dlg.text();
         QString url = dlg.url();
         QString md = QString("[%1](%2)").arg(text).arg(url);
@@ -788,7 +805,8 @@ void MainWindow::insertImage()
     QTextCursor cur = m_editor->textCursor();
     if (cur.hasSelection())
         dlg.setText(cur.selectedText());
-    if (dlg.exec() == QDialog::Accepted) {
+    if (dlg.exec() == QDialog::Accepted)
+    {
         QString text = dlg.text().isEmpty() ? dlg.url() : dlg.text();
         QString url = dlg.url();
         QString md = QString("![%1](%2)").arg(text).arg(url);
@@ -810,7 +828,7 @@ void MainWindow::insertHorizontalRule()
 void MainWindow::selectCss()
 {
     QString path = QFileDialog::getOpenFileName(this, tr("选择 CSS 样式文件"),
-        m_config->cssFilePath(), tr("CSS 文件 (*.css);;所有文件 (*)"));
+                   m_config->cssFilePath(), tr("CSS 文件 (*.css);;所有文件 (*)"));
     if (path.isEmpty())
         return;
     m_config->setCssFilePath(path);
@@ -968,22 +986,28 @@ void MainWindow::previewSelectAll()
 void MainWindow::wrapSelection(const QString &before, const QString &after)
 {
     QTextCursor cur = m_editor->textCursor();
-    if (cur.hasSelection()) {
+    if (cur.hasSelection())
+    {
         QString sel = cur.selectedText();
         int selStart = cur.selectionStart();
         if (sel.startsWith(before) && sel.endsWith(after) &&
-            sel.length() >= before.length() + after.length()) {
+                sel.length() >= before.length() + after.length())
+        {
             QString inner = sel.mid(before.length(),
                                     sel.length() - before.length() - after.length());
             cur.insertText(inner);
             cur.setPosition(selStart);
             cur.setPosition(selStart + inner.length(), QTextCursor::KeepAnchor);
-        } else {
+        }
+        else
+        {
             cur.insertText(before + sel + after);
             cur.setPosition(selStart);
             cur.setPosition(selStart + before.length() + sel.length(), QTextCursor::KeepAnchor);
         }
-    } else {
+    }
+    else
+    {
         int pos = cur.position();
         cur.insertText(before + after);
         cur.setPosition(pos + before.length());
@@ -1003,7 +1027,8 @@ void MainWindow::applyLinePrefix(const QString &prefix, bool toggle)
     QTextBlock block = m_editor->document()->findBlock(start);
     QTextBlock endBlock = m_editor->document()->findBlock(end);
     QString newText;
-    for (; block.isValid() && block.position() <= endBlock.position(); block = block.next()) {
+    for (; block.isValid() && block.position() <= endBlock.position(); block = block.next())
+    {
         QString line = block.text();
         if (toggle && line.startsWith(prefix))
             newText += line.mid(prefix.length()) + "\n";
@@ -1033,14 +1058,16 @@ bool MainWindow::maybeSave()
     if (!m_editor->document()->isModified())
         return true;
     QMessageBox::StandardButton ret = QMessageBox::warning(this, tr("MarkEdit"),
-        tr("文档已被修改。\n是否保存更改？"),
-        QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
-    if (ret == QMessageBox::Save) {
+                                      tr("文档已被修改。\n是否保存更改？"),
+                                      QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+    if (ret == QMessageBox::Save)
+    {
         onSaveFile();
         if (m_editor->document()->isModified())
             return false;   // save was cancelled or failed
     }
-    else if (ret == QMessageBox::Cancel) {
+    else if (ret == QMessageBox::Cancel)
+    {
         return false;
     }
     return true;
@@ -1052,7 +1079,8 @@ void MainWindow::setCurrentFile(const QString &path)
     QString title = APP_NAME;
     if (path.isEmpty())
         title = tr("未命名") + " - " + title;
-    else {
+    else
+    {
         title = QFileInfo(path).fileName() + " - " + title;
         m_config->addRecentFile(path);
         updateRecentMenu();
@@ -1067,13 +1095,15 @@ void MainWindow::updateRecentMenu()
 {
     m_recentMenu->clear();
     QStringList recent = m_config->recentFiles(10);
-    if (recent.isEmpty()) {
+    if (recent.isEmpty())
+    {
         QAction *none = new QAction(tr("(无最近文件)"), this);
         none->setEnabled(false);
         m_recentMenu->addAction(none);
         return;
     }
-    for (const QString &f : recent) {
+    for (const QString &f : recent)
+    {
         QAction *a = new QAction(QFileInfo(f).fileName(), this);
         a->setData(f);
         a->setToolTip(f);
@@ -1099,7 +1129,8 @@ void MainWindow::clearRecentFilesAction()
 void MainWindow::showEvent(QShowEvent *event)
 {
     QMainWindow::showEvent(event);
-    if (!m_splitSet) {
+    if (!m_splitSet)
+    {
         m_splitSet = true;
         int half = m_splitter->width() / 2;
         m_splitter->setSizes(QList<int>() << half << half);
@@ -1114,7 +1145,6 @@ void MainWindow::closeEvent(QCloseEvent *event)
         event->ignore();
 }
 
-// silence unused warnings for exit action
 void MainWindow::onExit()
 {
     close();

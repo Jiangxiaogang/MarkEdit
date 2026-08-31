@@ -25,7 +25,8 @@ QString MarkdownParser::parseInline(const QString &text) const
     // emphasis / link replacements below. A private placeholder is used.
     QStringList codes;
     int pos = 0;
-    while (true) {
+    while (true)
+    {
         int start = out.indexOf('`', pos);
         if (start < 0)
             break;
@@ -41,9 +42,10 @@ QString MarkdownParser::parseInline(const QString &text) const
     // Images: ![alt](url)  (must be processed before links)
     QRegExp imgRe("!\\[([^\\]]*)\\]\\(([^\\)]+)\\)");
     pos = 0;
-    while ((pos = imgRe.indexIn(out, pos)) != -1) {
+    while ((pos = imgRe.indexIn(out, pos)) != -1)
+    {
         QString replacement = QString("<img src=\"%2\" alt=\"%1\">")
-            .arg(imgRe.cap(1)).arg(imgRe.cap(2));
+                              .arg(imgRe.cap(1)).arg(imgRe.cap(2));
         out.replace(pos, imgRe.matchedLength(), replacement);
         pos += replacement.length();
     }
@@ -51,9 +53,10 @@ QString MarkdownParser::parseInline(const QString &text) const
     // Links: [text](url)
     QRegExp linkRe("\\[([^\\]]*)\\]\\(([^\\)]+)\\)");
     pos = 0;
-    while ((pos = linkRe.indexIn(out, pos)) != -1) {
+    while ((pos = linkRe.indexIn(out, pos)) != -1)
+    {
         QString replacement = QString("<a href=\"%2\">%1</a>")
-            .arg(linkRe.cap(1)).arg(linkRe.cap(2));
+                              .arg(linkRe.cap(1)).arg(linkRe.cap(2));
         out.replace(pos, linkRe.matchedLength(), replacement);
         pos += replacement.length();
     }
@@ -61,7 +64,8 @@ QString MarkdownParser::parseInline(const QString &text) const
     // Bold: **text**
     QRegExp boldStarRe("\\*\\*(.+?)\\*\\*");
     pos = 0;
-    while ((pos = boldStarRe.indexIn(out, pos)) != -1) {
+    while ((pos = boldStarRe.indexIn(out, pos)) != -1)
+    {
         QString replacement = QString("<strong>%1</strong>").arg(boldStarRe.cap(1));
         out.replace(pos, boldStarRe.matchedLength(), replacement);
         pos += replacement.length();
@@ -70,7 +74,8 @@ QString MarkdownParser::parseInline(const QString &text) const
     // Bold: __text__  (word-boundary aware so intra-word underscores stay literal)
     QRegExp boldUnderscoreRe("(?<!\\w)__(?!\\s)(.*?)(?<!\\s)__(?!\\w)");
     pos = 0;
-    while ((pos = boldUnderscoreRe.indexIn(out, pos)) != -1) {
+    while ((pos = boldUnderscoreRe.indexIn(out, pos)) != -1)
+    {
         QString replacement = QString("<strong>%1</strong>").arg(boldUnderscoreRe.cap(1));
         out.replace(pos, boldUnderscoreRe.matchedLength(), replacement);
         pos += replacement.length();
@@ -79,7 +84,8 @@ QString MarkdownParser::parseInline(const QString &text) const
     // Italic: *text*
     QRegExp italicStarRe("\\*(.+?)\\*");
     pos = 0;
-    while ((pos = italicStarRe.indexIn(out, pos)) != -1) {
+    while ((pos = italicStarRe.indexIn(out, pos)) != -1)
+    {
         QString replacement = QString("<em>%1</em>").arg(italicStarRe.cap(1));
         out.replace(pos, italicStarRe.matchedLength(), replacement);
         pos += replacement.length();
@@ -88,7 +94,8 @@ QString MarkdownParser::parseInline(const QString &text) const
     // Italic: _text_  (word-boundary aware so intra-word underscores stay literal)
     QRegExp italicUnderscoreRe("(?<!\\w)_(?!\\s)(.+?)(?<!\\s)_(?!\\w)");
     pos = 0;
-    while ((pos = italicUnderscoreRe.indexIn(out, pos)) != -1) {
+    while ((pos = italicUnderscoreRe.indexIn(out, pos)) != -1)
+    {
         QString replacement = QString("<em>%1</em>").arg(italicUnderscoreRe.cap(1));
         out.replace(pos, italicUnderscoreRe.matchedLength(), replacement);
         pos += replacement.length();
@@ -97,7 +104,8 @@ QString MarkdownParser::parseInline(const QString &text) const
     // Strikethrough: ~~text~~
     QRegExp strikeRe("~~(.+?)~~");
     pos = 0;
-    while ((pos = strikeRe.indexIn(out, pos)) != -1) {
+    while ((pos = strikeRe.indexIn(out, pos)) != -1)
+    {
         QString replacement = QString("<del>%1</del>").arg(strikeRe.cap(1));
         out.replace(pos, strikeRe.matchedLength(), replacement);
         pos += replacement.length();
@@ -139,7 +147,8 @@ QString MarkdownParser::parseCodeBlock(const QStringList &lines, int &i) const
     QStringList code;
     ++i;
     QRegExp closeRe("^(\\s*)(`{3,}|~{3,})\\s*$");
-    while (i < lines.size() && !closeRe.exactMatch(lines[i])) {
+    while (i < lines.size() && !closeRe.exactMatch(lines[i]))
+    {
         code.append(lines[i]);
         ++i;
     }
@@ -161,7 +170,8 @@ QString MarkdownParser::parseList(const QStringList &lines, int &i) const
     QString tag = ordered ? "ol" : "ul";
 
     QString html = QString("<%1>\n").arg(tag);
-    while (i < lines.size()) {
+    while (i < lines.size())
+    {
         QString cur = lines[i];
         if (cur.trimmed().isEmpty())
             break;
@@ -179,7 +189,8 @@ QString MarkdownParser::parseBlockQuote(const QStringList &lines, int &i) const
 {
     QStringList quote;
     QRegExp re("^\\s*>\\s?(.*)$");
-    while (i < lines.size()) {
+    while (i < lines.size())
+    {
         if (!re.exactMatch(lines[i]))
             break;
         quote.append(re.cap(1));
@@ -191,7 +202,8 @@ QString MarkdownParser::parseBlockQuote(const QStringList &lines, int &i) const
 QString MarkdownParser::parseParagraph(const QStringList &lines, int &i) const
 {
     QStringList para;
-    while (i < lines.size() && !lines[i].trimmed().isEmpty()) {
+    while (i < lines.size() && !lines[i].trimmed().isEmpty())
+    {
         // Stop if the next line starts a new block
         QString l = lines[i];
         if (parseHeading(l).isEmpty() == false) break;
@@ -219,17 +231,25 @@ QStringList MarkdownParser::splitTableRow(const QString &line) const
     QStringList parts;
     QString cur;
     bool escaped = false;
-    for (int k = 0; k < l.length(); ++k) {
+    for (int k = 0; k < l.length(); ++k)
+    {
         QChar c = l.at(k);
-        if (escaped) {
+        if (escaped)
+        {
             cur += c;
             escaped = false;
-        } else if (c == '\\') {
+        }
+        else if (c == '\\')
+        {
             escaped = true;
-        } else if (c == '|') {
+        }
+        else if (c == '|')
+        {
             parts.append(cur.trimmed());
             cur.clear();
-        } else {
+        }
+        else
+        {
             cur += c;
         }
     }
@@ -248,7 +268,8 @@ bool MarkdownParser::isTableDelimiter(const QString &line, QStringList &aligns) 
         return false;
 
     QRegExp dashRe("^:?-+:?$");
-    for (const QString &cell : cells) {
+    for (const QString &cell : cells)
+    {
         QString c = cell.trimmed();
         if (!dashRe.exactMatch(c))
             return false;
@@ -282,7 +303,8 @@ QString MarkdownParser::parseTable(const QStringList &lines, int &i) const
     while (headers.size() < cols)
         headers.append(QString());
 
-    auto alignAttr = [&](const QString &a) -> QString {
+    auto alignAttr = [&](const QString & a) -> QString
+    {
         return a.isEmpty() ? QString() : QString(" style=\"text-align:%1\"").arg(a);
     };
 
@@ -294,7 +316,8 @@ QString MarkdownParser::parseTable(const QStringList &lines, int &i) const
 
     // Consume header + delimiter rows.
     i += 2;
-    while (i < lines.size()) {
+    while (i < lines.size())
+    {
         QString l = lines[i];
         if (l.trimmed().isEmpty())
             break;
@@ -308,7 +331,8 @@ QString MarkdownParser::parseTable(const QStringList &lines, int &i) const
         QStringList cells = splitTableRow(l);
         while (cells.size() < cols)
             cells.append(QString());
-        if (cells.size() > cols) {
+        if (cells.size() > cols)
+        {
             // Overflow cells are merged into the last column.
             QString overflow = QStringList(cells.mid(cols - 1)).join(" | ");
             cells = cells.mid(0, cols - 1);
@@ -332,11 +356,19 @@ QString MarkdownParser::parseBlock(const QStringList &lines, int &i) const
 
     // Horizontal rule
     QString hr = parseHorizontalRule(line);
-    if (!hr.isEmpty()) { ++i; return hr; }
+    if (!hr.isEmpty())
+    {
+        ++i;
+        return hr;
+    }
 
     // Heading
     QString heading = parseHeading(line);
-    if (!heading.isEmpty()) { ++i; return heading; }
+    if (!heading.isEmpty())
+    {
+        ++i;
+        return heading;
+    }
 
     // Table (GitHub Flavored Markdown pipe table)
     QString table = parseTable(lines, i);
@@ -353,7 +385,7 @@ QString MarkdownParser::parseBlock(const QStringList &lines, int &i) const
 
     // Lists
     if (QRegExp("^\\s*([-*+])\\s+").indexIn(line) != -1 ||
-        QRegExp("^\\s*\\d+\\.\\s+").indexIn(line) != -1)
+            QRegExp("^\\s*\\d+\\.\\s+").indexIn(line) != -1)
         return parseList(lines, i);
 
     // Paragraph (falls through to blank handling)
@@ -366,8 +398,10 @@ QString MarkdownParser::parse(const QString &markdown) const
     QString html;
 
     int i = 0;
-    while (i < lines.size()) {
-        if (lines[i].trimmed().isEmpty()) {
+    while (i < lines.size())
+    {
+        if (lines[i].trimmed().isEmpty())
+        {
             ++i;
             continue;
         }

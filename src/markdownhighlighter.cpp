@@ -3,16 +3,17 @@
 #include <QRegExp>
 #include <QTextCharFormat>
 
-namespace {
-
-// Build a character format that only carries a foreground colour. This is what
-// guarantees the highlighter never changes font family, weight, style or size.
-QTextCharFormat colorFormat(const QColor &color)
+namespace
 {
-    QTextCharFormat f;
-    f.setForeground(color);
-    return f;
-}
+
+    // Build a character format that only carries a foreground colour. This is what
+    // guarantees the highlighter never changes font family, weight, style or size.
+    QTextCharFormat colorFormat(const QColor &color)
+    {
+        QTextCharFormat f;
+        f.setForeground(color);
+        return f;
+    }
 
 } // namespace
 
@@ -38,7 +39,8 @@ void MarkdownHighlighter::applyRegex(const QString &text,
                                      const QTextCharFormat &format)
 {
     int pos = 0;
-    while ((pos = re.indexIn(text, pos)) != -1) {
+    while ((pos = re.indexIn(text, pos)) != -1)
+    {
         int len = re.matchedLength();
         setFormat(pos, len, format);
         pos += len;
@@ -56,28 +58,32 @@ void MarkdownHighlighter::highlightBlock(const QString &text)
     QRegExp closeRe("^\\s*(`{3,}|~{3,})\\s*$");
 
     // ---- Inside a fenced code block: colour the entire line as code ----
-    if (state == InCodeBlock) {
+    if (state == InCodeBlock)
+    {
         setFormat(0, text.length(), m_codeFmt);
         setCurrentBlockState(closeRe.exactMatch(text) ? Normal : InCodeBlock);
         return;
     }
 
     // ---- Opening fence line ----
-    if (fenceRe.exactMatch(text)) {
+    if (fenceRe.exactMatch(text))
+    {
         setFormat(0, text.length(), m_codeFmt);
         setCurrentBlockState(InCodeBlock);
         return;
     }
 
     // ---- Heading (whole line) ----
-    if (QRegExp("^(#{1,6})\\s+").exactMatch(text)) {
+    if (QRegExp("^(#{1,6})\\s+").exactMatch(text))
+    {
         setFormat(0, text.length(), m_headingFmt);
         setCurrentBlockState(Normal);
         return;
     }
 
     // ---- Horizontal rule (whole line) ----
-    if (QRegExp("^(\\s*([-*_])\\s*){3,}$").exactMatch(text)) {
+    if (QRegExp("^(\\s*([-*_])\\s*){3,}$").exactMatch(text))
+    {
         setFormat(0, text.length(), m_hrFmt);
         setCurrentBlockState(Normal);
         return;

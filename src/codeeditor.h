@@ -24,10 +24,16 @@ public:
     ~CodeEditor();
 
     void setLineNumbersVisible(bool visible);
-    bool lineNumbersVisible() const { return m_showLineNumbers; }
+    bool lineNumbersVisible() const
+    {
+        return m_showLineNumbers;
+    }
 
     void setWhitespaceVisible(bool visible);
-    bool whitespaceVisible() const { return m_showWhitespace; }
+    bool whitespaceVisible() const
+    {
+        return m_showWhitespace;
+    }
 
     void setSyntaxHighlightingEnabled(bool enabled);
 

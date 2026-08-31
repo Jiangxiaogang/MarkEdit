@@ -40,6 +40,15 @@ InsertDialog::InsertDialog(const QString &kind, QWidget *parent)
     m_textEdit->setFocus();
 }
 
-QString InsertDialog::text() const { return m_textEdit->text(); }
-QString InsertDialog::url() const { return m_urlEdit->text(); }
-void InsertDialog::setText(const QString &text) { m_textEdit->setText(text); }
+QString InsertDialog::text() const
+{
+    return m_textEdit->text();
+}
+QString InsertDialog::url() const
+{
+    return m_urlEdit->text();
+}
+void InsertDialog::setText(const QString &text)
+{
+    m_textEdit->setText(text);
+}
