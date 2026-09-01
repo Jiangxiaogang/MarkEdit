@@ -36,6 +36,9 @@ HEADERS += \
     src/insertdialog.h \
     src/aboutdialog.h
 
+# Windows EXE icon
+RC_FILE = res/app.rc
+
 # Resources
 RESOURCES +=
 
