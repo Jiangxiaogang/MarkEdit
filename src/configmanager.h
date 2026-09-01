@@ -93,6 +93,10 @@ public:
     QString monospaceFont() const;
     void setMonospaceFont(const QString &family);
 
+    // Preview stylesheet file (empty = built-in, no external .css)
+    QString previewStyleFile() const;
+    void setPreviewStyleFile(const QString &path);
+
     // ---- Window state ----
     QByteArray windowGeometry() const;
     void setWindowGeometry(const QByteArray &geometry);
@@ -149,6 +153,7 @@ private:
     QString m_serifFont;
     QString m_sansSerifFont;
     QString m_monospaceFont;
+    QString m_previewStyleFile;
 
     // Window
     QByteArray m_windowGeometry;

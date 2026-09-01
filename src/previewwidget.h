@@ -32,6 +32,8 @@ private slots:
     void onScrollTimeout();
     void onLinkClicked(const QUrl &url);
     void applyFontSettings();
+    void applyStyle();
+    void onConfigChanged();
 
 private:
     QString generateHtml(const QString &body) const;

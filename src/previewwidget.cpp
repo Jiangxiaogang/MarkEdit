@@ -29,8 +29,9 @@ PreviewWidget::PreviewWidget(QWidget *parent)
 
     connect(this, SIGNAL(linkClicked(const QUrl &)), this, SLOT(onLinkClicked(const QUrl &)));
     connect(this, SIGNAL(loadFinished(bool)), this, SLOT(onLoadFinished(bool)));
+    applyStyle();
     applyFontSettings();
-    connect(ConfigManager::instance(), SIGNAL(configurationChanged()), this, SLOT(applyFontSettings()));
+    connect(ConfigManager::instance(), SIGNAL(configurationChanged()), this, SLOT(onConfigChanged()));
 }
 
 PreviewWidget::~PreviewWidget()
@@ -77,6 +78,25 @@ void PreviewWidget::applyFontSettings()
     settings->setFontFamily(QWebSettings::SansSerifFont, cfg->sansSerifFont());
     settings->setFontFamily(QWebSettings::FixedFont, cfg->monospaceFont());
     refresh();
+}
+
+void PreviewWidget::applyStyle()
+{
+    ConfigManager *cfg = ConfigManager::instance();
+    QString path = cfg->previewStyleFile();
+    if (path.isEmpty())
+    {
+        m_css.clear();
+        return;
+    }
+    StyleSheetLoader loader;
+    m_css = loader.loadFromFile(path);
+}
+
+void PreviewWidget::onConfigChanged()
+{
+    applyStyle();
+    applyFontSettings();
 }
 
 QString PreviewWidget::generateHtml(const QString &body) const

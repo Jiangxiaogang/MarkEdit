@@ -7,6 +7,9 @@
 #include <QLabel>
 #include <QFont>
 #include <QColorDialog>
+#include <QCoreApplication>
+#include <QDir>
+#include <QFileInfo>
 
 SettingsDialog::SettingsDialog(ConfigManager *config, QWidget *parent)
     : QDialog(parent)
@@ -63,7 +66,27 @@ SettingsDialog::SettingsDialog(ConfigManager *config, QWidget *parent)
     m_sansSerifFontCombo->setCurrentFont(QFont(m_config->sansSerifFont()));
     m_monospaceFontCombo->setCurrentFont(QFont(m_config->monospaceFont()));
 
+    m_styleCombo = new QComboBox;
+    m_styleCombo->addItem(tr("内置样式"), QString()); // built-in: no external .css
+    QDir stylesDir(QCoreApplication::applicationDirPath() + "/styles");
+    if (stylesDir.exists())
+    {
+        QStringList files = stylesDir.entryList(QStringList() << "*.css", QDir::Files, QDir::Name);
+        foreach (const QString &file, files)
+            m_styleCombo->addItem(QFileInfo(file).baseName(), stylesDir.filePath(file));
+    }
+    int styleIdx = 0;
+    QString curStyle = m_config->previewStyleFile();
+    if (!curStyle.isEmpty())
+    {
+        int found = m_styleCombo->findData(curStyle);
+        if (found >= 0)
+            styleIdx = found;
+    }
+    m_styleCombo->setCurrentIndex(styleIdx);
+
     QFormLayout *previewLayout = new QFormLayout(previewTab);
+    previewLayout->addRow(tr("样式文件:"), m_styleCombo);
     previewLayout->addRow(tr("标准字体:"), m_standardFontCombo);
     previewLayout->addRow(tr("衬线字体:"), m_serifFontCombo);
     previewLayout->addRow(tr("无衬线字体:"), m_sansSerifFontCombo);
@@ -125,6 +148,7 @@ void SettingsDialog::accept()
     m_config->setSerifFont(m_serifFontCombo->currentFont().family());
     m_config->setSansSerifFont(m_sansSerifFontCombo->currentFont().family());
     m_config->setMonospaceFont(m_monospaceFontCombo->currentFont().family());
+    m_config->setPreviewStyleFile(m_styleCombo->itemData(m_styleCombo->currentIndex()).toString());
     m_config->saveConfig();
     QDialog::accept();
 }

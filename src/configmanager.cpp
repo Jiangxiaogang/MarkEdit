@@ -66,6 +66,7 @@ void ConfigManager::loadConfig()
     m_serifFont      = settings.value("preview/serif_font", "SimSun").toString();
     m_sansSerifFont  = settings.value("preview/sans_serif_font", "Microsoft YaHei").toString();
     m_monospaceFont  = settings.value("preview/monospace_font", "Courier New").toString();
+    m_previewStyleFile = settings.value("preview/style_file", "").toString();
 
     // Window
     m_windowGeometry = settings.value("window/geometry").toByteArray();
@@ -107,6 +108,7 @@ void ConfigManager::saveConfig()
     settings.setValue("preview/serif_font", m_serifFont);
     settings.setValue("preview/sans_serif_font", m_sansSerifFont);
     settings.setValue("preview/monospace_font", m_monospaceFont);
+    settings.setValue("preview/style_file", m_previewStyleFile);
 
     settings.setValue("window/geometry", m_windowGeometry);
     settings.setValue("window/state", m_windowState);
@@ -239,6 +241,9 @@ void ConfigManager::setSansSerifFont(const QString &family) { m_sansSerifFont = 
 
 QString ConfigManager::monospaceFont() const { return m_monospaceFont; }
 void ConfigManager::setMonospaceFont(const QString &family) { m_monospaceFont = family; }
+
+QString ConfigManager::previewStyleFile() const { return m_previewStyleFile; }
+void ConfigManager::setPreviewStyleFile(const QString &path) { m_previewStyleFile = path; }
 
 // ---- Window state ----
 QByteArray ConfigManager::windowGeometry() const

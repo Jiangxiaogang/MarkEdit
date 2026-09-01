@@ -7,6 +7,7 @@
 #include <QLineEdit>
 #include <QFontComboBox>
 #include <QPushButton>
+#include <QComboBox>
 
 class ConfigManager;
 
@@ -30,6 +31,7 @@ private:
     QFontComboBox *m_serifFontCombo;
     QFontComboBox *m_sansSerifFontCombo;
     QFontComboBox *m_monospaceFontCombo;
+    QComboBox *m_styleCombo;
     QPushButton *m_currentLineBtn;
     QLineEdit *m_currentLineEdit;
     QColor m_currentLineColor;
