@@ -23,6 +23,9 @@ PreviewWidget::PreviewWidget(QWidget *parent)
     m_scrollTimer = new QTimer(this);
     m_scrollTimer->setInterval(100);
     connect(m_scrollTimer, SIGNAL(timeout()), this, SLOT(onScrollTimeout()));
+    // Poll the scroll position so user scrolling in the preview is reported
+    // via the `scrolled` signal and synced to the editor.
+    m_scrollTimer->start();
 
     connect(this, SIGNAL(linkClicked(const QUrl &)), this, SLOT(onLinkClicked(const QUrl &)));
     connect(this, SIGNAL(loadFinished(bool)), this, SLOT(onLoadFinished(bool)));
@@ -48,9 +51,11 @@ void PreviewWidget::refresh()
 {
     QString body = m_parser->parse(m_markdown);
     QString html = generateHtml(body);
+    // Suppress scroll reporting while the new content loads asynchronously,
+    // otherwise the transient scroll position during reflow would be synced
+    // back to the editor.
     m_emitScroll = false;
     setHtml(html, m_baseUrl);
-    m_emitScroll = true;
     m_lastScroll = 0;
 }
 
@@ -107,6 +112,8 @@ void PreviewWidget::onLoadFinished(bool ok)
     // once the new content has finished loading.
     if (m_pendingRatio >= 0.0f)
         applyRatio(m_pendingRatio);
+    // Content has settled; resume reporting scroll changes to sync the editor.
+    m_emitScroll = true;
 }
 
 void PreviewWidget::onScrollTimeout()
