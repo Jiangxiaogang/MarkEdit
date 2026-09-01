@@ -586,19 +586,12 @@ bool MainWindow::saveFile(const QString &path)
 
 void MainWindow::onExportHtml()
 {
-    QString path = QFileDialog::getSaveFileName(this, tr("导出 HTML"),
+    QString path = QFileDialog::getSaveFileName(this, tr("导出HTML"),
                    m_currentFile.isEmpty() ? "output.html" : QFileInfo(m_currentFile).baseName() + ".html",
                    tr("HTML 文件 (*.html *.htm);;所有文件 (*)"));
     if (path.isEmpty())
         return;
-    MarkdownParser parser;
-    QString body = parser.parse(m_editor->toPlainText());
-    QString css = m_styleLoader->getDefaultCSS();
-    QString html = QString(
-                       "<!DOCTYPE html><html><head><meta charset=\"utf-8\">"
-                       "<title>%1</title><style>%2</style></head><body>%3</body></html>")
-                   .arg(QFileInfo(m_currentFile).baseName())
-                   .arg(css).arg(body);
+    QString html = m_preview->getHtml();
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
@@ -609,21 +602,21 @@ void MainWindow::onExportHtml()
     out.setCodec("UTF-8");
     out << html;
     file.close();
-    statusBar()->showMessage(tr("已导出 HTML: %1").arg(path), 3000);
+    statusBar()->showMessage(tr("已导出HTML: %1").arg(path));
 }
 
 void MainWindow::onExportPdf()
 {
-    QString path = QFileDialog::getSaveFileName(this, tr("导出 PDF"),
+    QString path = QFileDialog::getSaveFileName(this, tr("导出PDF"),
                    m_currentFile.isEmpty() ? "output.pdf" : QFileInfo(m_currentFile).baseName() + ".pdf",
-                   tr("PDF 文件 (*.pdf);;所有文件 (*)"));
+                   tr("PDF文件 (*.pdf);;所有文件 (*)"));
     if (path.isEmpty())
         return;
     QPrinter printer(QPrinter::HighResolution);
     printer.setOutputFormat(QPrinter::PdfFormat);
     printer.setOutputFileName(path);
     m_preview->print(&printer);
-    statusBar()->showMessage(tr("已导出 PDF: %1").arg(path), 3000);
+    statusBar()->showMessage(tr("已导出PDF: %1").arg(path));
 }
 
 // --------------------------------------------------------------------------

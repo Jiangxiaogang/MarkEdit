@@ -37,6 +37,11 @@ PreviewWidget::~PreviewWidget()
 {
 }
 
+QString PreviewWidget::getHtml() const
+{
+    return page()->mainFrame()->toHtml();
+}
+
 void PreviewWidget::setCSS(const QString &css)
 {
     m_css = css;
@@ -77,8 +82,9 @@ void PreviewWidget::applyFontSettings()
 QString PreviewWidget::generateHtml(const QString &body) const
 {
     return QString(
-               "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n"
-               "<style>%1</style>\n</head>\n<body>\n%2\n</body>\n</html>")
+                "<!DOCTYPE html><html><head><meta charset=\"utf-8\">\n"
+                "<style>%1</style></head>\n"
+                "<body>%2</body></html>")
            .arg(m_css)
            .arg(body);
 }
