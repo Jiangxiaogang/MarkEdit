@@ -4,14 +4,12 @@
 #include <QFontComboBox>
 #include <QSpinBox>
 #include <QCheckBox>
-#include <QLineEdit>
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QFormLayout>
 #include <QTabWidget>
 #include <QLabel>
-#include <QFileDialog>
 #include <QFont>
 
 SettingsDialog::SettingsDialog(ConfigManager *config, QWidget *parent)
@@ -44,16 +42,21 @@ SettingsDialog::SettingsDialog(ConfigManager *config, QWidget *parent)
 
     // ---- Preview tab ----
     QWidget *previewTab = new QWidget;
-    m_cssPath = new QLineEdit;
-    m_cssPath->setText(m_config->cssFilePath());
-    QPushButton *browseBtn = new QPushButton(tr("浏览..."));
+    m_standardFontCombo = new QFontComboBox;
+    m_serifFontCombo = new QFontComboBox;
+    m_sansSerifFontCombo = new QFontComboBox;
+    m_monospaceFontCombo = new QFontComboBox;
 
-    QHBoxLayout *cssRow = new QHBoxLayout;
-    cssRow->addWidget(m_cssPath);
-    cssRow->addWidget(browseBtn);
+    m_standardFontCombo->setCurrentFont(QFont(m_config->standardFont()));
+    m_serifFontCombo->setCurrentFont(QFont(m_config->serifFont()));
+    m_sansSerifFontCombo->setCurrentFont(QFont(m_config->sansSerifFont()));
+    m_monospaceFontCombo->setCurrentFont(QFont(m_config->monospaceFont()));
 
     QFormLayout *previewLayout = new QFormLayout(previewTab);
-    previewLayout->addRow(tr("CSS 文件:"), cssRow);
+    previewLayout->addRow(tr("标准字体:"), m_standardFontCombo);
+    previewLayout->addRow(tr("衬线字体:"), m_serifFontCombo);
+    previewLayout->addRow(tr("无衬线字体:"), m_sansSerifFontCombo);
+    previewLayout->addRow(tr("等宽字体:"), m_monospaceFontCombo);
     tabs->addTab(previewTab, tr("预览"));
 
     QPushButton *okBtn = new QPushButton(tr("确定"));
@@ -67,18 +70,8 @@ SettingsDialog::SettingsDialog(ConfigManager *config, QWidget *parent)
     main->addWidget(tabs);
     main->addLayout(btnRow);
 
-    connect(browseBtn, SIGNAL(clicked()), this, SLOT(chooseCssFile()));
     connect(okBtn, SIGNAL(clicked()), this, SLOT(accept()));
     connect(cancelBtn, SIGNAL(clicked()), this, SLOT(reject()));
-}
-
-void SettingsDialog::chooseCssFile()
-{
-    QString path = QFileDialog::getOpenFileName(this, tr("选择 CSS 文件"),
-                   m_cssPath->text(),
-                   tr("CSS 文件 (*.css);;所有文件 (*)"));
-    if (!path.isEmpty())
-        m_cssPath->setText(path);
 }
 
 void SettingsDialog::accept()
@@ -87,7 +80,10 @@ void SettingsDialog::accept()
     f.setPointSize(m_fontSize->value());
     m_config->setEditorFont(f);
     m_config->setTabWidth(m_tabWidth->value());
-    m_config->setCssFilePath(m_cssPath->text());
+    m_config->setStandardFont(m_standardFontCombo->currentFont().family());
+    m_config->setSerifFont(m_serifFontCombo->currentFont().family());
+    m_config->setSansSerifFont(m_sansSerifFontCombo->currentFont().family());
+    m_config->setMonospaceFont(m_monospaceFontCombo->currentFont().family());
     m_config->saveConfig();
     QDialog::accept();
 }

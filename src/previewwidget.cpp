@@ -1,12 +1,14 @@
 #include "previewwidget.h"
 #include "markdownparser.h"
 #include "stylesheetloader.h"
+#include "configmanager.h"
 
 #include <QUrl>
 #include <QTimer>
 #include <QDesktopServices>
 #include <QWebFrame>
 #include <QWebPage>
+#include <QWebSettings>
 
 PreviewWidget::PreviewWidget(QWidget *parent)
     : QWebView(parent)
@@ -29,6 +31,11 @@ PreviewWidget::PreviewWidget(QWidget *parent)
 
     connect(this, SIGNAL(linkClicked(const QUrl &)), this, SLOT(onLinkClicked(const QUrl &)));
     connect(this, SIGNAL(loadFinished(bool)), this, SLOT(onLoadFinished(bool)));
+
+    // Apply the configured browser font families to the preview.
+    applyFontSettings();
+    connect(ConfigManager::instance(), SIGNAL(configurationChanged()),
+            this, SLOT(applyFontSettings()));
 }
 
 PreviewWidget::~PreviewWidget()
@@ -62,6 +69,17 @@ void PreviewWidget::refresh()
 void PreviewWidget::setBaseUrl(const QUrl &url)
 {
     m_baseUrl = url;
+}
+
+void PreviewWidget::applyFontSettings()
+{
+    QWebSettings *settings = QWebSettings::globalSettings();
+    ConfigManager *cfg = ConfigManager::instance();
+    settings->setFontFamily(QWebSettings::StandardFont, cfg->standardFont());
+    settings->setFontFamily(QWebSettings::SerifFont, cfg->serifFont());
+    settings->setFontFamily(QWebSettings::SansSerifFont, cfg->sansSerifFont());
+    settings->setFontFamily(QWebSettings::FixedFont, cfg->monospaceFont());
+    refresh();
 }
 
 QString PreviewWidget::generateHtml(const QString &body) const

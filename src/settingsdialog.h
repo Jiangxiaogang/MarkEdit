@@ -15,7 +15,6 @@ public:
     explicit SettingsDialog(ConfigManager *config, QWidget *parent = 0);
 
 private slots:
-    void chooseCssFile();
     void accept();
 
 private:
@@ -23,7 +22,10 @@ private:
     class QFontComboBox *m_fontCombo;
     class QSpinBox *m_fontSize;
     class QSpinBox *m_tabWidth;
-    class QLineEdit *m_cssPath;
+    class QFontComboBox *m_standardFontCombo;
+    class QFontComboBox *m_serifFontCombo;
+    class QFontComboBox *m_sansSerifFontCombo;
+    class QFontComboBox *m_monospaceFontCombo;
 };
 
 #endif // SETTINGSDIALOG_H

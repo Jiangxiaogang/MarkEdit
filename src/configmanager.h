@@ -87,9 +87,18 @@ public:
     bool parserOption(const QString &key) const;
     void setParserOption(const QString &key, bool on);
 
-    // ---- Preview settings ----
-    QString cssFilePath() const;
-    void setCssFilePath(const QString &path);
+    // ---- Preview settings (browser font families) ----
+    QString standardFont() const;
+    void setStandardFont(const QString &family);
+
+    QString serifFont() const;
+    void setSerifFont(const QString &family);
+
+    QString sansSerifFont() const;
+    void setSansSerifFont(const QString &family);
+
+    QString monospaceFont() const;
+    void setMonospaceFont(const QString &family);
 
     bool syncScroll() const;
     void setSyncScroll(bool sync);
@@ -146,7 +155,10 @@ private:
     QMap<QString, bool> m_parserOptions;
 
     // Preview
-    QString m_cssFilePath;
+    QString m_standardFont;
+    QString m_serifFont;
+    QString m_sansSerifFont;
+    QString m_monospaceFont;
     bool m_syncScroll;
     bool m_autoRefresh;
 

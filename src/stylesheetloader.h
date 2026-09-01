@@ -28,11 +28,6 @@ public:
     static QString getDefaultCSS();
 
     /**
-     * @brief Built-in dark theme stylesheet.
-     */
-    static QString getDarkCSS();
-
-    /**
      * @brief Minimal sanity validation (balanced braces).
      */
     bool validateCSS(const QString &css);

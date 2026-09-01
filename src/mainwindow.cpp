@@ -74,7 +74,7 @@ MainWindow::~MainWindow()
 void MainWindow::initUI()
 {
     m_editor = new CodeEditor(this);
-    m_editor->setPlainText(tr("# 欢迎使用MarkEdit\n"));
+    m_editor->setPlainText(tr("# MarkEdit\n"));
     m_editor->document()->setModified(false);
     m_preview = new PreviewWidget(this);
     m_previewTimer->setSingleShot(true);
@@ -339,7 +339,7 @@ void MainWindow::initMenuBar()
     //==========================================================
     QMenu *toolsMenu = menuBar()->addMenu(tr("工具(&T)"));
 
-    m_encodingMenu = new QMenu(tr("编码(&E)"), this);
+    m_encodingMenu = new QMenu(tr("编码格式(&C)"), this);
     toolsMenu->addMenu(m_encodingMenu);
 
     QStringList codecNames;
@@ -362,8 +362,7 @@ void MainWindow::initMenuBar()
     connect(encodingGroup, SIGNAL(triggered(QAction*)), this, SLOT(onEncodingTriggered(QAction*)));
     updateEncodingMenu();
 
-    // ---- Syntax extensions submenu: one checkable item per parser option ----
-    QMenu *syntaxExtMenu = new QMenu(tr("语法扩展"), this);
+    QMenu *syntaxExtMenu = new QMenu(tr("语法扩展(&E)"), this);
     toolsMenu->addMenu(syntaxExtMenu);
     foreach (const ParserOption &o, MarkdownParser::parserOptions())
     {
@@ -435,9 +434,6 @@ void MainWindow::applyConfigToUi()
 
     foreach (QAction *act, m_parserOptionActions)
         act->setChecked(m_config->parserOption(act->data().toString()));
-
-    QString css = m_styleLoader->loadFromFile(m_config->cssFilePath());
-    m_preview->setCSS(css);
 }
 
 // --------------------------------------------------------------------------
@@ -596,7 +592,7 @@ void MainWindow::onExportHtml()
         return;
     MarkdownParser parser;
     QString body = parser.parse(m_editor->toPlainText());
-    QString css = m_styleLoader->loadFromFile(m_config->cssFilePath());
+    QString css = m_styleLoader->getDefaultCSS();
     QString html = QString(
                        "<!DOCTYPE html><html><head><meta charset=\"utf-8\">"
                        "<title>%1</title><style>%2</style></head><body>%3</body></html>")

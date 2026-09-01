@@ -6,6 +6,7 @@
 
 class MarkdownParser;
 class StyleSheetLoader;
+class ConfigManager;
 
 /**
  * @brief Live Markdown preview widget.
@@ -67,6 +68,7 @@ private slots:
     void onLoadFinished(bool ok);
     void onScrollTimeout();
     void onLinkClicked(const QUrl &url);
+    void applyFontSettings();
 
 private:
     QString generateHtml(const QString &body) const;

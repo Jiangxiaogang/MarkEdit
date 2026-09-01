@@ -60,8 +60,11 @@ void ConfigManager::loadConfig()
     foreach (const ParserOption &o, MarkdownParser::parserOptions())
         m_parserOptions.insert(o.key, settings.value("parser/" + o.key, o.defaultOn).toBool());
 
-    // Preview
-    m_cssFilePath = settings.value("preview/css_file_path", "styles/default.css").toString();
+    // Preview (browser font families)
+    m_standardFont   = settings.value("preview/standard_font", "SimSun").toString();
+    m_serifFont      = settings.value("preview/serif_font", "SimSun").toString();
+    m_sansSerifFont  = settings.value("preview/sans_serif_font", "Microsoft YaHei").toString();
+    m_monospaceFont  = settings.value("preview/monospace_font", "Courier New").toString();
     m_syncScroll = settings.value("preview/sync_scroll", true).toBool();
     m_autoRefresh = settings.value("preview/auto_refresh", true).toBool();
 
@@ -100,7 +103,10 @@ void ConfigManager::saveConfig()
     foreach (const ParserOption &o, MarkdownParser::parserOptions())
         settings.setValue("parser/" + o.key, m_parserOptions.value(o.key));
 
-    settings.setValue("preview/css_file_path", m_cssFilePath);
+    settings.setValue("preview/standard_font", m_standardFont);
+    settings.setValue("preview/serif_font", m_serifFont);
+    settings.setValue("preview/sans_serif_font", m_sansSerifFont);
+    settings.setValue("preview/monospace_font", m_monospaceFont);
     settings.setValue("preview/sync_scroll", m_syncScroll);
     settings.setValue("preview/auto_refresh", m_autoRefresh);
 
@@ -219,15 +225,18 @@ void ConfigManager::setParserOption(const QString &key, bool on)
     m_parserOptions.insert(key, on);
 }
 
-// ---- Preview settings ----
-QString ConfigManager::cssFilePath() const
-{
-    return m_cssFilePath;
-}
-void ConfigManager::setCssFilePath(const QString &path)
-{
-    m_cssFilePath = path;
-}
+// ---- Preview settings (browser font families) ----
+QString ConfigManager::standardFont() const { return m_standardFont; }
+void ConfigManager::setStandardFont(const QString &family) { m_standardFont = family; }
+
+QString ConfigManager::serifFont() const { return m_serifFont; }
+void ConfigManager::setSerifFont(const QString &family) { m_serifFont = family; }
+
+QString ConfigManager::sansSerifFont() const { return m_sansSerifFont; }
+void ConfigManager::setSansSerifFont(const QString &family) { m_sansSerifFont = family; }
+
+QString ConfigManager::monospaceFont() const { return m_monospaceFont; }
+void ConfigManager::setMonospaceFont(const QString &family) { m_monospaceFont = family; }
 
 bool ConfigManager::syncScroll() const
 {
