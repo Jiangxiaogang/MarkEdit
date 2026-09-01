@@ -32,6 +32,14 @@ public:
     void setMarkdown(const QString &markdown);
 
     /**
+     * @brief Set the base URL used to resolve relative links and images.
+     *
+     * Should point at the directory of the current Markdown file so that
+     * local images referenced with relative paths are displayed.
+     */
+    void setBaseUrl(const QUrl &url);
+
+    /**
      * @brief Force a re-render using the current Markdown + CSS.
      */
     void refresh();
@@ -68,6 +76,7 @@ private:
     StyleSheetLoader *m_loader;
     QString m_markdown;
     QString m_css;
+    QUrl m_baseUrl;
     bool m_emitScroll;
     QTimer *m_scrollTimer;
     int m_lastScroll;

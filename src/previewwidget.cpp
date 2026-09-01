@@ -49,9 +49,14 @@ void PreviewWidget::refresh()
     QString body = m_parser->parse(m_markdown);
     QString html = generateHtml(body);
     m_emitScroll = false;
-    setHtml(html);
+    setHtml(html, m_baseUrl);
     m_emitScroll = true;
     m_lastScroll = 0;
+}
+
+void PreviewWidget::setBaseUrl(const QUrl &url)
+{
+    m_baseUrl = url;
 }
 
 QString PreviewWidget::generateHtml(const QString &body) const

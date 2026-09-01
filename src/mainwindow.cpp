@@ -925,6 +925,13 @@ void MainWindow::onTextChanged()
 
 void MainWindow::updatePreview()
 {
+    // Resolve relative image / link paths against the current file's directory
+    // so local images referenced in the Markdown are displayed in the preview.
+    if (!m_currentFile.isEmpty())
+    {
+        QUrl base = QUrl::fromLocalFile(QFileInfo(m_currentFile).absolutePath() + QLatin1Char('/'));
+        m_preview->setBaseUrl(base);
+    }
     m_preview->setMarkdown(m_editor->toPlainText());
 }
 
