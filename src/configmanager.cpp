@@ -1,4 +1,5 @@
 #include "configmanager.h"
+#include "markdownparser.h"
 
 #include <QSettings>
 #include <QCoreApplication>
@@ -54,6 +55,11 @@ void ConfigManager::loadConfig()
     m_linkColor    = settings.value("highlighter/link_color", "#0550ae").toString();
     m_tableColor   = settings.value("highlighter/table_color", "#57606a").toString();
 
+    // Parser render options
+    m_parserOptions.clear();
+    foreach (const ParserOption &o, MarkdownParser::parserOptions())
+        m_parserOptions.insert(o.key, settings.value("parser/" + o.key, o.defaultOn).toBool());
+
     // Preview
     m_cssFilePath = settings.value("preview/css_file_path", "styles/default.css").toString();
     m_syncScroll = settings.value("preview/sync_scroll", true).toBool();
@@ -89,6 +95,10 @@ void ConfigManager::saveConfig()
     settings.setValue("highlighter/strike_color", m_strikeColor);
     settings.setValue("highlighter/link_color", m_linkColor);
     settings.setValue("highlighter/table_color", m_tableColor);
+
+    // Parser render options
+    foreach (const ParserOption &o, MarkdownParser::parserOptions())
+        settings.setValue("parser/" + o.key, m_parserOptions.value(o.key));
 
     settings.setValue("preview/css_file_path", m_cssFilePath);
     settings.setValue("preview/sync_scroll", m_syncScroll);
@@ -197,6 +207,17 @@ void ConfigManager::setLinkColor(const QString &color) { m_linkColor = color; }
 
 QString ConfigManager::tableColor() const { return m_tableColor; }
 void ConfigManager::setTableColor(const QString &color) { m_tableColor = color; }
+
+// ---- Parser render options ----
+bool ConfigManager::parserOption(const QString &key) const
+{
+    return m_parserOptions.value(key, false);
+}
+
+void ConfigManager::setParserOption(const QString &key, bool on)
+{
+    m_parserOptions.insert(key, on);
+}
 
 // ---- Preview settings ----
 QString ConfigManager::cssFilePath() const

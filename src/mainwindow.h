@@ -84,6 +84,7 @@ private slots:
 
     // Tools
     void openPreferences();
+    void onParserOptionToggled(bool checked);
     void onEncodingTriggered(QAction* action);
     void onEncodingSelected(const QString &codecName);
     void updateEncodingMenu();
@@ -138,6 +139,7 @@ private:
     QMenu *m_recentMenu;
     QMenu *m_encodingMenu;
     QList<QAction *> m_encodingActions;
+    QList<QAction *> m_parserOptionActions;
     QAction *m_lineWrapAction;
     QAction *m_lineNumberAction;
     QAction *m_whitespaceAction;

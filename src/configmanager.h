@@ -5,6 +5,7 @@
 #include <QFont>
 #include <QString>
 #include <QStringList>
+#include <QMap>
 
 class ConfigManager : public QObject
 {
@@ -81,6 +82,11 @@ public:
     QString tableColor() const;
     void setTableColor(const QString &color);
 
+    // ---- Parser render options ----
+    // Each toggle maps to a cmark-gfm CMARK_OPT_* flag (see MarkdownParser).
+    bool parserOption(const QString &key) const;
+    void setParserOption(const QString &key, bool on);
+
     // ---- Preview settings ----
     QString cssFilePath() const;
     void setCssFilePath(const QString &path);
@@ -135,6 +141,9 @@ private:
     QString m_strikeColor;
     QString m_linkColor;
     QString m_tableColor;
+
+    // Parser render options
+    QMap<QString, bool> m_parserOptions;
 
     // Preview
     QString m_cssFilePath;

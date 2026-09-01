@@ -362,6 +362,20 @@ void MainWindow::initMenuBar()
     connect(encodingGroup, SIGNAL(triggered(QAction*)), this, SLOT(onEncodingTriggered(QAction*)));
     updateEncodingMenu();
 
+    // ---- Syntax extensions submenu: one checkable item per parser option ----
+    QMenu *syntaxExtMenu = new QMenu(tr("语法扩展"), this);
+    toolsMenu->addMenu(syntaxExtMenu);
+    foreach (const ParserOption &o, MarkdownParser::parserOptions())
+    {
+        QAction *act = new QAction(o.label, this);
+        act->setCheckable(true);
+        act->setChecked(m_config->parserOption(o.key));
+        act->setData(o.key);
+        connect(act, SIGNAL(toggled(bool)), this, SLOT(onParserOptionToggled(bool)));
+        syntaxExtMenu->addAction(act);
+        m_parserOptionActions.append(act);
+    }
+
     toolsMenu->addSeparator();
 
     QAction *prefAct = new QAction(QIcon::fromTheme("preferences-system"), tr("选项(&P)..."), this);
@@ -418,6 +432,9 @@ void MainWindow::applyConfigToUi()
 
     m_lineNumberAction->setChecked(m_config->showLineNumber());
     m_whitespaceAction->setChecked(m_config->showWhitespace());
+
+    foreach (QAction *act, m_parserOptionActions)
+        act->setChecked(m_config->parserOption(act->data().toString()));
 
     QString css = m_styleLoader->loadFromFile(m_config->cssFilePath());
     m_preview->setCSS(css);
@@ -879,6 +896,18 @@ void MainWindow::onEncodingTriggered(QAction* action)
         QString codec = action->data().toString();
         onEncodingSelected(codec);
     }
+}
+
+void MainWindow::onParserOptionToggled(bool checked)
+{
+    QAction *act = qobject_cast<QAction *>(sender());
+    if (!act)
+        return;
+    QString key = act->data().toString();
+    m_config->setParserOption(key, checked);
+    m_config->saveConfig();
+    // Re-render the preview with the new options.
+    updatePreview();
 }
 
 // --------------------------------------------------------------------------
