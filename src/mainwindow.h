@@ -12,13 +12,6 @@ class QAction;
 class QLabel;
 class QTimer;
 
-/**
- * @brief Main application window.
- *
- * Owns the editor / preview splitter, the menu bar, toolbar and status bar,
- * and wires together all file, edit, view, format, tools and help actions
- * described in menu.md.
- */
 class MainWindow : public QMainWindow
 {
     Q_OBJECT

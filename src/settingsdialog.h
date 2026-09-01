@@ -5,9 +5,6 @@
 
 class ConfigManager;
 
-/**
- * @brief Preferences dialog bound to ConfigManager.
- */
 class SettingsDialog : public QDialog
 {
     Q_OBJECT

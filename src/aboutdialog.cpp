@@ -12,20 +12,19 @@ AboutDialog::AboutDialog(QWidget *parent)
     setWindowTitle(tr("关于 MarkEdit"));
     setModal(true);
 
-    QLabel *title = new QLabel(QString("<h2>MarkEdit</h2>"));
+    QLabel *title = new QLabel(QString("<h3>MarkEdit</h3>"));
     title->setAlignment(Qt::AlignCenter);
 
-    QLabel *version = new QLabel(QString("版本 %1").arg("1.0.0"));
+    QLabel *version = new QLabel(QString("版本: V%1 (QT%2)").arg("1.0.0").arg(QT_VERSION_STR));
     version->setAlignment(Qt::AlignCenter);
 
     QString info = QString(
-                       "<p align='center'>基于Qt %1的Markdown编辑器。</p>"
-                       "<p align='center'>版权所有 &copy; 2026 MarkEdit 贡献者。<br>"
-                       "采用 MIT 许可证授权。</p>")
-                   .arg(QT_VERSION_STR);
+                       "<p>项目地址: <a href=https://www.github.com/jiangxiaogang/markedit>https://www.github.com/jiangxiaogang/markedit</a></p>"
+                       "<p>采用 MIT 许可证授权。</p>");
 
     QLabel *details = new QLabel(info);
     details->setWordWrap(true);
+    details->setOpenExternalLinks(true);
 
     QDialogButtonBox *box = new QDialogButtonBox(QDialogButtonBox::Ok);
     connect(box, SIGNAL(accepted()), this, SLOT(accept()));

@@ -8,13 +8,6 @@ class MarkdownParser;
 class StyleSheetLoader;
 class ConfigManager;
 
-/**
- * @brief Live Markdown preview widget.
- *
- * Renders parsed Markdown HTML with full CSS support using QtWebKit's
- * QWebView, which has far better CSS compatibility than QTextBrowser.
- * Supports proportional scroll synchronisation with the editor.
- */
 class PreviewWidget : public QWebView
 {
     Q_OBJECT
@@ -22,42 +15,12 @@ public:
     explicit PreviewWidget(QWidget *parent = 0);
     ~PreviewWidget();
 
-    /**
-     * @brief Set the CSS used to style the preview.
-     */
     void setCSS(const QString &css);
-
-    /**
-     * @brief Set the raw Markdown source; triggers a re-render.
-     */
     void setMarkdown(const QString &markdown);
-
-    /**
-     * @brief Set the base URL used to resolve relative links and images.
-     *
-     * Should point at the directory of the current Markdown file so that
-     * local images referenced with relative paths are displayed.
-     */
     void setBaseUrl(const QUrl &url);
-
-    /**
-     * @brief Force a re-render using the current Markdown + CSS.
-     */
     void refresh();
-
-    /**
-     * @brief Maximum vertical scroll value of the rendered page.
-     */
     int scrollMaximum() const;
-
-    /**
-     * @brief Current vertical scroll value of the rendered page.
-     */
     int scrollValue() const;
-
-    /**
-     * @brief Proportionally scroll the preview (0.0 .. 1.0).
-     */
     void setScrollRatio(float ratio);
 
 signals:

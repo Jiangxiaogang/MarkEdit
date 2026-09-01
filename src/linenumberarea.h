@@ -5,10 +5,6 @@
 
 class CodeEditor;
 
-/**
- * @brief A small widget painted in the left margin of a CodeEditor that
- *        displays line numbers. It is a passive view driven by CodeEditor.
- */
 class LineNumberArea : public QWidget
 {
     Q_OBJECT

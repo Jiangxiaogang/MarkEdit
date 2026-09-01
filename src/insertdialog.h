@@ -3,16 +3,10 @@
 
 #include <QDialog>
 
-/**
- * @brief Small prompt used to insert Markdown links and images.
- */
 class InsertDialog : public QDialog
 {
     Q_OBJECT
 public:
-    /**
-     * @brief kind selects the dialog mode ("link" or "image").
-     */
     explicit InsertDialog(const QString &kind, QWidget *parent = 0);
 
     QString text() const;

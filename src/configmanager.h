@@ -11,19 +11,10 @@ class ConfigManager : public QObject
 {
     Q_OBJECT
 public:
-    /**
-     * @brief Returns the global ConfigManager instance (lazy creation).
-     */
+
     static ConfigManager *instance();
 
-    /**
-     * @brief Load configuration from disk (called once at startup).
-     */
     void loadConfig();
-
-    /**
-     * @brief Persist the current configuration to disk.
-     */
     void saveConfig();
 
     // ---- Editor settings ----
@@ -46,12 +37,10 @@ public:
     void setTabWidth(int width);
 
     // ---- Encoding ----
-    // "Auto" means auto-detect on open; otherwise a codec name (e.g. "GB18030").
     QString defaultEncoding() const;
     void setDefaultEncoding(const QString &encoding);
 
     // ---- Highlight colours ----
-    // Hex colour strings (e.g. "#1f6feb") used by the Markdown highlighter.
     QString headingColor() const;
     void setHeadingColor(const QString &color);
 
@@ -83,7 +72,6 @@ public:
     void setTableColor(const QString &color);
 
     // ---- Parser render options ----
-    // Each toggle maps to a cmark-gfm CMARK_OPT_* flag (see MarkdownParser).
     bool parserOption(const QString &key) const;
     void setParserOption(const QString &key, bool on);
 

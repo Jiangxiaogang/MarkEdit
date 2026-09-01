@@ -7,15 +7,6 @@
 class LineNumberArea;
 class MarkdownHighlighter;
 
-/**
- * @brief A Markdown source editor based on QPlainTextEdit.
- *
- * Adds:
- *   - a line-number gutter (LineNumberArea)
- *   - current-line highlighting
- *   - optional visible whitespace characters (tabs / spaces / paragraph marks)
- *   - configurable font
- */
 class CodeEditor : public QPlainTextEdit
 {
     Q_OBJECT

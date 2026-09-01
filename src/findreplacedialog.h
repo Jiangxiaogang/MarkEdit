@@ -5,9 +5,6 @@
 
 class QPlainTextEdit;
 
-/**
- * @brief Modal find / replace dialog operating on a QPlainTextEdit.
- */
 class FindReplaceDialog : public QDialog
 {
     Q_OBJECT

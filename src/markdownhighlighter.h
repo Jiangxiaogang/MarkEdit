@@ -4,14 +4,6 @@
 #include <QSyntaxHighlighter>
 #include <QRegExp>
 
-/**
- * @brief Lightweight Markdown syntax highlighter for the source editor.
- *
- * It only changes the *text colour* of recognised Markdown tokens. No font
- * family, weight, style or size is altered, so the editor keeps its normal
- * appearance (only colours are added). Multi-line fenced code blocks are
- * tracked via the highlighter's block state.
- */
 class MarkdownHighlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
@@ -22,8 +14,7 @@ protected:
     void highlightBlock(const QString &text);
 
 private:
-    void applyRegex(const QString &text, const QRegExp &re,
-                    const QTextCharFormat &format);
+    void applyRegex(const QString &text, const QRegExp &re, const QTextCharFormat &format);
 
     enum BlockState { Normal = 0, InCodeBlock = 1 };
 

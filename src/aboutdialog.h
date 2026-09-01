@@ -3,9 +3,6 @@
 
 #include <QDialog>
 
-/**
- * @brief "About MarkEdit" information dialog.
- */
 class AboutDialog : public QDialog
 {
     Q_OBJECT

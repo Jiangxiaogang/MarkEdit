@@ -5,13 +5,6 @@
 #include <QString>
 #include <QList>
 
-/**
- * @brief Describes one configurable cmark-gfm syntax extension.
- *
- * Each entry becomes a checkable item under the "语法扩展" (Syntax Extensions)
- * submenu and is persisted through ConfigManager. When enabled, the matching
- * extension is attached to the parser via cmark_parser_attach_syntax_extension.
- */
 struct ParserOption
 {
     QString key;       // config key under the "parser" group
