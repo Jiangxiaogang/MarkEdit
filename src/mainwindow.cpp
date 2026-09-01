@@ -38,7 +38,7 @@
 
 static const char *APP_NAME = "MarkEdit";
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(const QString &filePath, QWidget *parent)
     : QMainWindow(parent)
     , m_editor(0)
     , m_preview(0)
@@ -58,6 +58,9 @@ MainWindow::MainWindow(QWidget *parent)
     setCurrentFile(QString());
     updatePreview();
     updateStatus();
+
+    if (!filePath.isEmpty() && QFile::exists(filePath))
+        loadFile(filePath);
 }
 
 MainWindow::~MainWindow()

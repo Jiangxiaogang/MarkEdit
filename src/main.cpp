@@ -17,7 +17,19 @@ int main(int argc, char *argv[])
 
     ConfigManager::instance()->loadConfig();
 
-    MainWindow window;
+    // Open the first non-option argument as a file, if provided.
+    QString filePath;
+    const QStringList args = app.arguments();
+    for (int i = 1; i < args.size(); ++i)
+    {
+        const QString &a = args.at(i);
+        if (a.startsWith('-'))
+            continue;
+        filePath = a;
+        break;
+    }
+
+    MainWindow window(filePath);
     window.show();
 
     return app.exec();
