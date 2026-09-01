@@ -18,8 +18,6 @@ namespace
 MarkdownHighlighter::MarkdownHighlighter(QTextDocument *document)
     : QSyntaxHighlighter(document)
 {
-    // Highlight colours are read from the configuration file (config.ini),
-    // falling back to the hard-coded defaults below if not configured.
     ConfigManager *cfg = ConfigManager::instance();
     m_headingFmt = colorFormat(QColor(cfg->headingColor()));
     m_codeFmt    = colorFormat(QColor(cfg->codeColor()));
@@ -33,9 +31,7 @@ MarkdownHighlighter::MarkdownHighlighter(QTextDocument *document)
     m_tableFmt   = colorFormat(QColor(cfg->tableColor()));
 }
 
-void MarkdownHighlighter::applyRegex(const QString &text,
-                                     const QRegExp &re,
-                                     const QTextCharFormat &format)
+void MarkdownHighlighter::applyRegex(const QString &text,const QRegExp &re,const QTextCharFormat &format)
 {
     int pos = 0;
     while ((pos = re.indexIn(text, pos)) != -1)
@@ -43,7 +39,7 @@ void MarkdownHighlighter::applyRegex(const QString &text,
         int len = re.matchedLength();
         setFormat(pos, len, format);
         pos += len;
-        if (len == 0) ++pos; // prevent infinite loop on zero-length match
+        if (len == 0) ++pos;
     }
 }
 
@@ -99,18 +95,14 @@ void MarkdownHighlighter::highlightBlock(const QString &text)
         setFormat(lmRe.pos(2), lmRe.cap(2).length(), m_listFmt);
 
     // ---- Inline emphasis / structure ----
-    // Bold first so ** and __ are consumed before single * and _.
-    applyRegex(text, QRegExp("\\*\\*(.+?)\\*\\*"), m_boldFmt);
-    applyRegex(text, QRegExp("(?<!\\w)__(?!\\s)(.+?)(?<!\\s)__(?!\\w)"), m_boldFmt);
-    // Italic: prevent matching the '*' that belongs to a '**' pair.
-    applyRegex(text, QRegExp("(?<!\\*)\\*(?!\\*)(.+?)(?<!\\*)\\*(?!\\*)"), m_italicFmt);
-    applyRegex(text, QRegExp("(?<!\\w)_(?!\\s)(.+?)(?<!\\s)_(?!\\w)"), m_italicFmt);
+    applyRegex(text, QRegExp("\\*([^*]+)\\*"), m_italicFmt);
+    applyRegex(text, QRegExp("_([^_]+)_"), m_italicFmt);
+    applyRegex(text, QRegExp("\\*\\*([^*]+)\\*\\*"), m_boldFmt);
+    applyRegex(text, QRegExp("__([^_]+)__"), m_boldFmt);
     applyRegex(text, QRegExp("~~(.+?)~~"), m_strikeFmt);
     applyRegex(text, QRegExp("!\\[([^\\]]*)\\]\\(([^\\)]+)\\)"), m_linkFmt);
     applyRegex(text, QRegExp("\\[([^\\]]*)\\]\\(([^\\)]+)\\)"), m_linkFmt);
     applyRegex(text, QRegExp("\\|"), m_tableFmt);
-    // Inline code is applied last so it overrides any emphasis markers that
-    // happen to appear inside backticks.
     applyRegex(text, QRegExp("`[^`\\n]+`"), m_codeFmt);
 
     setCurrentBlockState(Normal);
