@@ -42,6 +42,18 @@ void ConfigManager::loadConfig()
     m_tabWidth = settings.value("editor/tab_width", 4).toInt();
     m_defaultEncoding = settings.value("editor/default_encoding", "UTF-8").toString();
 
+    // Highlight colours (hex strings)
+    m_headingColor = settings.value("highlighter/heading_color", "#1f6feb").toString();
+    m_codeColor    = settings.value("highlighter/code_color", "#cf222e").toString();
+    m_quoteColor   = settings.value("highlighter/quote_color", "#57606a").toString();
+    m_listColor    = settings.value("highlighter/list_color", "#e36209").toString();
+    m_hrColor      = settings.value("highlighter/hr_color", "#57606a").toString();
+    m_boldColor    = settings.value("highlighter/bold_color", "#8250df").toString();
+    m_italicColor  = settings.value("highlighter/italic_color", "#0c7b93").toString();
+    m_strikeColor  = settings.value("highlighter/strike_color", "#57606a").toString();
+    m_linkColor    = settings.value("highlighter/link_color", "#0550ae").toString();
+    m_tableColor   = settings.value("highlighter/table_color", "#57606a").toString();
+
     // Preview
     m_cssFilePath = settings.value("preview/css_file_path", "styles/default.css").toString();
     m_syncScroll = settings.value("preview/sync_scroll", true).toBool();
@@ -66,6 +78,17 @@ void ConfigManager::saveConfig()
     settings.setValue("editor/syntax_highlighting", m_showSyntaxHighlighting);
     settings.setValue("editor/tab_width", m_tabWidth);
     settings.setValue("editor/default_encoding", m_defaultEncoding);
+
+    settings.setValue("highlighter/heading_color", m_headingColor);
+    settings.setValue("highlighter/code_color", m_codeColor);
+    settings.setValue("highlighter/quote_color", m_quoteColor);
+    settings.setValue("highlighter/list_color", m_listColor);
+    settings.setValue("highlighter/hr_color", m_hrColor);
+    settings.setValue("highlighter/bold_color", m_boldColor);
+    settings.setValue("highlighter/italic_color", m_italicColor);
+    settings.setValue("highlighter/strike_color", m_strikeColor);
+    settings.setValue("highlighter/link_color", m_linkColor);
+    settings.setValue("highlighter/table_color", m_tableColor);
 
     settings.setValue("preview/css_file_path", m_cssFilePath);
     settings.setValue("preview/sync_scroll", m_syncScroll);
@@ -143,6 +166,37 @@ void ConfigManager::setDefaultEncoding(const QString &encoding)
 {
     m_defaultEncoding = encoding;
 }
+
+// ---- Highlight colours ----
+QString ConfigManager::headingColor() const { return m_headingColor; }
+void ConfigManager::setHeadingColor(const QString &color) { m_headingColor = color; }
+
+QString ConfigManager::codeColor() const { return m_codeColor; }
+void ConfigManager::setCodeColor(const QString &color) { m_codeColor = color; }
+
+QString ConfigManager::quoteColor() const { return m_quoteColor; }
+void ConfigManager::setQuoteColor(const QString &color) { m_quoteColor = color; }
+
+QString ConfigManager::listColor() const { return m_listColor; }
+void ConfigManager::setListColor(const QString &color) { m_listColor = color; }
+
+QString ConfigManager::hrColor() const { return m_hrColor; }
+void ConfigManager::setHrColor(const QString &color) { m_hrColor = color; }
+
+QString ConfigManager::boldColor() const { return m_boldColor; }
+void ConfigManager::setBoldColor(const QString &color) { m_boldColor = color; }
+
+QString ConfigManager::italicColor() const { return m_italicColor; }
+void ConfigManager::setItalicColor(const QString &color) { m_italicColor = color; }
+
+QString ConfigManager::strikeColor() const { return m_strikeColor; }
+void ConfigManager::setStrikeColor(const QString &color) { m_strikeColor = color; }
+
+QString ConfigManager::linkColor() const { return m_linkColor; }
+void ConfigManager::setLinkColor(const QString &color) { m_linkColor = color; }
+
+QString ConfigManager::tableColor() const { return m_tableColor; }
+void ConfigManager::setTableColor(const QString &color) { m_tableColor = color; }
 
 // ---- Preview settings ----
 QString ConfigManager::cssFilePath() const

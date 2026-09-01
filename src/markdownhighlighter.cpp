@@ -1,4 +1,5 @@
 #include "markdownhighlighter.h"
+#include "configmanager.h"
 
 #include <QRegExp>
 #include <QTextCharFormat>
@@ -17,16 +18,19 @@ namespace
 MarkdownHighlighter::MarkdownHighlighter(QTextDocument *document)
     : QSyntaxHighlighter(document)
 {
-    m_headingFmt = colorFormat(QColor("#1f6feb"));
-    m_codeFmt    = colorFormat(QColor("#cf222e"));
-    m_quoteFmt   = colorFormat(QColor("#57606a"));
-    m_listFmt    = colorFormat(QColor("#e36209"));
-    m_hrFmt      = colorFormat(QColor("#57606a"));
-    m_boldFmt    = colorFormat(QColor("#8250df"));
-    m_italicFmt  = colorFormat(QColor("#0c7b93"));
-    m_strikeFmt  = colorFormat(QColor("#57606a"));
-    m_linkFmt    = colorFormat(QColor("#0550ae"));
-    m_tableFmt   = colorFormat(QColor("#57606a"));
+    // Highlight colours are read from the configuration file (config.ini),
+    // falling back to the hard-coded defaults below if not configured.
+    ConfigManager *cfg = ConfigManager::instance();
+    m_headingFmt = colorFormat(QColor(cfg->headingColor()));
+    m_codeFmt    = colorFormat(QColor(cfg->codeColor()));
+    m_quoteFmt   = colorFormat(QColor(cfg->quoteColor()));
+    m_listFmt    = colorFormat(QColor(cfg->listColor()));
+    m_hrFmt      = colorFormat(QColor(cfg->hrColor()));
+    m_boldFmt    = colorFormat(QColor(cfg->boldColor()));
+    m_italicFmt  = colorFormat(QColor(cfg->italicColor()));
+    m_strikeFmt  = colorFormat(QColor(cfg->strikeColor()));
+    m_linkFmt    = colorFormat(QColor(cfg->linkColor()));
+    m_tableFmt   = colorFormat(QColor(cfg->tableColor()));
 }
 
 void MarkdownHighlighter::applyRegex(const QString &text,

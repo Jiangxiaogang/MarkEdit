@@ -49,6 +49,38 @@ public:
     QString defaultEncoding() const;
     void setDefaultEncoding(const QString &encoding);
 
+    // ---- Highlight colours ----
+    // Hex colour strings (e.g. "#1f6feb") used by the Markdown highlighter.
+    QString headingColor() const;
+    void setHeadingColor(const QString &color);
+
+    QString codeColor() const;
+    void setCodeColor(const QString &color);
+
+    QString quoteColor() const;
+    void setQuoteColor(const QString &color);
+
+    QString listColor() const;
+    void setListColor(const QString &color);
+
+    QString hrColor() const;
+    void setHrColor(const QString &color);
+
+    QString boldColor() const;
+    void setBoldColor(const QString &color);
+
+    QString italicColor() const;
+    void setItalicColor(const QString &color);
+
+    QString strikeColor() const;
+    void setStrikeColor(const QString &color);
+
+    QString linkColor() const;
+    void setLinkColor(const QString &color);
+
+    QString tableColor() const;
+    void setTableColor(const QString &color);
+
     // ---- Preview settings ----
     QString cssFilePath() const;
     void setCssFilePath(const QString &path);
@@ -91,6 +123,18 @@ private:
 
     // Encoding
     QString m_defaultEncoding;
+
+    // Highlight colours
+    QString m_headingColor;
+    QString m_codeColor;
+    QString m_quoteColor;
+    QString m_listColor;
+    QString m_hrColor;
+    QString m_boldColor;
+    QString m_italicColor;
+    QString m_strikeColor;
+    QString m_linkColor;
+    QString m_tableColor;
 
     // Preview
     QString m_cssFilePath;
