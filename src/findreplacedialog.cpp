@@ -77,7 +77,6 @@ bool FindReplaceDialog::find(bool /*forward*/)
     if (m_wholeWordCheck->isChecked())
         flags |= QTextDocument::FindWholeWords;
 
-    // Start the search right after the current selection / cursor.
     QTextCursor cursor = m_editor->textCursor();
     if (cursor.hasSelection())
         cursor.setPosition(cursor.selectionEnd());
@@ -85,7 +84,6 @@ bool FindReplaceDialog::find(bool /*forward*/)
     QTextCursor found = m_editor->document()->find(term, cursor, flags);
     if (found.isNull())
     {
-        // wrap around from the beginning
         QTextCursor start(m_editor->document());
         start.movePosition(QTextCursor::Start);
         found = m_editor->document()->find(term, start, flags);
@@ -144,7 +142,6 @@ void FindReplaceDialog::replaceAll()
             break;
         found.insertText(replacement);
         cursor = found;
-        cursor.movePosition(QTextCursor::EndOfWord);
         ++count;
     }
     if (count == 0)
