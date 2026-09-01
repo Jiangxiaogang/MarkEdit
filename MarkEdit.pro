@@ -1,11 +1,9 @@
-#
+# QT Project File
 QT       += core gui widgets printsupport webkit
 TARGET    = MarkEdit
 TEMPLATE  = app
 CONFIG   += c++11
-CONFIG   += release
-QMAKE_CFLAGS += -std=c11        # C 语言标准
-QMAKE_CXXFLAGS += -std=c++11    # C++ 语言标准
+DEFINES  += CMARK_GFM_STATIC_DEFINE
 
 # Source files
 SOURCES += \
@@ -38,11 +36,15 @@ HEADERS += \
     src/insertdialog.h \
     src/aboutdialog.h
 
-# Resources (icons)
+# Resources
 RESOURCES +=
 
-# Translations
-TRANSLATIONS += translations/markedit_zh_CN.ts
+# libcmark
+INCLUDEPATH += src/libcmark-gfm
+LIBS += src/libcmark-gfm/libcmark-gfm-extensions.a
+LIBS += src/libcmark-gfm/libcmark-gfm.a
 
 # Enable warning-friendly build
+QMAKE_CFLAGS += -std=c11        # C 语言标准
+QMAKE_CXXFLAGS += -std=c++11    # C++ 语言标准
 QMAKE_CXXFLAGS_WARN_ON = -Wall
