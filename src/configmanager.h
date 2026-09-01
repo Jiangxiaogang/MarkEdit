@@ -6,6 +6,7 @@
 #include <QString>
 #include <QStringList>
 #include <QMap>
+#include <QColor>
 
 class ConfigManager : public QObject
 {
@@ -35,6 +36,13 @@ public:
 
     int tabWidth() const;
     void setTabWidth(int width);
+
+    // Editor colours
+    QColor currentLineColor() const;
+    void setCurrentLineColor(const QColor &color);
+
+    QColor selectionColor() const;
+    void setSelectionColor(const QColor &color);
 
     // ---- Encoding ----
     QString defaultEncoding() const;
@@ -123,6 +131,10 @@ private:
     bool m_showWhitespace;
     bool m_showSyntaxHighlighting;
     int m_tabWidth;
+
+    // Editor colours
+    QColor m_currentLineColor;
+    QColor m_selectionColor;
 
     // Encoding
     QString m_defaultEncoding;

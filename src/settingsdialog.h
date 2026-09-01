@@ -13,6 +13,10 @@ public:
 
 private slots:
     void accept();
+    void chooseCurrentLineColor();
+    void chooseSelectionColor();
+    void applyCurrentLineText();
+    void applySelectionText();
 
 private:
     ConfigManager *m_config;
@@ -23,6 +27,15 @@ private:
     class QFontComboBox *m_serifFontCombo;
     class QFontComboBox *m_sansSerifFontCombo;
     class QFontComboBox *m_monospaceFontCombo;
+    class QPushButton *m_currentLineBtn;
+    class QPushButton *m_selectionBtn;
+    class QLineEdit *m_currentLineEdit;
+    class QLineEdit *m_selectionEdit;
+    QColor m_currentLineColor;
+    QColor m_selectionColor;
+
+    void setButtonColor(QPushButton *btn, const QColor &color);
+    void setColor(QColor &target, const QColor &color, QPushButton *btn, QLineEdit *edit);
 };
 
 #endif // SETTINGSDIALOG_H

@@ -20,6 +20,8 @@ public:
     void setSyntaxHighlightingEnabled(bool enabled);
     void setTabWidth(int width);
     void setEditorFont(const QFont &font);
+    void setCurrentLineColor(const QColor &color);
+    void setSelectionColor(const QColor &color);
     int lineNumberAreaWidth() const;
     void lineNumberAreaPaintEvent(QPaintEvent *event);
 
@@ -39,6 +41,7 @@ private:
     bool m_showLineNumbers;
     bool m_showWhitespace;
     bool m_syntaxHighlighting;
+    QColor m_currentLineColor;
 };
 
 #endif // CODEEDITOR_H

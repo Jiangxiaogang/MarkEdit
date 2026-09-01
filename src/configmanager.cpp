@@ -43,6 +43,10 @@ void ConfigManager::loadConfig()
     m_tabWidth = settings.value("editor/tab_width", 4).toInt();
     m_defaultEncoding = settings.value("editor/default_encoding", "UTF-8").toString();
 
+    // Editor colours
+    m_currentLineColor = settings.value("editor/current_line_color", QColor(60, 60, 60, 30)).value<QColor>();
+    m_selectionColor   = settings.value("editor/selection_color", QColor(0, 120, 215)).value<QColor>();
+
     // Highlight colours (hex strings)
     m_headingColor = settings.value("highlighter/heading_color", "#1f6feb").toString();
     m_codeColor    = settings.value("highlighter/code_color", "#cf222e").toString();
@@ -87,6 +91,8 @@ void ConfigManager::saveConfig()
     settings.setValue("editor/syntax_highlighting", m_showSyntaxHighlighting);
     settings.setValue("editor/tab_width", m_tabWidth);
     settings.setValue("editor/default_encoding", m_defaultEncoding);
+    settings.setValue("editor/current_line_color", m_currentLineColor);
+    settings.setValue("editor/selection_color", m_selectionColor);
 
     settings.setValue("highlighter/heading_color", m_headingColor);
     settings.setValue("highlighter/code_color", m_codeColor);
@@ -172,6 +178,13 @@ void ConfigManager::setTabWidth(int width)
 {
     m_tabWidth = width;
 }
+
+// ---- Editor colours ----
+QColor ConfigManager::currentLineColor() const { return m_currentLineColor; }
+void ConfigManager::setCurrentLineColor(const QColor &color) { m_currentLineColor = color; }
+
+QColor ConfigManager::selectionColor() const { return m_selectionColor; }
+void ConfigManager::setSelectionColor(const QColor &color) { m_selectionColor = color; }
 
 // ---- Encoding ----
 QString ConfigManager::defaultEncoding() const

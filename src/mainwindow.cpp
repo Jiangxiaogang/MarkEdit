@@ -202,55 +202,6 @@ void MainWindow::initMenuBar()
     editMenu->addAction(replaceAct);
 
     //==========================================================
-    QMenu *viewMenu = menuBar()->addMenu(tr("查看(&V)"));
-
-    m_lineWrapAction = new QAction(tr("自动换行"), this);
-    m_lineWrapAction->setCheckable(true);
-    connect(m_lineWrapAction, SIGNAL(toggled(bool)), this, SLOT(toggleLineWrap(bool)));
-    viewMenu->addAction(m_lineWrapAction);
-
-    m_lineNumberAction = new QAction(tr("显示行号"), this);
-    m_lineNumberAction->setCheckable(true);
-    connect(m_lineNumberAction, SIGNAL(toggled(bool)), this, SLOT(toggleLineNumber(bool)));
-    viewMenu->addAction(m_lineNumberAction);
-
-    m_whitespaceAction = new QAction(tr("显示空白"), this);
-    m_whitespaceAction->setCheckable(true);
-    connect(m_whitespaceAction, SIGNAL(toggled(bool)), this, SLOT(toggleWhitespace(bool)));
-    viewMenu->addAction(m_whitespaceAction);
-
-    viewMenu->addSeparator();
-    m_verticalSplitAction = new QAction(tr("编辑预览"), this);
-    m_verticalSplitAction->setCheckable(true);
-    m_verticalSplitAction->setChecked(true);
-    connect(m_verticalSplitAction, SIGNAL(triggered()), this, SLOT(setVerticalSplit()));
-    viewMenu->addAction(m_verticalSplitAction);
-
-    m_editorOnlyAction = new QAction(tr("仅编辑"), this);
-    m_editorOnlyAction->setCheckable(true);
-    connect(m_editorOnlyAction, SIGNAL(triggered()), this, SLOT(showEditorOnly()));
-    viewMenu->addAction(m_editorOnlyAction);
-
-    m_previewOnlyAction = new QAction(tr("仅预览"), this);
-    m_previewOnlyAction->setCheckable(true);
-    connect(m_previewOnlyAction, SIGNAL(triggered()), this, SLOT(showPreviewOnly()));
-    viewMenu->addAction(m_previewOnlyAction);
-
-    viewMenu->addSeparator();
-
-    m_fullScreenAction = new QAction(tr("全屏"), this);
-    m_fullScreenAction->setShortcut(QKeySequence(tr("F11")));
-    m_fullScreenAction->setCheckable(true);
-    connect(m_fullScreenAction, SIGNAL(triggered()), this, SLOT(toggleFullScreen()));
-    viewMenu->addAction(m_fullScreenAction);
-
-    m_statusBarAction = new QAction(tr("状态栏"), this);
-    m_statusBarAction->setCheckable(true);
-    m_statusBarAction->setChecked(true);
-    connect(m_statusBarAction, SIGNAL(toggled(bool)), this, SLOT(toggleStatusBar(bool)));
-    viewMenu->addAction(m_statusBarAction);
-
-    //==========================================================
     QMenu *formatMenu = menuBar()->addMenu(tr("格式(&O)"));
     QAction *boldAct = new QAction(tr("粗体(&B)"), this);
     boldAct->setShortcut(QKeySequence::Bold);
@@ -335,6 +286,55 @@ void MainWindow::initMenuBar()
     QAction *imgAction = new QAction(tr("插入图片(&I)..."), this);
     connect(imgAction, SIGNAL(triggered()), this, SLOT(insertImage()));
     formatMenu->addAction(imgAction);
+
+    //==========================================================
+    QMenu *viewMenu = menuBar()->addMenu(tr("查看(&V)"));
+
+    m_lineWrapAction = new QAction(tr("自动换行"), this);
+    m_lineWrapAction->setCheckable(true);
+    connect(m_lineWrapAction, SIGNAL(toggled(bool)), this, SLOT(toggleLineWrap(bool)));
+    viewMenu->addAction(m_lineWrapAction);
+
+    m_lineNumberAction = new QAction(tr("显示行号"), this);
+    m_lineNumberAction->setCheckable(true);
+    connect(m_lineNumberAction, SIGNAL(toggled(bool)), this, SLOT(toggleLineNumber(bool)));
+    viewMenu->addAction(m_lineNumberAction);
+
+    m_whitespaceAction = new QAction(tr("显示空白"), this);
+    m_whitespaceAction->setCheckable(true);
+    connect(m_whitespaceAction, SIGNAL(toggled(bool)), this, SLOT(toggleWhitespace(bool)));
+    viewMenu->addAction(m_whitespaceAction);
+
+    viewMenu->addSeparator();
+    m_verticalSplitAction = new QAction(tr("编辑预览"), this);
+    m_verticalSplitAction->setCheckable(true);
+    m_verticalSplitAction->setChecked(true);
+    connect(m_verticalSplitAction, SIGNAL(triggered()), this, SLOT(setVerticalSplit()));
+    viewMenu->addAction(m_verticalSplitAction);
+
+    m_editorOnlyAction = new QAction(tr("仅编辑区"), this);
+    m_editorOnlyAction->setCheckable(true);
+    connect(m_editorOnlyAction, SIGNAL(triggered()), this, SLOT(showEditorOnly()));
+    viewMenu->addAction(m_editorOnlyAction);
+
+    m_previewOnlyAction = new QAction(tr("仅预览区"), this);
+    m_previewOnlyAction->setCheckable(true);
+    connect(m_previewOnlyAction, SIGNAL(triggered()), this, SLOT(showPreviewOnly()));
+    viewMenu->addAction(m_previewOnlyAction);
+
+    viewMenu->addSeparator();
+
+    m_fullScreenAction = new QAction(tr("全屏"), this);
+    m_fullScreenAction->setShortcut(QKeySequence(tr("F11")));
+    m_fullScreenAction->setCheckable(true);
+    connect(m_fullScreenAction, SIGNAL(triggered()), this, SLOT(toggleFullScreen()));
+    viewMenu->addAction(m_fullScreenAction);
+
+    m_statusBarAction = new QAction(tr("状态栏"), this);
+    m_statusBarAction->setCheckable(true);
+    m_statusBarAction->setChecked(true);
+    connect(m_statusBarAction, SIGNAL(toggled(bool)), this, SLOT(toggleStatusBar(bool)));
+    viewMenu->addAction(m_statusBarAction);
 
     //==========================================================
     QMenu *toolsMenu = menuBar()->addMenu(tr("工具(&T)"));
@@ -428,6 +428,8 @@ void MainWindow::applyConfigToUi()
     m_editor->setWhitespaceVisible(m_config->showWhitespace());
     m_editor->setSyntaxHighlightingEnabled(m_config->showSyntaxHighlighting());
     m_editor->setTabWidth(m_config->tabWidth());
+    m_editor->setCurrentLineColor(m_config->currentLineColor());
+    m_editor->setSelectionColor(m_config->selectionColor());
 
     m_lineNumberAction->setChecked(m_config->showLineNumber());
     m_whitespaceAction->setChecked(m_config->showWhitespace());
@@ -882,7 +884,8 @@ void MainWindow::insertHorizontalRule()
 void MainWindow::openPreferences()
 {
     SettingsDialog dlg(m_config, this);
-    dlg.exec();
+    if (dlg.exec() == QDialog::Accepted)
+        applyConfigToUi();
 }
 
 void MainWindow::onEncodingTriggered(QAction* action)

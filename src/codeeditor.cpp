@@ -18,6 +18,7 @@ CodeEditor::CodeEditor(QWidget *parent)
     , m_showLineNumbers(true)
     , m_showWhitespace(false)
     , m_syntaxHighlighting(true)
+    , m_currentLineColor(QColor(60, 60, 60, 30))
 {
     setObjectName("codeEditor");
     setFrameShape(QFrame::NoFrame);
@@ -87,6 +88,21 @@ void CodeEditor::setEditorFont(const QFont &font)
     setFont(font);
 }
 
+void CodeEditor::setCurrentLineColor(const QColor &color)
+{
+    m_currentLineColor = color;
+    highlightCurrentLine();
+}
+
+void CodeEditor::setSelectionColor(const QColor &color)
+{
+    QPalette pal = palette();
+    pal.setColor(QPalette::Highlight, color);
+    // Keep selected text readable on the custom highlight colour.
+    pal.setColor(QPalette::HighlightedText, Qt::white);
+    setPalette(pal);
+}
+
 int CodeEditor::lineNumberAreaWidth() const
 {
     if (m_showLineNumbers)
@@ -122,8 +138,7 @@ void CodeEditor::highlightCurrentLine()
     if (!isReadOnly())
     {
         QTextEdit::ExtraSelection selection;
-        QColor lineColor = QColor(60, 60, 60, 30);
-        selection.format.setBackground(lineColor);
+        selection.format.setBackground(m_currentLineColor);
         selection.format.setProperty(QTextFormat::FullWidthSelection, true);
         selection.cursor = textCursor();
         selection.cursor.clearSelection();
