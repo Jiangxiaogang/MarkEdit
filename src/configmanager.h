@@ -38,11 +38,11 @@ public:
     void setTabWidth(int width);
 
     // Editor colours
-    QColor currentLineColor() const;
-    void setCurrentLineColor(const QColor &color);
+    QString currentLineColor() const;
+    void setCurrentLineColor(const QString &color);
 
-    QColor selectionColor() const;
-    void setSelectionColor(const QColor &color);
+    QString selectionColor() const;
+    void setSelectionColor(const QString &color);
 
     // ---- Encoding ----
     QString defaultEncoding() const;
@@ -133,8 +133,8 @@ private:
     int m_tabWidth;
 
     // Editor colours
-    QColor m_currentLineColor;
-    QColor m_selectionColor;
+    QString m_currentLineColor;
+    QString m_selectionColor;
 
     // Encoding
     QString m_defaultEncoding;

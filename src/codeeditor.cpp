@@ -18,7 +18,7 @@ CodeEditor::CodeEditor(QWidget *parent)
     , m_showLineNumbers(true)
     , m_showWhitespace(false)
     , m_syntaxHighlighting(true)
-    , m_currentLineColor(QColor(60, 60, 60, 30))
+    , m_currentLineColor(QColor(60, 60, 60))
 {
     setObjectName("codeEditor");
     setFrameShape(QFrame::NoFrame);
@@ -56,8 +56,7 @@ void CodeEditor::setWhitespaceVisible(bool visible)
     if (visible)
         option.setFlags(option.flags() | QTextOption::ShowTabsAndSpaces);
     else
-        option.setFlags(option.flags() & ~QTextOption::ShowTabsAndSpaces &
-                        ~QTextOption::ShowLineAndParagraphSeparators);
+        option.setFlags(option.flags() & ~QTextOption::ShowTabsAndSpaces);
     document()->setDefaultTextOption(option);
     viewport()->update();
 }
@@ -80,7 +79,7 @@ void CodeEditor::setSyntaxHighlightingEnabled(bool enabled)
 
 void CodeEditor::setTabWidth(int width)
 {
-    setTabStopWidth(width * fontMetrics().width(QLatin1Char(' ')));
+    setTabStopWidth(width * fontMetrics().width(QLatin1Char('0')));
 }
 
 void CodeEditor::setEditorFont(const QFont &font)
@@ -98,7 +97,6 @@ void CodeEditor::setSelectionColor(const QColor &color)
 {
     QPalette pal = palette();
     pal.setColor(QPalette::Highlight, color);
-    // Keep selected text readable on the custom highlight colour.
     pal.setColor(QPalette::HighlightedText, Qt::white);
     setPalette(pal);
 }
@@ -166,7 +164,7 @@ void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
         return;
 
     QPainter painter(m_lineNumberArea);
-    painter.fillRect(event->rect(), Qt::lightGray);
+    painter.fillRect(event->rect(), QColor(240, 240, 240));
 
     QTextBlock block = firstVisibleBlock();
     int blockNumber = block.blockNumber();

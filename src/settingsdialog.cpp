@@ -153,8 +153,8 @@ void SettingsDialog::accept()
     f.setPointSize(m_fontSize->value());
     m_config->setEditorFont(f);
     m_config->setTabWidth(m_tabWidth->value());
-    m_config->setCurrentLineColor(m_currentLineColor);
-    m_config->setSelectionColor(m_selectionColor);
+    m_config->setCurrentLineColor(m_currentLineColor.name());
+    m_config->setSelectionColor(m_selectionColor.name());
     m_config->setStandardFont(m_standardFontCombo->currentFont().family());
     m_config->setSerifFont(m_serifFontCombo->currentFont().family());
     m_config->setSansSerifFont(m_sansSerifFontCombo->currentFont().family());
