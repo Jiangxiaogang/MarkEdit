@@ -42,8 +42,7 @@ void ConfigManager::loadConfig()
     m_showSyntaxHighlighting = settings.value("editor/syntax_highlighting", true).toBool();
     m_tabWidth = settings.value("editor/tab_width", 4).toInt();
     m_defaultEncoding = settings.value("editor/default_encoding", "UTF-8").toString();
-    m_currentLineColor = settings.value("editor/current_line_color", "#e0e0e0").toString();
-    m_selectionColor   = settings.value("editor/selection_color", "#0080c0").toString();
+    m_currentLineColor = settings.value("editor/current_line_color", "#f0f0ff").toString();
 
     // Highlight colours (hex strings)
     m_headingColor = settings.value("highlighter/heading_color", "#1f6feb").toString();
@@ -67,8 +66,6 @@ void ConfigManager::loadConfig()
     m_serifFont      = settings.value("preview/serif_font", "SimSun").toString();
     m_sansSerifFont  = settings.value("preview/sans_serif_font", "Microsoft YaHei").toString();
     m_monospaceFont  = settings.value("preview/monospace_font", "Courier New").toString();
-    m_syncScroll = settings.value("preview/sync_scroll", true).toBool();
-    m_autoRefresh = settings.value("preview/auto_refresh", true).toBool();
 
     // Window
     m_windowGeometry = settings.value("window/geometry").toByteArray();
@@ -90,7 +87,6 @@ void ConfigManager::saveConfig()
     settings.setValue("editor/tab_width", m_tabWidth);
     settings.setValue("editor/default_encoding", m_defaultEncoding);
     settings.setValue("editor/current_line_color", m_currentLineColor);
-    settings.setValue("editor/selection_color", m_selectionColor);
 
     settings.setValue("highlighter/heading_color", m_headingColor);
     settings.setValue("highlighter/code_color", m_codeColor);
@@ -111,8 +107,6 @@ void ConfigManager::saveConfig()
     settings.setValue("preview/serif_font", m_serifFont);
     settings.setValue("preview/sans_serif_font", m_sansSerifFont);
     settings.setValue("preview/monospace_font", m_monospaceFont);
-    settings.setValue("preview/sync_scroll", m_syncScroll);
-    settings.setValue("preview/auto_refresh", m_autoRefresh);
 
     settings.setValue("window/geometry", m_windowGeometry);
     settings.setValue("window/state", m_windowState);
@@ -181,9 +175,6 @@ void ConfigManager::setTabWidth(int width)
 QString ConfigManager::currentLineColor() const { return m_currentLineColor; }
 void ConfigManager::setCurrentLineColor(const QString &color) { m_currentLineColor = color; }
 
-QString ConfigManager::selectionColor() const { return m_selectionColor; }
-void ConfigManager::setSelectionColor(const QString &color) { m_selectionColor = color; }
-
 // ---- Encoding ----
 QString ConfigManager::defaultEncoding() const
 {
@@ -248,24 +239,6 @@ void ConfigManager::setSansSerifFont(const QString &family) { m_sansSerifFont = 
 
 QString ConfigManager::monospaceFont() const { return m_monospaceFont; }
 void ConfigManager::setMonospaceFont(const QString &family) { m_monospaceFont = family; }
-
-bool ConfigManager::syncScroll() const
-{
-    return m_syncScroll;
-}
-void ConfigManager::setSyncScroll(bool sync)
-{
-    m_syncScroll = sync;
-}
-
-bool ConfigManager::autoRefresh() const
-{
-    return m_autoRefresh;
-}
-void ConfigManager::setAutoRefresh(bool refresh)
-{
-    m_autoRefresh = refresh;
-}
 
 // ---- Window state ----
 QByteArray ConfigManager::windowGeometry() const

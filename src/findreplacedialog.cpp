@@ -1,8 +1,6 @@
 #include "findreplacedialog.h"
 
 #include <QPlainTextEdit>
-#include <QLineEdit>
-#include <QCheckBox>
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -15,7 +13,7 @@ FindReplaceDialog::FindReplaceDialog(QPlainTextEdit *editor, QWidget *parent)
     : QDialog(parent)
     , m_editor(editor)
 {
-    setWindowTitle(tr("查找 / 替换"));
+    setWindowTitle(tr("查找替换"));
     setModal(true);
 
     m_findEdit = new QLineEdit(this);

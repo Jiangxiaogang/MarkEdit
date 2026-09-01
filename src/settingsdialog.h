@@ -2,6 +2,11 @@
 #define SETTINGSDIALOG_H
 
 #include <QDialog>
+#include <QSpinBox>
+#include <QCheckBox>
+#include <QLineEdit>
+#include <QFontComboBox>
+#include <QPushButton>
 
 class ConfigManager;
 
@@ -14,25 +19,20 @@ public:
 private slots:
     void accept();
     void chooseCurrentLineColor();
-    void chooseSelectionColor();
     void applyCurrentLineText();
-    void applySelectionText();
 
 private:
     ConfigManager *m_config;
-    class QFontComboBox *m_fontCombo;
-    class QSpinBox *m_fontSize;
-    class QSpinBox *m_tabWidth;
-    class QFontComboBox *m_standardFontCombo;
-    class QFontComboBox *m_serifFontCombo;
-    class QFontComboBox *m_sansSerifFontCombo;
-    class QFontComboBox *m_monospaceFontCombo;
-    class QPushButton *m_currentLineBtn;
-    class QPushButton *m_selectionBtn;
-    class QLineEdit *m_currentLineEdit;
-    class QLineEdit *m_selectionEdit;
+    QFontComboBox *m_fontCombo;
+    QSpinBox *m_fontSize;
+    QSpinBox *m_tabWidth;
+    QFontComboBox *m_standardFontCombo;
+    QFontComboBox *m_serifFontCombo;
+    QFontComboBox *m_sansSerifFontCombo;
+    QFontComboBox *m_monospaceFontCombo;
+    QPushButton *m_currentLineBtn;
+    QLineEdit *m_currentLineEdit;
     QColor m_currentLineColor;
-    QColor m_selectionColor;
 
     void setButtonColor(QPushButton *btn, const QColor &color);
     void setColor(QColor &target, const QColor &color, QPushButton *btn, QLineEdit *edit);

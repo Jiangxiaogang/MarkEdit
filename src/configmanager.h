@@ -41,9 +41,6 @@ public:
     QString currentLineColor() const;
     void setCurrentLineColor(const QString &color);
 
-    QString selectionColor() const;
-    void setSelectionColor(const QString &color);
-
     // ---- Encoding ----
     QString defaultEncoding() const;
     void setDefaultEncoding(const QString &encoding);
@@ -96,12 +93,6 @@ public:
     QString monospaceFont() const;
     void setMonospaceFont(const QString &family);
 
-    bool syncScroll() const;
-    void setSyncScroll(bool sync);
-
-    bool autoRefresh() const;
-    void setAutoRefresh(bool refresh);
-
     // ---- Window state ----
     QByteArray windowGeometry() const;
     void setWindowGeometry(const QByteArray &geometry);
@@ -134,7 +125,6 @@ private:
 
     // Editor colours
     QString m_currentLineColor;
-    QString m_selectionColor;
 
     // Encoding
     QString m_defaultEncoding;
@@ -159,8 +149,6 @@ private:
     QString m_serifFont;
     QString m_sansSerifFont;
     QString m_monospaceFont;
-    bool m_syncScroll;
-    bool m_autoRefresh;
 
     // Window
     QByteArray m_windowGeometry;

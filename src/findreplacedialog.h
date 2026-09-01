@@ -2,6 +2,8 @@
 #define FINDREPLACEDIALOG_H
 
 #include <QDialog>
+#include <QLineEdit>
+#include <QCheckBox>
 
 class QPlainTextEdit;
 
@@ -20,12 +22,12 @@ private slots:
 
 private:
     QPlainTextEdit *m_editor;
-    class QLineEdit *m_findEdit;
-    class QLineEdit *m_replaceEdit;
-    class QCheckBox *m_caseCheck;
-    class QCheckBox *m_wholeWordCheck;
-    class QPushButton *m_replaceBtn;
-    class QPushButton *m_replaceAllBtn;
+    QLineEdit *m_findEdit;
+    QLineEdit *m_replaceEdit;
+    QCheckBox *m_caseCheck;
+    QCheckBox *m_wholeWordCheck;
+    QPushButton *m_replaceBtn;
+    QPushButton *m_replaceAllBtn;
 
     bool find(bool forward);
 };

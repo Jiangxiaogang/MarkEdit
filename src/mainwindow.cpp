@@ -429,7 +429,6 @@ void MainWindow::applyConfigToUi()
     m_editor->setSyntaxHighlightingEnabled(m_config->showSyntaxHighlighting());
     m_editor->setTabWidth(m_config->tabWidth());
     m_editor->setCurrentLineColor(m_config->currentLineColor());
-    m_editor->setSelectionColor(m_config->selectionColor());
 
     m_lineNumberAction->setChecked(m_config->showLineNumber());
     m_whitespaceAction->setChecked(m_config->showWhitespace());
@@ -947,8 +946,7 @@ void MainWindow::markdownGuide()
 void MainWindow::onTextChanged()
 {
     m_saveAction->setEnabled(m_editor->document()->isModified());
-    if (m_config->autoRefresh())
-        m_previewTimer->start();
+    m_previewTimer->start();
 }
 
 void MainWindow::updatePreview()
@@ -973,7 +971,7 @@ void MainWindow::updateStatus()
 
 void MainWindow::syncScrollFromEditor(int value)
 {
-    if (m_syncing || !m_config->syncScroll() || !m_preview->isVisible())
+    if (m_syncing || !m_preview->isVisible())
         return;
     int max = m_editor->verticalScrollBar()->maximum();
     float ratio = max > 0 ? (float)value / max : 0.0f;
@@ -984,7 +982,7 @@ void MainWindow::syncScrollFromEditor(int value)
 
 void MainWindow::syncScrollFromPreview(int value)
 {
-    if (m_syncing || !m_config->syncScroll() || !m_editor->isVisible())
+    if (m_syncing || !m_editor->isVisible())
         return;
     int previewMax = m_preview->scrollMaximum();
     float ratio = previewMax > 0 ? (float)value / previewMax : 0.0f;
