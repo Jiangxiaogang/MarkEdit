@@ -21,9 +21,9 @@ SettingsDialog::SettingsDialog(ConfigManager *config, QWidget *parent)
     QWidget *editorTab = new QWidget;
     m_fontCombo = new QFontComboBox;
     m_fontSize = new QSpinBox;
-    m_fontSize->setRange(6, 72);
+    m_fontSize->setRange(6, 99);
     m_tabWidth = new QSpinBox;
-    m_tabWidth->setRange(2, 8);
+    m_tabWidth->setRange(2, 16);
 
     QFont cur = m_config->editorFont();
     m_fontCombo->setCurrentFont(cur);
@@ -100,7 +100,7 @@ void SettingsDialog::setColor(QColor &target, const QColor &color, QPushButton *
 
 void SettingsDialog::chooseCurrentLineColor()
 {
-    QColor c = QColorDialog::getColor(m_currentLineColor, this, tr("选择当前行背景色"));
+    QColor c = QColorDialog::getColor(m_currentLineColor, this, tr("选择当前行背景颜色"));
     if (c.isValid())
         setColor(m_currentLineColor, c, m_currentLineBtn, m_currentLineEdit);
 }
