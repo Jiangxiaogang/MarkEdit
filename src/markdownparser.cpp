@@ -13,10 +13,10 @@ QList<ParserOption> MarkdownParser::parserOptions()
 {
     static const QList<ParserOption> options = QList<ParserOption>()
         << ParserOption{ "table",         tr("表格"),        "table",         true  }
-        << ParserOption{ "strikethrough", tr("删除线"),      "strikethrough", false }
+        << ParserOption{ "strikethrough", tr("删除线"),      "strikethrough", true }
         << ParserOption{ "autolink",      tr("自动链接"),    "autolink",      false }
         << ParserOption{ "tagfilter",     tr("标签过滤"),    "tagfilter",     false }
-        << ParserOption{ "tasklist",      tr("任务列表"),    "tasklist",      false };
+        << ParserOption{ "tasklist",      tr("任务列表"),    "tasklist",      true };
     return options;
 }
 
