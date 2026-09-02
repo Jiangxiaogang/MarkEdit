@@ -84,11 +84,6 @@ void PreviewWidget::applyStyle()
 {
     ConfigManager *cfg = ConfigManager::instance();
     QString path = cfg->previewStyleFile();
-    if (path.isEmpty())
-    {
-        m_css.clear();
-        return;
-    }
     StyleSheetLoader loader;
     m_css = loader.loadFromFile(path);
 }

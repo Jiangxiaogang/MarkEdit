@@ -41,11 +41,6 @@ public:
     QString currentLineColor() const;
     void setCurrentLineColor(const QString &color);
 
-    // ---- Encoding ----
-    QString defaultEncoding() const;
-    void setDefaultEncoding(const QString &encoding);
-
-    // ---- Highlight colours ----
     QString headingColor() const;
     void setHeadingColor(const QString &color);
 
@@ -76,6 +71,10 @@ public:
     QString tableColor() const;
     void setTableColor(const QString &color);
 
+    // ---- Encoding ----
+    QString defaultEncoding() const;
+    void setDefaultEncoding(const QString &encoding);
+
     // ---- Parser render options ----
     bool parserOption(const QString &key) const;
     void setParserOption(const QString &key, bool on);
@@ -93,7 +92,7 @@ public:
     QString monospaceFont() const;
     void setMonospaceFont(const QString &family);
 
-    // Preview stylesheet file (empty = built-in, no external .css)
+    // Preview stylesheet file
     QString previewStyleFile() const;
     void setPreviewStyleFile(const QString &path);
 
@@ -129,11 +128,6 @@ private:
 
     // Editor colours
     QString m_currentLineColor;
-
-    // Encoding
-    QString m_defaultEncoding;
-
-    // Highlight colours
     QString m_headingColor;
     QString m_codeColor;
     QString m_quoteColor;
@@ -144,6 +138,9 @@ private:
     QString m_strikeColor;
     QString m_linkColor;
     QString m_tableColor;
+
+    // Encoding
+    QString m_defaultEncoding;
 
     // Parser render options
     QMap<QString, bool> m_parserOptions;

@@ -55,5 +55,13 @@ bool StyleSheetLoader::validateCSS(const QString &css)
 
 QString StyleSheetLoader::getDefaultCSS()
 {
-    return "";
+    return  "h1, h2 {border-bottom: 1px solid #eaecef; padding-bottom: 0.2em;}"
+            "code {background-color: #eaecef; padding: 0.1em 0.4em;}"
+            "pre {border: 1px solid #dfe2e5;background-color: #f6f8fa;padding: 16px;overflow: auto;}"
+            "pre code {background: none;padding: 0;}"
+            "blockquote {border-left: 4px solid #dfe2e5;color: #6a737d; padding: 0 1em;margin: 0;}"
+            "ul { line-height: 1.5;}"
+            "table {border-collapse: collapse;}"
+            "table th {background-color: #f0f0f0;}"
+            "table th, table td {border: 1px solid #dfe2e5;padding: 6px 6px;}";
 }

@@ -69,7 +69,7 @@ void MarkdownHighlighter::highlightBlock(const QString &text)
     }
 
     // ---- Heading (whole line) ----
-    if (QRegExp("^(#{1,6})\\s+").exactMatch(text))
+    if (QRegExp("^(#{1,6})\\s+.*").exactMatch(text))
     {
         setFormat(0, text.length(), m_headingFmt);
         setCurrentBlockState(Normal);
@@ -99,7 +99,7 @@ void MarkdownHighlighter::highlightBlock(const QString &text)
     applyRegex(text, QRegExp("_([^_]+)_"), m_italicFmt);
     applyRegex(text, QRegExp("\\*\\*([^*]+)\\*\\*"), m_boldFmt);
     applyRegex(text, QRegExp("__([^_]+)__"), m_boldFmt);
-    applyRegex(text, QRegExp("~~(.+?)~~"), m_strikeFmt);
+    applyRegex(text, QRegExp("~~([^~]+)~~"), m_strikeFmt);
     applyRegex(text, QRegExp("!\\[([^\\]]*)\\]\\(([^\\)]+)\\)"), m_linkFmt);
     applyRegex(text, QRegExp("\\[([^\\]]*)\\]\\(([^\\)]+)\\)"), m_linkFmt);
     applyRegex(text, QRegExp("\\|"), m_tableFmt);

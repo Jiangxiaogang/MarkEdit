@@ -43,18 +43,16 @@ void ConfigManager::loadConfig()
     m_tabWidth = settings.value("editor/tab_width", 4).toInt();
     m_defaultEncoding = settings.value("editor/default_encoding", "UTF-8").toString();
     m_currentLineColor = settings.value("editor/current_line_color", "#f0f0ff").toString();
-
-    // Highlight colours (hex strings)
-    m_headingColor = settings.value("highlighter/heading_color", "#1f6feb").toString();
-    m_codeColor    = settings.value("highlighter/code_color", "#cf222e").toString();
-    m_quoteColor   = settings.value("highlighter/quote_color", "#57606a").toString();
-    m_listColor    = settings.value("highlighter/list_color", "#e36209").toString();
-    m_hrColor      = settings.value("highlighter/hr_color", "#57606a").toString();
-    m_boldColor    = settings.value("highlighter/bold_color", "#8250df").toString();
-    m_italicColor  = settings.value("highlighter/italic_color", "#0c7b93").toString();
-    m_strikeColor  = settings.value("highlighter/strike_color", "#57606a").toString();
-    m_linkColor    = settings.value("highlighter/link_color", "#0550ae").toString();
-    m_tableColor   = settings.value("highlighter/table_color", "#57606a").toString();
+    m_headingColor = settings.value("editor/heading_color", "#0000ff").toString();
+    m_codeColor    = settings.value("editor/code_color", "#008000").toString();
+    m_quoteColor   = settings.value("editor/quote_color", "#ff0000").toString();
+    m_listColor    = settings.value("editor/list_color", "#ff0000").toString();
+    m_hrColor      = settings.value("editor/hr_color", "#000000").toString();
+    m_boldColor    = settings.value("editor/bold_color", "#800000").toString();
+    m_italicColor  = settings.value("editor/italic_color", "#808000").toString();
+    m_strikeColor  = settings.value("editor/strike_color", "#808080").toString();
+    m_linkColor    = settings.value("editor/link_color", "#e06010").toString();
+    m_tableColor   = settings.value("editor/table_color", "#000000").toString();
 
     // Parser render options
     m_parserOptions.clear();
@@ -64,7 +62,7 @@ void ConfigManager::loadConfig()
     // Preview (browser font families)
     m_standardFont   = settings.value("preview/standard_font", "SimSun").toString();
     m_serifFont      = settings.value("preview/serif_font", "SimSun").toString();
-    m_sansSerifFont  = settings.value("preview/sans_serif_font", "Microsoft YaHei").toString();
+    m_sansSerifFont  = settings.value("preview/sans_serif_font", "Tahoma").toString();
     m_monospaceFont  = settings.value("preview/monospace_font", "Courier New").toString();
     m_previewStyleFile = settings.value("preview/style_file", "").toString();
 
@@ -88,17 +86,16 @@ void ConfigManager::saveConfig()
     settings.setValue("editor/tab_width", m_tabWidth);
     settings.setValue("editor/default_encoding", m_defaultEncoding);
     settings.setValue("editor/current_line_color", m_currentLineColor);
-
-    settings.setValue("highlighter/heading_color", m_headingColor);
-    settings.setValue("highlighter/code_color", m_codeColor);
-    settings.setValue("highlighter/quote_color", m_quoteColor);
-    settings.setValue("highlighter/list_color", m_listColor);
-    settings.setValue("highlighter/hr_color", m_hrColor);
-    settings.setValue("highlighter/bold_color", m_boldColor);
-    settings.setValue("highlighter/italic_color", m_italicColor);
-    settings.setValue("highlighter/strike_color", m_strikeColor);
-    settings.setValue("highlighter/link_color", m_linkColor);
-    settings.setValue("highlighter/table_color", m_tableColor);
+    settings.setValue("editor/heading_color", m_headingColor);
+    settings.setValue("editor/code_color", m_codeColor);
+    settings.setValue("editor/quote_color", m_quoteColor);
+    settings.setValue("editor/list_color", m_listColor);
+    settings.setValue("editor/hr_color", m_hrColor);
+    settings.setValue("editor/bold_color", m_boldColor);
+    settings.setValue("editor/italic_color", m_italicColor);
+    settings.setValue("editor/strike_color", m_strikeColor);
+    settings.setValue("editor/link_color", m_linkColor);
+    settings.setValue("editor/table_color", m_tableColor);
 
     // Parser render options
     foreach (const ParserOption &o, MarkdownParser::parserOptions())
@@ -177,17 +174,6 @@ void ConfigManager::setTabWidth(int width)
 QString ConfigManager::currentLineColor() const { return m_currentLineColor; }
 void ConfigManager::setCurrentLineColor(const QString &color) { m_currentLineColor = color; }
 
-// ---- Encoding ----
-QString ConfigManager::defaultEncoding() const
-{
-    return m_defaultEncoding;
-}
-void ConfigManager::setDefaultEncoding(const QString &encoding)
-{
-    m_defaultEncoding = encoding;
-}
-
-// ---- Highlight colours ----
 QString ConfigManager::headingColor() const { return m_headingColor; }
 void ConfigManager::setHeadingColor(const QString &color) { m_headingColor = color; }
 
@@ -217,6 +203,16 @@ void ConfigManager::setLinkColor(const QString &color) { m_linkColor = color; }
 
 QString ConfigManager::tableColor() const { return m_tableColor; }
 void ConfigManager::setTableColor(const QString &color) { m_tableColor = color; }
+
+// ---- Encoding ----
+QString ConfigManager::defaultEncoding() const
+{
+    return m_defaultEncoding;
+}
+void ConfigManager::setDefaultEncoding(const QString &encoding)
+{
+    m_defaultEncoding = encoding;
+}
 
 // ---- Parser render options ----
 bool ConfigManager::parserOption(const QString &key) const
