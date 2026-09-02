@@ -3,6 +3,7 @@
 
 #include <QRegExp>
 #include <QTextCharFormat>
+#include <QDebug>
 
 namespace
 {
@@ -10,9 +11,9 @@ namespace
     {
         QTextCharFormat f;
         f.setForeground(color);
+        f.setProperty(QTextFormat::UserProperty, QVariant::fromValue(1));
         return f;
     }
-
 } // namespace
 
 MarkdownHighlighter::MarkdownHighlighter(QTextDocument *document)
@@ -31,13 +32,13 @@ MarkdownHighlighter::MarkdownHighlighter(QTextDocument *document)
     m_tableFmt   = colorFormat(QColor(cfg->tableColor()));
 }
 
-void MarkdownHighlighter::applyRegex(const QString &text,const QRegExp &re,const QTextCharFormat &format)
+void MarkdownHighlighter::applyRegex(const QString &text, const QRegExp &re,const QTextCharFormat &fmt)
 {
     int pos = 0;
     while ((pos = re.indexIn(text, pos)) != -1)
     {
         int len = re.matchedLength();
-        setFormat(pos, len, format);
+        setFormat(pos, len, fmt);
         pos += len;
         if (len == 0) ++pos;
     }
@@ -49,19 +50,16 @@ void MarkdownHighlighter::highlightBlock(const QString &text)
     if (state < 0)
         state = Normal;
 
-    QRegExp fenceRe("^\\s*(`{3,}|~{3,})(.*)$");
-    QRegExp closeRe("^\\s*(`{3,}|~{3,})\\s*$");
-
     // ---- Inside a fenced code block: colour the entire line as code ----
     if (state == InCodeBlock)
     {
         setFormat(0, text.length(), m_codeFmt);
-        setCurrentBlockState(closeRe.exactMatch(text) ? Normal : InCodeBlock);
+        setCurrentBlockState(QRegExp("^\\s*(`{3,}|~{3,})\\s*$").exactMatch(text) ? Normal : InCodeBlock);
         return;
     }
 
     // ---- Opening fence line ----
-    if (fenceRe.exactMatch(text))
+    if (QRegExp("^\\s*(`{3,}|~{3,})(.*)$").exactMatch(text))
     {
         setFormat(0, text.length(), m_codeFmt);
         setCurrentBlockState(InCodeBlock);
@@ -95,15 +93,11 @@ void MarkdownHighlighter::highlightBlock(const QString &text)
         setFormat(lmRe.pos(2), lmRe.cap(2).length(), m_listFmt);
 
     // ---- Inline emphasis / structure ----
-    applyRegex(text, QRegExp("\\*([^*]+)\\*"), m_italicFmt);
-    applyRegex(text, QRegExp("_([^_]+)_"), m_italicFmt);
-    applyRegex(text, QRegExp("\\*\\*([^*]+)\\*\\*"), m_boldFmt);
-    applyRegex(text, QRegExp("__([^_]+)__"), m_boldFmt);
+    applyRegex(text, QRegExp("\\*\\*[^*]+\\*\\*"), m_boldFmt);
+    applyRegex(text, QRegExp("(?:^|\\s)__([^ ]+)__(?:\\s|$)"), m_boldFmt);
     applyRegex(text, QRegExp("~~([^~]+)~~"), m_strikeFmt);
+    applyRegex(text, QRegExp("`[^`\\n]+`"), m_codeFmt);
     applyRegex(text, QRegExp("!\\[([^\\]]*)\\]\\(([^\\)]+)\\)"), m_linkFmt);
     applyRegex(text, QRegExp("\\[([^\\]]*)\\]\\(([^\\)]+)\\)"), m_linkFmt);
-    applyRegex(text, QRegExp("\\|"), m_tableFmt);
-    applyRegex(text, QRegExp("`[^`\\n]+`"), m_codeFmt);
-
     setCurrentBlockState(Normal);
 }
