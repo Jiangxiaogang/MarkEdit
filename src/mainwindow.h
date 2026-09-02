@@ -84,7 +84,6 @@ private slots:
 
     // Help
     void about();
-    void markdownGuide();
 
     // Preview / editor plumbing
     void onTextChanged();

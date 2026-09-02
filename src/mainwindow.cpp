@@ -384,13 +384,9 @@ void MainWindow::initMenuBar()
     //==========================================================
     QMenu *helpMenu = menuBar()->addMenu(tr("帮助(&H)"));
     QAction *aboutAct = new QAction(QIcon::fromTheme("help-about"), tr("关于(&A)..."), this);
+    aboutAct->setShortcut(QKeySequence::HelpContents);
     connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
     helpMenu->addAction(aboutAct);
-
-    QAction *guideAct = new QAction(QIcon::fromTheme("help-contents"), tr("指南(&S)..."), this);
-    guideAct->setShortcut(QKeySequence::HelpContents);
-    connect(guideAct, SIGNAL(triggered()), this, SLOT(markdownGuide()));
-    helpMenu->addAction(guideAct);
 }
 
 void MainWindow::initStatusBar()
@@ -905,29 +901,6 @@ void MainWindow::onParserOptionToggled(bool checked)
 void MainWindow::about()
 {
     AboutDialog dlg(this);
-    dlg.exec();
-}
-
-void MainWindow::markdownGuide()
-{
-    const QString guide =
-        "<h1>Markdown语法指南</h1>"
-        "<h2>标题</h2><br><pre><code># H1\n## H2\n### H3</code></pre>"
-        "<h2>强调</h2><br><pre><code>**粗体**  *斜体*  ~~删除线~~  `代码`</code></pre>"
-        "<h2>列表</h2><br><pre><code>- 项目\n- 项目\n\n1. 第一\n2. 第二</code></pre>"
-        "<h2>引用块</h2><br><pre><code>&gt; 引用文本</code></pre>"
-        "<h2>代码块</h2><br><pre><code>```\n代码内容\n```</code></pre>"
-        "<h2>链接和图片</h2><br><pre><code>[文本](https://example.com)\n"
-        "![说明文字](图片.png)</code></pre>"
-        "<h2>水平线</h2><pre><code>---</code></pre>";
-    PreviewWidget *w = new PreviewWidget(this);
-    //w->setCSS(StyleSheetLoader::getDefaultCSS());
-    w->setMarkdown(guide);
-    QDialog dlg(this);
-    dlg.setWindowTitle(tr("语法指南"));
-    dlg.resize(640, 520);
-    QVBoxLayout *lay = new QVBoxLayout(&dlg);
-    lay->addWidget(w);
     dlg.exec();
 }
 
