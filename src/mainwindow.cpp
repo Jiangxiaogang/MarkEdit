@@ -74,7 +74,7 @@ MainWindow::~MainWindow()
 void MainWindow::initUI()
 {
     m_editor = new CodeEditor(this);
-    m_editor->setPlainText(tr("# MarkEdit\n"));
+    m_editor->setPlainText("");
     m_editor->document()->setModified(false);
     m_preview = new PreviewWidget(this);
     m_previewTimer->setSingleShot(true);
@@ -505,8 +505,6 @@ bool MainWindow::loadFileWithEncoding(const QString &path, const QString &encodi
     QString txt = codec->toUnicode(raw);
     m_editor->setPlainText(txt);
     m_editor->document()->setModified(false);
-    m_fileEncoding = QString::fromLatin1(codec->name());
-    m_statusEncoding->setText("编码:"+m_fileEncoding);
     setCurrentFile(path);
     updateEncodingMenu();
     updatePreview();
@@ -515,17 +513,18 @@ bool MainWindow::loadFileWithEncoding(const QString &path, const QString &encodi
 
 void MainWindow::onEncodingSelected(const QString &codecName)
 {
-    if (m_currentFile.isEmpty())
-        return;
-
-    if (m_editor->document()->isModified() && !maybeSave())
-        return;
-
-    if (!loadFileWithEncoding(m_currentFile, codecName))
-        return;
-
     m_config->setDefaultEncoding(codecName);
     m_config->saveConfig();
+    m_fileEncoding = codecName;
+    m_statusEncoding->setText("编码:"+m_fileEncoding);
+    if (!m_currentFile.isEmpty())
+    {
+        if (m_editor->document()->isModified() && !maybeSave())
+            return;
+
+        if (!loadFileWithEncoding(m_currentFile, codecName))
+            return;
+    }
 }
 
 void MainWindow::updateEncodingMenu()
@@ -533,7 +532,6 @@ void MainWindow::updateEncodingMenu()
     if (!m_encodingMenu)
         return;
 
-    m_encodingMenu->setEnabled(!m_currentFile.isEmpty());
     foreach (QAction *act, m_encodingActions)
     {
         act->setChecked(act->data().toString() == m_fileEncoding);
