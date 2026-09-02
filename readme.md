@@ -1,427 +1,147 @@
-# MarkEdit — Markdown 编辑器软件架构方案
+# MarkEdit
 
-## 1. 项目概述
+基于 Qt 的跨平台 Markdown 编辑器，采用左右分栏布局：左侧为 Markdown 源码编辑区，右侧为实时渲染预览区。编辑器支持行号、空白字符显示、可配置配色的语法高亮、字体与 Tab 宽度设置、编码检测与转换；预览区基于 QtWebKit 渲染，样式可由本地 CSS 自定义，并支持编辑区与预览区双向滚动同步。
 
-### 1.1 项目目标
-基于 Qt 5.4 开发一款跨平台 Markdown 编辑器，采用左右分栏布局（`QSplitter`）：左侧为源码编辑区，右侧为实时预览区。支持行号显示、空白字符显示、语法高亮、自定义字体与 Tab 宽度等编辑功能，并支持通过本地 CSS 文件自定义预览样式。
+**123**aaaaaaa**123**
+__123__aaaaaaa__123__ 
 
-### 1.2 技术栈
-- **框架**: Qt 5.4 (C++11)
-- **Markdown 解析**: 自研行式解析器 `MarkdownParser`（基于 `QRegularExpression`，无需第三方库）
-- **渲染引擎**: QtWebKit（`QWebView`）
-- **构建系统**: qmake（`MarkEdit.pro`）
-- **配置持久化**: `QSettings`（INI 格式）
-- **目标平台**: Windows, Linux, macOS
 
-## 2. 系统架构设计
+---
 
-### 2.1 整体架构图
+## 1. 软件环境
+
+### 1.1 运行 / 构建平台
+- **操作系统**：理论上可以跨平台编译，但目标主要针对Windows 构建。
+- **编译器**：MinGW（C++11 / C11）。CMake 生成的 cmark-gfm 静态库以 `.a` 形式随工程提供。
+
+### 1.2 开发框架与依赖
+| 类别 | 说明 |
+|------|------|
+| 框架 | **Qt 4.8**（C++11） |
+| Qt 模块 | `core` `gui` `widgets` `printsupport` **`webkit`**（预览区使用 `QWebView` / QtWebKit） |
+| Markdown 引擎 | **cmark-gfm**（GitHub Flavored Markdown），工程内捆绑静态库 `src/libcmark-gfm/libcmark-gfm.a` 与 `libcmark-gfm-extensions.a`，通过 `CMARK_GFM_STATIC_DEFINE` 以静态方式链接 |
+| 配置持久化 | `QSettings`（INI 格式） |
+| 国际化 | `tr()` + `QTextCodec`（强制 UTF-8） |
+| 构建系统 | qmake（`project.pro`） |
+| 资源 | `res/resources.qrc` |
+
+> 最初计划采用QT5.12开发，后来发现其内置TextDocument对HTML渲染不理想，而WebEngine框架功能强大但过于沉重。  
+> 随后考虑能使用Webkit的QT5.4来实现，开发一半发现QT5.4的菜单栏在Windows上显示异常。  
+> 最后经过验证QT4.8可以完美避免以上问题。
+
+### 1.3 第三方库说明
+- **cmark-gfm**：用于把 Markdown 文本解析为 HTML。相比自研解析器，直接复用 CommonMark + GFM 扩展，保证解析的正确性与兼容性。渲染时按需挂载 GFM 扩展（表格、删除线、任务列表、自动链接、标签过滤），由 `ConfigManager` 的 parser 选项控制。
+
+---
+
+## 2. 系统架构
+
+### 2.1 整体架构
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                     MainWindow                              │
+│                       MainWindow  (QMainWindow)             │
 │  ┌───────────────────────────────────────────────────────┐  │
-│  │                   Menu & Toolbar                      │  │
+│  │              MenuBar / Toolbar / StatusBar            │  │
 │  └───────────────────────────────────────────────────────┘  │
 │  ┌─────────────────────┬─────────────────────────────────┐  │
-│  │     CodeEditor      │        PreviewWidget            │  │
+│  │      CodeEditor     │        PreviewWidget            │  │
 │  │  ┌───────────────┐  │  ┌───────────────────────────┐  │  │
 │  │  │ QPlainTextEdit│  │  │ QWebView (QtWebKit)       │  │  │
-│  │  │ + LineNumbers │  │  │ + CSS Styling             │  │  │
-│  │  │ + Whitespace  │  │  │ + Scroll Sync             │  │  │
-│  │  │ + Highlighter │  │  │                           │  │  │
-│  │  │ + Font/TabW   │  │  │                           │  │  │
+│  │  │ +LineNumberArea│ │  │ + CSS Styling             │  │  │
+│  │  │ +Highlighter  │  │  │ + Scroll Sync             │  │  │
 │  │  └───────────────┘  │  └───────────────────────────┘  │  │
 │  └─────────────────────┴─────────────────────────────────┘  │
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │                  StatusBar                            │  │
-│  └───────────────────────────────────────────────────────┘  │
+│  QSplitter：左右分栏 / 上下分栏 / 仅编辑 / 仅预览                 │
 └─────────────────────────────────────────────────────────────┘
-         ▲                        ▲
-         │                        │
-┌────────┴────────┐    ┌──────────┴──────────┐
-│  ConfigManager  │    │   MarkdownParser    │
-│  (QSettings)    │    │   (Text → HTML)     │
-└─────────────────┘    └─────────────────────┘
+         │ textChanged (防抖)          ▲ scrolled
+         ▼                            │
+┌────────────────┐          ┌────────────────────┐
+│ MarkdownParser │          │   StyleSheetLoader │
+│ (cmark-gfm)    │          │  (CSS 加载/校验)    │
+└────────────────┘          └────────────────────┘
+         │                            ▲
+         └──────── ConfigManager ────┘  (QSettings 单例)
 ```
 
-### 2.2 核心模块划分
+### 2.2 分层与数据流
+1. **表现层**：`MainWindow` 负责窗口骨架（菜单、工具栏、状态栏）、`QSplitter` 布局与视图切换（左右 / 上下 / 仅编辑 / 仅预览 / 全屏）。
+2. **编辑层**：`CodeEditor`（基于 `QPlainTextEdit`）负责源码编辑，配套 `LineNumberArea`（行号）与 `MarkdownHighlighter`（语法高亮）。
+3. **预览层**：`PreviewWidget`（基于 `QWebView`）负责 HTML 渲染，委托 `StyleSheetLoader` 加载并校验 CSS。
+4. **解析层**：`MarkdownParser` 封装 cmark-gfm，将 Markdown 转换为 HTML。
+5. **配置层**：`ConfigManager` 单例，基于 `QSettings` 统一保存/读取编辑器、预览、编码、解析选项与窗口状态，变更时发出 `configurationChanged()`。
 
-| 模块名称 | 职责描述 | 关键类 |
-|---------|---------|-------|
-| **MainWindow** | 主窗口管理，QSplitter 布局，菜单/工具栏/状态栏 | `MainWindow` |
-| **EditorPane** | 文本编辑，行号，空白显示，语法高亮，字体/Tab 宽度 | `CodeEditor`, `LineNumberArea`, `MarkdownHighlighter` |
-| **PreviewPane** | Markdown 渲染预览，CSS 样式，滚动同步 | `PreviewWidget` |
-| **MarkdownParser** | Markdown 语法解析，转换为 HTML | `MarkdownParser` |
-| **ConfigManager** | 用户设置持久化（QSettings 单例） | `ConfigManager` |
-| **StyleSheetLoader** | CSS 样式表加载、验证与默认样式 | `StyleSheetLoader` |
-| **Dialogs** | 查找替换、偏好设置、插入链接/图片、关于 | `FindReplaceDialog`, `SettingsDialog`, `InsertDialog`, `AboutDialog` |
+**核心数据流**：编辑区 `textChanged` → `MainWindow` 经定时器防抖（避免每次击键都重渲染）→ `MarkdownParser::parse()`（cmark-gfm）→ `PreviewWidget` 拼接完整 HTML 并套用 CSS → `QWebView::setHtml()` 异步渲染。编辑区与预览区通过滚动条比例做双向同步（`m_syncing` 标志防止递归）。
 
-## 3. 详细模块设计
+### 2.3 模块划分
+| 模块 | 职责 | 关键类 |
+|------|------|--------|
+| 主窗口 | 布局、菜单/工具栏/状态栏、文件读写、视图切换、滚动同步 | `MainWindow` |
+| 编辑区 | 文本编辑、行号、当前行高亮、空白显示、字体/Tab 宽度、自动换行 | `CodeEditor`, `LineNumberArea` |
+| 语法高亮 | 按元素着色的 Markdown 高亮（配色来自配置） | `MarkdownHighlighter` |
+| 预览区 | Markdown 渲染预览、CSS 样式、滚动同步、链接外链 | `PreviewWidget` |
+| 解析器 | Markdown → HTML（cmark-gfm + GFM 扩展） | `MarkdownParser` |
+| 配置管理 | 用户设置持久化（单例 + QSettings） | `ConfigManager` |
+| 样式加载 | CSS 文件加载、花括号校验、默认样式回退 | `StyleSheetLoader` |
+| 对话框 | 查找替换、偏好设置、插入链接/图片、关于 | `FindReplaceDialog`, `SettingsDialog`, `InsertDialog`, `AboutDialog` |
 
-### 3.1 主窗口模块 (MainWindow)
+---
 
-#### 功能职责
-- 创建左右分栏布局（`QSplitter`，默认 1:1 分隔）
-- 管理菜单栏（文件、编辑、视图、格式、工具、帮助）
-- 管理工具栏与状态栏（光标位置、字数统计）
-- 双向滚动同步（编辑区 ↔ 预览区）
+## 3. 概要设计
 
-#### 关键接口
-```cpp
-class MainWindow : public QMainWindow {
-    Q_OBJECT
-public:
-    explicit MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+### 3.1 主窗口（MainWindow）
+- 以 `QSplitter` 组织编辑区与预览区，支持**左右分栏、上下分栏、仅编辑、仅预览**四种视图，以及全屏模式；初次显示时强制 1:1 分隔。
+- 菜单：文件（新建/打开/最近文件/保存/另存为/导出 HTML/导出 PDF/退出）、编辑（全选/查找/替换）、视图（全屏、自动换行、行号、空白字符、分隔方向、状态栏）、格式（加粗/斜体/下划线/删除线/标题/列表/引用/代码块/行内代码/链接/图片/ horizontal rule）、工具（偏好设置、解析选项开关、编码切换）、帮助（关于、Markdown 指南）。
+- 状态栏显示光标位置与当前文件编码。
+- 文件读写带**编码检测与保留**：加载时探测编码，保存时按原编码写回；可经菜单切换默认编码。
+- 编辑区文本变更经防抖定时器后刷新预览；负责编辑区与预览区双向滚动同步。
 
-protected:
-    void closeEvent(QCloseEvent *event) override;
-    void showEvent(QShowEvent *event) override;
+### 3.2 编辑区（CodeEditor）
+- 继承 `QPlainTextEdit`，提供 Markdown 源码编辑。
+- `LineNumberArea`：作为左 margin 子控件绘制行号，随块变化与滚动同步。
+- 当前行高亮（可配置颜色）。
+- 空白字符显示（`QTextOption::ShowTabsAndSpaces` 等）。
+- 自定义字体、Tab 宽度（像素换算）、自动换行开关。
 
-private:
-    void initUI();
-    void initMenus();
-    void initToolbar();
-    void initStatusBar();
-    void initConnections();
-    void loadSettings();
-    void saveSettings();
-    void applyConfigToUi();
+### 3.3 语法高亮（MarkdownHighlighter）
+- 继承 `QSyntaxHighlighter`，按块着色，仅改变前景色。
+- 覆盖标题、代码块（含跨行围栏代码块状态机）、引用、列表、水平线、粗体、斜体、删除线、链接、表格等元素。
+- 各元素颜色由 `ConfigManager` 提供，可在偏好设置中调整。
+- 通过 `setDocument()` 挂载/卸载实现启停。
 
-    // 文件 / 编辑 / 视图 / 格式 / 工具 / 帮助 操作
-    // 滚动同步: syncScrollFromEditor(int), syncScrollFromPreview(int)
-    // 上下文菜单: editorContextMenu(pos), previewContextMenu(pos)
+### 3.4 预览区（PreviewWidget）
+- 继承 `QWebView`（QtWebKit），渲染解析后的完整 HTML。
+- 套用 CSS 样式（本地文件或内置默认样式）；支持设置 `baseUrl` 以正确解析相对路径资源。
+- 链接点击委托系统浏览器（`QDesktopServices`）打开。
+- 双向比例滚动同步：编辑器滚动条变化按比例驱动预览；预览侧以定时器轮询网页滚动位置变化并发出 `scrolled`，反向驱动编辑器（`m_syncing` 防递归；`setHtml()` 异步加载完成后重新应用待定滚动比例）。
 
-    CodeEditor *m_editor;
-    PreviewWidget *m_preview;
-    QSplitter *m_splitter;
-    ConfigManager *m_config;
-    StyleSheetLoader *m_styleLoader;
-    QTimer *m_previewTimer;
-    QString m_currentFile;
-    bool m_syncing;
-    bool m_splitSet;
-};
-```
+### 3.5 解析器（MarkdownParser）
+- 封装 cmark-gfm：输入 Markdown（转 UTF-8）→ `cmark_parser_new` → 按需挂载 GFM 扩展 → `cmark_render_html` → 输出 HTML 字符串（UTF-8）。
+- 暴露 `parserOptions()` 列表（表格、删除线、自动链接、标签过滤、任务列表），各开关由 `ConfigManager` 的 parser 选项决定；默认开启表格、删除线、任务列表。
 
-### 3.2 编辑区模块 (CodeEditor)
+### 3.6 配置管理（ConfigManager）
+- 单例（构造函数私有，禁用拷贝），基于 `QSettings`（INI）读写，变更时 `emit configurationChanged()`。
+- 管理内容：
+  - **编辑器**：字体、自动换行、行号、空白字符、语法高亮、Tab 宽度；
+  - **语法高亮配色**：当前行、标题、代码、引用、列表、水平线、粗体、斜体、删除线、链接、表格；
+  - **编码**：默认编码；
+  - **解析选项**：各 GFM 扩展开关；
+  - **预览**：浏览器字体族（standard/serif/sans-serif/monospace）、预览样式文件；
+  - **窗口状态**：geometry / state；
+  - **最近文件**：去重的最近打开列表。
 
-#### 功能职责
-- 继承 `QPlainTextEdit`，提供 Markdown 源码编辑
-- 行号 gutter（`LineNumberArea`）
-- 当前行高亮
-- 空白字符显示（`QTextOption::ShowTabsAndSpaces`）
-- 语法高亮（`MarkdownHighlighter`）
-- 自定义字体与 Tab 宽度
+### 3.7 样式加载（StyleSheetLoader）
+- 读取本地 CSS 文件（UTF-8），校验花括号配平；失败时回退到内置 `getDefaultCSS()`。
+- 内置默认样式为 GitHub 风格（标题下边框、代码块底色、`blockquote` 左侧线、表格边框等）。
 
-#### 关键接口
-```cpp
-class CodeEditor : public QPlainTextEdit {
-    Q_OBJECT
-public:
-    explicit CodeEditor(QWidget *parent = nullptr);
-    ~CodeEditor();
+### 3.8 对话框
+- `FindReplaceDialog`：模态查找/替换，支持大小写敏感、整词匹配、全部替换。
+- `SettingsDialog`：偏好设置（编辑器 + 预览 + 高亮配色 + 编码），绑定 `ConfigManager`。
+- `InsertDialog`：插入链接 / 图片的输入提示框（`kind` 区分模式）。
+- `AboutDialog`：显示版本、Qt 版本与许可证信息。
 
-    void setLineNumbersVisible(bool visible);
-    void setWhitespaceVisible(bool visible);
-    void setSyntaxHighlightingEnabled(bool enabled);
-    void setTabWidth(int width);
-    void setEditorFont(const QFont &font);
-    int lineNumberAreaWidth() const;
-    void lineNumberAreaPaintEvent(QPaintEvent *event);
+---
 
-protected:
-    void resizeEvent(QResizeEvent *event) override;
-    void paintEvent(QPaintEvent *event) override;
-
-private:
-    LineNumberArea *m_lineNumberArea;
-    MarkdownHighlighter *m_highlighter;
-    bool m_showLineNumbers;
-    bool m_showWhitespace;
-    bool m_syntaxHighlighting;
-};
-```
-
-#### 3.2.1 行号显示 (LineNumberArea)
-- 继承 `QWidget`，作为编辑器的左 margin 子控件
-- `sizeHint()` 返回 `CodeEditor::lineNumberAreaWidth()`
-- `paintEvent()` 委托给 `CodeEditor::lineNumberAreaPaintEvent()`
-- 与 `QPlainTextEdit` 通过 `blockCountChanged` / `updateRequest` 同步滚动
-
-#### 3.2.2 语法高亮 (MarkdownHighlighter)
-- 继承 `QSyntaxHighlighter`，仅改变文字前景色，不改字体/字号/样式
-- 支持标题、代码块（含跨行围栏代码块状态机）、引用、列表、水平线、粗体、斜体、删除线、链接、表格
-- 通过 `setDocument()` 挂载/卸载实现启停（禁用时清除已着色格式）
-
-#### 3.2.3 Tab 宽度
-- `setTabWidth(int width)` 将"空格数"换算为像素，调用 `setTabStopWidth()`
-- 依赖当前字体宽度，需在字体设置之后调用
-
-### 3.3 预览区模块 (PreviewWidget)
-
-#### 功能职责
-- 继承 `QWebView`（QtWebKit），渲染解析后的 HTML
-- 应用 CSS 样式（支持自定义文件 + 内置默认/暗色样式）
-- 双向比例滚动同步
-- 链接点击委托给系统浏览器（`QDesktopServices`）
-
-#### 关键接口
-```cpp
-class PreviewWidget : public QWebView {
-    Q_OBJECT
-public:
-    explicit PreviewWidget(QWidget *parent = nullptr);
-    ~PreviewWidget();
-
-    void setCSS(const QString &css);
-    void setMarkdown(const QString &markdown);
-    void refresh();
-    int scrollMaximum() const;
-    int scrollValue() const;
-    void setScrollRatio(float ratio);
-
-signals:
-    void scrolled(int value);
-    void cssFailed(const QString &error);
-
-private:
-    QString generateHtml(const QString &body) const;
-    void applyRatio(float ratio);
-    MarkdownParser *m_parser;
-    StyleSheetLoader *m_loader;
-    QTimer *m_scrollTimer;
-    int m_lastScroll;
-    float m_pendingRatio;
-    bool m_emitScroll;
-};
-```
-
-#### 3.3.1 滚动同步机制
-- **编辑器 → 预览**: 编辑器 `verticalScrollBar()->valueChanged` → `MainWindow::syncScrollFromEditor()`，按比例调用 `setScrollRatio()`
-- **预览 → 编辑器**: `PreviewWidget` 内部 100ms 定时器轮询 `QWebFrame::scrollBarValue()` 检测变化，`emit scrolled(value)` → `MainWindow::syncScrollFromPreview()`，按比例设置编辑器滚动条
-- `m_syncing` 标志防止双向递归
-- `setHtml()` 异步加载，`loadFinished` 时重新应用 `m_pendingRatio` 以保持滚动位置
-
-### 3.4 Markdown 解析器 (MarkdownParser)
-
-#### 功能职责
-- 将 Markdown 文本解析为 HTML 片段（body 内容）
-- 行式（line-based）解析，鲁棒性优先，非 100% CommonMark 兼容
-
-#### 支持的语法
-| 语法 | 说明 |
-|------|------|
-| 标题 | ATX 风格 `#` ~ `######` |
-| 粗体 / 斜体 / 删除线 | `**text**`, `__text__`, `*text*`, `_text_`, `~~text~~` |
-| 行内代码 / 围栏代码块 | `` `code` `` / ```` ``` ```` 或 `~~~`（支持语言标注） |
-| 无序 / 有序列表 | `-`, `*`, `+` / `1.` |
-| 引用块 | `> text` |
-| 链接 / 图片 | `[text](url)` / `![alt](url)` |
-| 水平线 | `---`, `***`, `___` |
-| 段落 | 连续非空行 |
-| 表格 | GFM 管道表格（支持列对齐 `:---`, `---:`） |
-
-#### 关键接口
-```cpp
-class MarkdownParser : public QObject {
-    Q_OBJECT
-public:
-    explicit MarkdownParser(QObject *parent = nullptr);
-    QString parse(const QString &markdown) const;
-
-private:
-    QString escapeHtml(const QString &text) const;
-    QString parseInline(const QString &text) const;
-    QString parseBlock(const QStringList &lines, int &i) const;
-    // parseCodeBlock / parseList / parseBlockQuote / parseHeading /
-    // parseHorizontalRule / parseParagraph / parseTable ...
-};
-```
-
-### 3.5 配置管理模块 (ConfigManager)
-
-#### 功能职责
-- 单例模式，全局共享配置实例
-- 基于 `QSettings`（INI 格式）读写
-- 管理编辑器、预览、窗口状态与最近文件列表
-- 配置变更时 `emit configurationChanged()`
-
-#### 配置项（QSettings 键值）
-```
-[editor]
-  font                 = Consolas, 12pt
-  show_line_numbers    = true
-  show_whitespace      = false
-  syntax_highlighting  = true
-  tab_width            = 4
-
-[preview]
-  css_file_path        = :/styles/default.css
-  sync_scroll          = true
-  auto_refresh         = true
-
-[window]
-  geometry             = <QByteArray>
-  state                = <QByteArray>
-
-[recent]
-  files                = <QStringList>
-```
-
-#### 关键接口
-```cpp
-class ConfigManager : public QObject {
-    Q_OBJECT
-public:
-    static ConfigManager *instance();
-    void loadConfig();
-    void saveConfig();
-
-    // 编辑器设置
-    QFont editorFont() const; void setEditorFont(const QFont &font);
-    bool showLineNumbers() const; void setShowLineNumbers(bool show);
-    bool showWhitespace() const; void setShowWhitespace(bool show);
-    bool showSyntaxHighlighting() const; void setShowSyntaxHighlighting(bool show);
-    int tabWidth() const; void setTabWidth(int width);
-
-    // 预览设置
-    QString cssFilePath() const; void setCssFilePath(const QString &path);
-    bool syncScroll() const; void setSyncScroll(bool sync);
-    bool autoRefresh() const; void setAutoRefresh(bool refresh);
-
-    // 窗口状态 / 最近文件 ...
-signals:
-    void configurationChanged();
-};
-```
-
-### 3.6 样式表加载器 (StyleSheetLoader)
-
-#### 功能职责
-- 读取本地 CSS 文件（UTF-8）
-- 校验 CSS（花括号配平）
-- 提供内置默认（浅色）与暗色样式，加载失败时回退到默认样式
-
-#### 关键接口
-```cpp
-class StyleSheetLoader : public QObject {
-    Q_OBJECT
-public:
-    explicit StyleSheetLoader(QObject *parent = nullptr);
-    QString loadFromFile(const QString &filePath);
-    static QString getDefaultCSS();
-    static QString getDarkCSS();
-    bool validateCSS(const QString &css);
-
-signals:
-    void cssLoaded(const QString &css);
-    void cssLoadFailed(const QString &error);
-};
-```
-
-### 3.7 对话框模块 (Dialogs)
-
-| 类 | 职责 |
-|----|------|
-| `FindReplaceDialog` | 模态查找/替换，支持大小写敏感、整词匹配、全部替换 |
-| `SettingsDialog` | 偏好设置（编辑器 Tab + 预览 Tab），绑定 `ConfigManager` |
-| `InsertDialog` | 插入链接 / 图片的输入提示框（`kind` 区分模式） |
-| `AboutDialog` | "关于"对话框，显示版本、Qt 版本与许可证信息 |
-
-#### SettingsDialog 布局
-- **Editor Tab**: 字体、字号、Tab 宽度、显示行号、显示空白字符、语法高亮
-- **Preview Tab**: CSS 文件路径、同步滚动、自动刷新预览
-
-## 4. 关键技术实现
-
-### 4.1 左右分栏布局（默认 1:1）
-```cpp
-m_splitter = new QSplitter(Qt::Horizontal, this);
-m_splitter->addWidget(m_editor);
-m_splitter->addWidget(m_preview);
-m_splitter->setStretchFactor(0, 1);
-m_splitter->setStretchFactor(1, 1);
-setCentralWidget(m_splitter);
-
-// showEvent 首次显示时强制 1:1
-void MainWindow::showEvent(QShowEvent *event) {
-    QMainWindow::showEvent(event);
-    if (!m_splitSet) {
-        m_splitSet = true;
-        int half = m_splitter->width() / 2;
-        m_splitter->setSizes(QList<int>() << half << half);
-    }
-}
-```
-
-### 4.2 行号绘制
-```cpp
-void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event) {
-    QPainter painter(m_lineNumberArea);
-    painter.fillRect(event->rect(), Qt::lightGray);
-    QTextBlock block = firstVisibleBlock();
-    int top = blockBoundingGeometry(block).translated(contentOffset()).top();
-    // 遍历可见块绘制行号 ...
-}
-```
-
-### 4.3 空白字符显示
-```cpp
-void CodeEditor::setWhitespaceVisible(bool visible) {
-    QTextOption option = document()->defaultTextOption();
-    if (visible)
-        option.setFlags(option.flags() | QTextOption::ShowTabsAndSpaces |
-                        QTextOption::ShowLineAndParagraphSeparators);
-    else
-        option.setFlags(option.flags() & ~QTextOption::ShowTabsAndSpaces &
-                        ~QTextOption::ShowLineAndParagraphSeparators);
-    document()->setDefaultTextOption(option);
-}
-```
-
-### 4.4 预览渲染与滚动同步
-```cpp
-// PreviewWidget::refresh() 生成完整 HTML 并异步加载
-QString html = QString(
-    "<!DOCTYPE html><html><head><meta charset=\"utf-8\">"
-    "<style>%1</style></head><body>%2</body></html>")
-    .arg(m_css).arg(body);
-setHtml(html);
-
-// 预览滚动检测（100ms 定时器轮询）
-void PreviewWidget::onScrollTimeout() {
-    if (!m_emitScroll) return;
-    int v = scrollValue();
-    if (v != m_lastScroll) {
-        m_lastScroll = v;
-        emit scrolled(v);
-    }
-}
-
-// 编辑器侧同步（MainWindow）
-void MainWindow::syncScrollFromEditor(int value) {
-    if (m_syncing || !m_config->syncScroll() || !m_preview->isVisible()) return;
-    int max = m_editor->verticalScrollBar()->maximum();
-    float ratio = max > 0 ? (float)value / max : 0.0f;
-    m_syncing = true;
-    m_preview->setScrollRatio(ratio);
-    m_syncing = false;
-}
-```
-
-### 4.5 语法高亮应用
-```cpp
-// MarkdownHighlighter::highlightBlock() 按块着色，仅设置前景色
-void MarkdownHighlighter::highlightBlock(const QString &text) {
-    int state = previousBlockState();
-    // 围栏代码块状态机、标题、引用、列表、粗体/斜体/删除线、链接、表格 ...
-    setFormat(start, length, m_codeFmt);
-    setCurrentBlockState(...);
-}
-```
-
-## 5. 文件结构
+## 4. 文件结构
 
 ```
 MarkEdit/
@@ -438,39 +158,29 @@ MarkEdit/
 │   ├── findreplacedialog.h / findreplacedialog.cpp
 │   ├── settingsdialog.h / settingsdialog.cpp
 │   ├── insertdialog.h / insertdialog.cpp
-│   └── aboutdialog.h / aboutdialog.cpp
-├── resources/
-│   ├── resources.qrc
-│   └── styles/
-│       ├── default.css
-│       └── dark.css
-├── tests/
-│   ├── test_markdown_parser.cpp
-│   └── test_config_manager.cpp
-├── docs/
-│   └── user_manual.md
-├── MarkEdit.pro
-├── build.bat
+│   ├── aboutdialog.h / aboutdialog.cpp
+│   └── libcmark-gfm/            # 捆绑的 cmark-gfm 静态库与头文件
+│       ├── cmark-gfm.h / cmark-gfm-core-extensions.h / ...
+│       ├── libcmark-gfm.a
+│       └── libcmark-gfm-extensions.a
+├── res/
+│   ├── resources.qrc           # 内置 styles/default.css, styles/app.qss
+│   └── app.rc                  # Windows EXE 图标
+├── styles/
+│   ├── default.css             # 预览默认样式（GitHub 风格）
+│   └── github.css              # GitHub 风格预览样式
+├── project.pro                # qmake 工程文件
 └── readme.md
 ```
 
-## 6. 扩展性设计
+---
 
-### 6.1 主题系统
-- `StyleSheetLoader` 提供浅色（`getDefaultCSS`）与暗色（`getDarkCSS`）两套内置样式
-- 支持通过本地 CSS 文件自定义预览样式
+## 5. 构建与运行
 
-### 6.2 多语言支持
-- 使用 Qt 国际化机制（`tr()`），可扩展 `.ts` 翻译文件
+```bash
+# 修改build.bat中定义QT路径
+build.bat
+# 生成 MarkEdit.exe
+```
 
-## 7. 性能优化策略
-
-- **预览延迟更新**: 编辑器文本变更后通过 300ms 单次定时器（`QTimer`）防抖，避免每次击键都重新渲染
-- **语法高亮**: `QSyntaxHighlighter` 按块增量高亮，仅处理变更块
-- **滚动同步**: 预览侧采用定时器轮询（100ms），避免高频信号开销
-
-## 8. 测试策略
-
-- **单元测试**: `tests/test_markdown_parser.cpp`（解析正确性）、`tests/test_config_manager.cpp`（配置读写与最近文件去重）
-- **集成测试**: 编辑与预览同步、CSS 加载与应用、文件读写
-- **UI 测试**: 手动测试主要功能流程
+> 说明：预览区依赖 QtWebKit（`QWebView`），需使用包含 WebKit 模块的构建环境。cmark-gfm 以静态库形式随工程提供，无需额外安装。
