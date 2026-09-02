@@ -4,6 +4,7 @@
 #include <QSettings>
 #include <QCoreApplication>
 #include <QFileInfo>
+#include <QDir>
 
 ConfigManager *ConfigManager::m_instance = 0;
 
@@ -11,8 +12,9 @@ namespace
 {
     const QString &configFilePath()
     {
-        static const QString path = "config.ini";
-        return path;
+        QString exeDir = QCoreApplication::applicationDirPath();
+        static QString configPath = QDir(exeDir).filePath("config.ini");
+        return configPath;
     }
 } // namespace
 
