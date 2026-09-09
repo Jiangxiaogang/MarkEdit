@@ -60,7 +60,7 @@ QString StyleSheetLoader::getDefaultCSS()
             "pre {border: 1px solid #dfe2e5;background-color: #f6f8fa;padding: 16px;overflow: auto;}"
             "pre code {background: none;padding: 0;}"
             "blockquote {border-left: 4px solid #dfe2e5;color: #6a737d; padding: 0 1em;margin: 0;}"
-            "ul { line-height: 1.5;}"
+            "li {margin: 6px 0 6px 0;}"
             "table {border-collapse: collapse;}"
             "table th {background-color: #f0f0f0;}"
             "table th, table td {border: 1px solid #dfe2e5;padding: 6px 6px;}";
