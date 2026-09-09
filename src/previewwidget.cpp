@@ -5,6 +5,8 @@
 
 #include <QUrl>
 #include <QTimer>
+#include <QKeyEvent>
+#include <QKeySequence>
 #include <QDesktopServices>
 #include <QWebFrame>
 #include <QWebPage>
@@ -154,6 +156,23 @@ void PreviewWidget::onScrollTimeout()
         m_lastScroll = v;
         emit scrolled(v);
     }
+}
+
+void PreviewWidget::keyPressEvent(QKeyEvent *event)
+{
+    if (event->matches(QKeySequence::Copy))
+    {
+        triggerPageAction(QWebPage::Copy);
+        event->accept();
+        return;
+    }
+    if (event->matches(QKeySequence::SelectAll))
+    {
+        triggerPageAction(QWebPage::SelectAll);
+        event->accept();
+        return;
+    }
+    QWebView::keyPressEvent(event);
 }
 
 void PreviewWidget::onLinkClicked(const QUrl &url)

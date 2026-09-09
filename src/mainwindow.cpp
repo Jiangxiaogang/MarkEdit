@@ -174,8 +174,10 @@ void MainWindow::initMenuBar()
     connect(cutAct, SIGNAL(triggered()), m_editor, SLOT(cut()));
     editMenu->addAction(cutAct);
 
+    // 不在菜单项上注册 Ctrl+C：QAction 默认窗口级快捷键会在预览区获得焦点时
+    // 抢先触发并作用于编辑区，导致按键事件无法到达 WebKit。编辑区由
+    // QPlainTextEdit 原生处理 Ctrl+C，预览区由 PreviewWidget::keyPressEvent 处理。
     QAction *copyAct = new QAction(QIcon::fromTheme("edit-copy"), tr("复制(&C)"), this);
-    copyAct->setShortcut(QKeySequence::Copy);
     connect(copyAct, SIGNAL(triggered()), m_editor, SLOT(copy()));
     editMenu->addAction(copyAct);
 
@@ -184,8 +186,8 @@ void MainWindow::initMenuBar()
     connect(pasteAct, SIGNAL(triggered()), m_editor, SLOT(paste()));
     editMenu->addAction(pasteAct);
 
+    // 同 copyAct：不注册 Ctrl+A 窗口级快捷键，避免抢占预览区按键事件
     QAction *selAllAct = new QAction(tr("全选(&A)"), this);
-    selAllAct->setShortcut(QKeySequence::SelectAll);
     connect(selAllAct, SIGNAL(triggered()), this, SLOT(onSelectAll()));
     editMenu->addAction(selAllAct);
 

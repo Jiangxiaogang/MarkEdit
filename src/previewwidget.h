@@ -27,6 +27,9 @@ signals:
     void scrolled(int value);
     void cssFailed(const QString &error);
 
+protected:
+    void keyPressEvent(QKeyEvent *event);
+
 private slots:
     void onLoadFinished(bool ok);
     void onScrollTimeout();
