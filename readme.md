@@ -2,9 +2,6 @@
 
 基于 Qt 的跨平台 Markdown 编辑器，采用左右分栏布局：左侧为 Markdown 源码编辑区，右侧为实时渲染预览区。编辑器支持行号、空白字符显示、可配置配色的语法高亮、字体与 Tab 宽度设置、编码检测与转换；预览区基于 QtWebKit 渲染，样式可由本地 CSS 自定义，并支持编辑区与预览区双向滚动同步。
 
-**123**aaaaaaa**123**
-__123__aaaaaaa__123__ 
-
 
 ---
 
@@ -112,6 +109,7 @@ __123__aaaaaaa__123__
 - 继承 `QWebView`（QtWebKit），渲染解析后的完整 HTML。
 - 套用 CSS 样式（本地文件或内置默认样式）；支持设置 `baseUrl` 以正确解析相对路径资源。
 - 链接点击委托系统浏览器（`QDesktopServices`）打开。
+- 支持 `Ctrl+C` 复制选中文字与 `Ctrl+A` 全选（`keyPressEvent` 映射到 `QWebPage::Copy` / `SelectAll`；编辑菜单不注册窗口级快捷键，避免抢占预览区按键事件）。
 - 双向比例滚动同步：编辑器滚动条变化按比例驱动预览；预览侧以定时器轮询网页滚动位置变化并发出 `scrolled`，反向驱动编辑器（`m_syncing` 防递归；`setHtml()` 异步加载完成后重新应用待定滚动比例）。
 
 ### 3.5 解析器（MarkdownParser）
@@ -184,3 +182,63 @@ build.bat
 ```
 
 > 说明：预览区依赖 QtWebKit（`QWebView`），需使用包含 WebKit 模块的构建环境。cmark-gfm 以静态库形式随工程提供，无需额外安装。
+
+---
+
+## 6. 与主流 Markdown 编辑器对比
+
+### 6.1 主流技术路线
+
+市面上的 Markdown 编辑器大体分四条技术路线，各有典型取舍：
+
+| 路线 | 代表产品 | 优点 | 代价 |
+|------|----------|------|------|
+| Electron / Chromium 全栈 | Typora、Obsidian、VS Code、Mark Text、Joplin | 完整浏览器内核，CSS3 / JS / MathJax / Mermaid 渲染无压力，前端生态成熟 | 安装包与内存达数百 MB 量级，多进程、启动慢、资源占用高 |
+| 原生框架 + 嵌入浏览器控件 | MarkdownPad（IE/MSHTML）、Markdown Monster（WebView2）、Haroopad（NW.js）、**本项目（QtWebKit）** | 界面原生轻快，渲染能力接近浏览器 | 渲染能力取决于嵌入内核的新旧，内核老旧则 CSS/JS 支持受限 |
+| 纯原生控件渲染 | 早期 Qt TextDocument、部分 GTK 编辑器 | 最轻量 | HTML/CSS 渲染能力弱，复杂排版（表格、代码块、引用）效果差 |
+| 纯 Web 应用 | StackEdit、Dillinger 等在线编辑器 | 免安装、天然跨平台 | 依赖浏览器沙箱与网络，本地文件读写受限 |
+
+### 6.2 常见编辑器的技术栈与主要缺点
+
+| 编辑器 | 主要技术 | 主要缺点 |
+|--------|----------|----------|
+| Typora | Electron + 自研混合所见即所得渲染 | 闭源收费；Electron 体积/内存大；无插件体系，扩展仅限 CSS 主题 |
+| VS Code（Markdown 支持） | Electron + Monaco 编辑器 + markdown-it 解析 | 通用 IDE 而非专用写作工具，配置繁琐；预览与编辑滚动同步较弱；资源占用高 |
+| Obsidian | Electron + CodeMirror 6 + 本地库/双链体系 | 核心体验围绕"库/双链"设计，单纯写作场景偏重；闭源（个人免费 + 订阅服务）；体积/内存大 |
+| Mark Text | Electron + muya（自研 WYSIWYG 引擎） | 项目长期停滞、Bug 较多、功能欠完整；Electron 体积大 |
+| Joplin | Electron + CodeMirror + 同步服务 | 定位是笔记库/同步工具而非专注写作；体积大 |
+| MarkdownPad | WPF (.NET) + IE（MSHTML）渲染 | 仅 Windows；IE 内核 CSS/HTML5 支持差；2013 年后停更；免费版功能受限 |
+| Markdown Monster | WPF (.NET) + WebView2 + Markdig 解析 | 收费；仅 Windows；依赖 .NET 运行时 |
+| Haroopad | NW.js + 浏览器内核渲染 + MathJax | 2016 年后停更；体积大；社区失活 |
+| Mou | macOS 原生 + WebKit | 仅 macOS 且停更 |
+| QOwnNotes / Ghostwriter | 原生 Qt（C++） | 轻量但功能与插件生态有限，界面朴素，多平台打磨不足 |
+
+> 规律：重型编辑器普遍押注 Electron/Chromium 换取渲染能力与生态，代价是体积、内存与启动速度；轻量路线则必须在渲染引擎上做取舍——这正是本项目选型时权衡的核心矛盾（见 §1.2 中 Qt5.12 → Qt5.4 → Qt4.8 的选型过程）。
+
+### 6.3 本项目的优点与特点
+
+**架构与选型**
+
+- **轻量高效**：纯 C++ 原生程序，单进程运行，启动快、内存占用低（数十 MB 量级），无 Electron 数百 MB 的安装体积与内存开销；cmark-gfm 以静态库随工程链接，无额外运行时依赖。
+- **渲染质量与轻量的平衡**：预览基于 QtWebKit（`QWebView`），同时规避了 Qt 自带 TextDocument 渲染 HTML 不理想的缺陷与 WebEngine/Chromium 内核过于沉重的问题；"原生控件 + 嵌入式渲染内核"与 MarkdownPad 同类，但内核更新、体积更小。
+- **解析正确性有保障**：直接复用 GitHub 官方 C 实现 cmark-gfm，严格遵循 CommonMark + GFM 规范，表格、删除线、任务列表等复杂语法的解析结果与 GitHub 一致，规避了自研/正则解析器常见的边界错误；GFM 扩展可按需开关（表格、删除线、自动链接、标签过滤、任务列表）。
+
+**编辑体验**
+
+- 行号、空白字符显示、当前行高亮、自动换行、字体与 Tab 宽度均可调；
+- 十余种 Markdown 元素（标题、代码、引用、列表、水平线、粗体、斜体、删除线、链接、表格等）的语法高亮颜色可在偏好设置中逐一配置；
+- 编辑区与预览区**双向比例滚动同步**（编辑器滚动驱动 + 预览定时轮询驱动，`m_syncing` 防递归）；
+- 预览刷新带 500ms 防抖，连续输入不会反复触发整页重渲染；
+- 预览区支持 `Ctrl+C` / `Ctrl+A` 复制与全选，链接点击委托系统浏览器打开。
+
+**中文与文件场景**
+
+- 编码检测与保留：加载时按编码读取，保存时按原编码写回，支持 System / UTF-8 / UTF-16 / UTF-32 手动切换；
+- 查找/替换、最近文件、导出 HTML、打印/导出 PDF 等写作配套功能齐全。
+
+**配置与定制**
+
+- 配置以 `QSettings` INI 纯文本持久化，无隐藏状态，可直接编辑；
+- 预览样式即本地 CSS 文件：加载校验（花括号配平）、失败自动回退内置 GitHub 风格样式，主题定制零门槛；
+- MIT 开源，模块分层清晰（编辑 / 预览 / 解析 / 配置 / 样式加载各司其职），便于二次开发。
+
