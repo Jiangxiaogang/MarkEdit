@@ -9,7 +9,6 @@
 #include "insertdialog.h"
 #include "aboutdialog.h"
 
-#include <QDebug>
 #include <QMenuBar>
 #include <QMenu>
 #include <QStatusBar>
@@ -33,11 +32,38 @@
 #include <QRegExp>
 #include <QEvent>
 #include <QStyle>
-#include <QVBoxLayout>
 #include <QDialog>
 #include <QWebPage>
 
 static const char *APP_NAME = "MarkEdit";
+
+namespace
+{
+// Rewrites every line covered by the current selection. The callback receives
+// the original line text and its 0-based offset within the selection.
+template <typename Transform>
+void rewriteSelectedLines(QPlainTextEdit *editor, Transform transform)
+{
+    QTextCursor cur = editor->textCursor();
+    if (!cur.hasSelection())
+        cur.select(QTextCursor::LineUnderCursor);
+    const int start = cur.selectionStart();
+    const int end = cur.selectionEnd();
+    QTextBlock block = editor->document()->findBlock(start);
+    QTextBlock endBlock = editor->document()->findBlock(end);
+    QString newText;
+    int index = 0;
+    for (; block.isValid() && block.position() <= endBlock.position(); block = block.next())
+        newText += transform(block.text(), index++) + "\n";
+    if (newText.endsWith("\n"))
+        newText.chop(1);
+    QTextCursor sel(editor->document());
+    sel.setPosition(start);
+    sel.setPosition(end, QTextCursor::KeepAnchor);
+    sel.insertText(newText);
+    editor->setTextCursor(cur);
+}
+} // namespace
 
 MainWindow::MainWindow(const QString &filePath, QWidget *parent)
     : QMainWindow(parent)
@@ -578,9 +604,6 @@ void MainWindow::onEncodingSelected(const QString &codecName)
 
 void MainWindow::updateEncodingMenu()
 {
-    if (!m_encodingMenu)
-        return;
-
     foreach (QAction *act, m_encodingActions)
     {
         act->setChecked(act->data().toString() == m_fileEncoding);
@@ -802,36 +825,14 @@ void MainWindow::inlineCode()
 
 void MainWindow::heading(int level)
 {
-    QString prefix = QString("#").repeated(level) + " ";
-    QTextCursor cur = m_editor->textCursor();
-    if (!cur.hasSelection())
-        cur.select(QTextCursor::LineUnderCursor);
-
-    int start = cur.selectionStart();
-    int end = cur.selectionEnd();
-    QTextBlock block = m_editor->document()->findBlock(start);
-    QTextBlock endBlock = m_editor->document()->findBlock(end);
-    QString newText;
-    for (; block.isValid() && block.position() <= endBlock.position(); block = block.next())
-    {
-        QString line = block.text();
+    const QString prefix = QString("#").repeated(level) + " ";
+    rewriteSelectedLines(m_editor, [prefix](const QString &line, int) {
         QString stripped = line;
         QRegExp headerRe("^#{1,6}\\s+");
         if (headerRe.indexIn(stripped) == 0)
             stripped.remove(0, headerRe.matchedLength());
-        if (line.startsWith(prefix))
-            newText += stripped + "\n";
-        else
-            newText += prefix + stripped + "\n";
-    }
-    if (newText.endsWith("\n"))
-        newText.chop(1);
-
-    QTextCursor sel(m_editor->document());
-    sel.setPosition(start);
-    sel.setPosition(end, QTextCursor::KeepAnchor);
-    sel.insertText(newText);
-    m_editor->setTextCursor(cur);
+        return line.startsWith(prefix) ? stripped : prefix + stripped;
+    });
 }
 
 void MainWindow::bulletList()
@@ -841,31 +842,13 @@ void MainWindow::bulletList()
 
 void MainWindow::orderedList()
 {
-    QTextCursor cur = m_editor->textCursor();
-    if (!cur.hasSelection())
-        cur.select(QTextCursor::LineUnderCursor);
-    int start = cur.selectionStart();
-    int end = cur.selectionEnd();
-    QTextBlock block = m_editor->document()->findBlock(start);
-    QTextBlock endBlock = m_editor->document()->findBlock(end);
-    QString newText;
-    int n = 1;
-    for (; block.isValid() && block.position() <= endBlock.position(); block = block.next())
-    {
-        QString line = block.text();
+    rewriteSelectedLines(m_editor, [](const QString &line, int index) {
         QString stripped = line;
         QRegExp listRe("^\\s*\\d+\\.\\s+");
         if (listRe.indexIn(stripped) == 0)
             stripped.remove(0, listRe.matchedLength());
-        newText += QString("%1. %2\n").arg(n++).arg(stripped);
-    }
-    if (newText.endsWith("\n"))
-        newText.chop(1);
-    QTextCursor sel(m_editor->document());
-    sel.setPosition(start);
-    sel.setPosition(end, QTextCursor::KeepAnchor);
-    sel.insertText(newText);
-    m_editor->setTextCursor(cur);
+        return QString("%1. %2").arg(index + 1).arg(stripped);
+    });
 }
 
 void MainWindow::blockQuote()
@@ -1043,7 +1026,6 @@ void MainWindow::editorContextMenu(const QPoint &pos)
     menu.addSeparator();
     QAction *find = menu.addAction(tr("查找..."));
     connect(find, SIGNAL(triggered()), this, SLOT(onFind()));
-    Q_UNUSED(pos);
     menu.exec(m_editor->viewport()->mapToGlobal(pos));
 }
 
@@ -1104,33 +1086,11 @@ void MainWindow::wrapSelection(const QString &before, const QString &after)
     m_editor->setTextCursor(cur);
 }
 
-void MainWindow::applyLinePrefix(const QString &prefix, bool toggle)
+void MainWindow::applyLinePrefix(const QString &prefix)
 {
-    QTextCursor cur = m_editor->textCursor();
-    if (!cur.hasSelection())
-        cur.select(QTextCursor::LineUnderCursor);
-    int start = cur.selectionStart();
-    int end = cur.selectionEnd();
-    QTextBlock block = m_editor->document()->findBlock(start);
-    QTextBlock endBlock = m_editor->document()->findBlock(end);
-    QString newText;
-    for (; block.isValid() && block.position() <= endBlock.position(); block = block.next())
-    {
-        QString line = block.text();
-        if (toggle && line.startsWith(prefix))
-            newText += line.mid(prefix.length()) + "\n";
-        else if (toggle)
-            newText += prefix + line + "\n";
-        else
-            newText += prefix + line + "\n";
-    }
-    if (newText.endsWith("\n"))
-        newText.chop(1);
-    QTextCursor sel(m_editor->document());
-    sel.setPosition(start);
-    sel.setPosition(end, QTextCursor::KeepAnchor);
-    sel.insertText(newText);
-    m_editor->setTextCursor(cur);
+    rewriteSelectedLines(m_editor, [prefix](const QString &line, int) {
+        return line.startsWith(prefix) ? line.mid(prefix.length()) : prefix + line;
+    });
 }
 
 void MainWindow::insertAtCursor(const QString &text)

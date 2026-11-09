@@ -3,7 +3,7 @@
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QDialogButtonBox>
-#include <QSysInfo>
+#include <QCoreApplication>
 #include <qglobal.h>
 
 AboutDialog::AboutDialog(QWidget *parent)
@@ -15,7 +15,9 @@ AboutDialog::AboutDialog(QWidget *parent)
     QLabel *title = new QLabel(QString("<h3>MarkEdit</h3>"));
     title->setAlignment(Qt::AlignCenter);
 
-    QLabel *version = new QLabel(QString("版本: V%1 (QT%2)").arg("1.0.1").arg(QT_VERSION_STR));
+    QLabel *version = new QLabel(QString("版本: V%1 (QT%2)")
+                                 .arg(QCoreApplication::applicationVersion())
+                                 .arg(QT_VERSION_STR));
     version->setAlignment(Qt::AlignCenter);
 
     QString info = QString(
