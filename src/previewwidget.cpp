@@ -15,7 +15,6 @@
 PreviewWidget::PreviewWidget(QWidget *parent)
     : QWebView(parent)
     , m_parser(new MarkdownParser(this))
-    , m_loader(new StyleSheetLoader(this))
     , m_css("")
     , m_emitScroll(true)
     , m_lastScroll(0)
@@ -43,12 +42,6 @@ PreviewWidget::~PreviewWidget()
 QString PreviewWidget::getHtml() const
 {
     return page()->mainFrame()->toHtml();
-}
-
-void PreviewWidget::setCSS(const QString &css)
-{
-    m_css = css;
-    refresh();
 }
 
 void PreviewWidget::setMarkdown(const QString &markdown)

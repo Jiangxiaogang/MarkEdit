@@ -21,13 +21,11 @@ public:
     void setTabWidth(int width);
     void setEditorFont(const QFont &font);
     void setCurrentLineColor(const QColor &color);
-    void setSelectionColor(const QColor &color);
     int lineNumberAreaWidth() const;
     void lineNumberAreaPaintEvent(QPaintEvent *event);
 
 protected:
     void resizeEvent(QResizeEvent *event);
-    void paintEvent(QPaintEvent *event);
 
 private slots:
     void updateLineNumberAreaWidth(int newBlockCount);

@@ -17,6 +17,10 @@ public:
 
     void loadConfig();
     void saveConfig();
+    // Emit configurationChanged() to let live previews reload style/fonts.
+    // Kept separate from saveConfig() so routine saves (window state, recent
+    // files, editor toggles) do not trigger a preview re-render.
+    void notifyChanged();
 
     // ---- Editor settings ----
     QFont editorFont() const;
@@ -59,17 +63,11 @@ public:
     QString boldColor() const;
     void setBoldColor(const QString &color);
 
-    QString italicColor() const;
-    void setItalicColor(const QString &color);
-
     QString strikeColor() const;
     void setStrikeColor(const QString &color);
 
     QString linkColor() const;
     void setLinkColor(const QString &color);
-
-    QString tableColor() const;
-    void setTableColor(const QString &color);
 
     // ---- Encoding ----
     QString defaultEncoding() const;
@@ -135,10 +133,8 @@ private:
     QString m_listColor;
     QString m_hrColor;
     QString m_boldColor;
-    QString m_italicColor;
     QString m_strikeColor;
     QString m_linkColor;
-    QString m_tableColor;
 
     // Encoding
     QString m_defaultEncoding;

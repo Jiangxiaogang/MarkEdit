@@ -29,7 +29,7 @@ private:
     QPushButton *m_replaceBtn;
     QPushButton *m_replaceAllBtn;
 
-    bool find(bool forward);
+    bool find();
 };
 
 #endif // FINDREPLACEDIALOG_H

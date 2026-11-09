@@ -4,11 +4,9 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QFormLayout>
-#include <QLabel>
 
 InsertDialog::InsertDialog(const QString &kind, QWidget *parent)
     : QDialog(parent)
-    , m_kind(kind)
 {
     setModal(true);
     if (kind == "image")

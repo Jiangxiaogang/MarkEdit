@@ -16,7 +16,6 @@ public:
 private:
     class QLineEdit *m_textEdit;
     class QLineEdit *m_urlEdit;
-    QString m_kind;
 };
 
 #endif // INSERTDIALOG_H

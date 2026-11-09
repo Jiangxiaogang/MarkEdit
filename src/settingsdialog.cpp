@@ -4,7 +4,6 @@
 #include <QHBoxLayout>
 #include <QFormLayout>
 #include <QTabWidget>
-#include <QLabel>
 #include <QFont>
 #include <QColorDialog>
 #include <QCoreApplication>
@@ -150,5 +149,6 @@ void SettingsDialog::accept()
     m_config->setMonospaceFont(m_monospaceFontCombo->currentFont().family());
     m_config->setPreviewStyleFile(m_styleCombo->itemData(m_styleCombo->currentIndex()).toString());
     m_config->saveConfig();
+    m_config->notifyChanged();
     QDialog::accept();
 }

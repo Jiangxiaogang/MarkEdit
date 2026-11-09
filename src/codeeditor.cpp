@@ -93,14 +93,6 @@ void CodeEditor::setCurrentLineColor(const QColor &color)
     highlightCurrentLine();
 }
 
-void CodeEditor::setSelectionColor(const QColor &color)
-{
-    QPalette pal = palette();
-    pal.setColor(QPalette::Highlight, color);
-    pal.setColor(QPalette::HighlightedText, Qt::white);
-    setPalette(pal);
-}
-
 int CodeEditor::lineNumberAreaWidth() const
 {
     if (m_showLineNumbers)
@@ -151,11 +143,6 @@ void CodeEditor::resizeEvent(QResizeEvent *event)
     QRect cr = contentsRect();
     m_lineNumberArea->setGeometry(QRect(cr.left(), cr.top(),
                                         lineNumberAreaWidth(), cr.height()));
-}
-
-void CodeEditor::paintEvent(QPaintEvent *event)
-{
-    QPlainTextEdit::paintEvent(event);
 }
 
 void CodeEditor::lineNumberAreaPaintEvent(QPaintEvent *event)

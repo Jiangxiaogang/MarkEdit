@@ -51,10 +51,8 @@ void ConfigManager::loadConfig()
     m_listColor    = settings.value("editor/list_color", "#ff0000").toString();
     m_hrColor      = settings.value("editor/hr_color", "#000000").toString();
     m_boldColor    = settings.value("editor/bold_color", "#800000").toString();
-    m_italicColor  = settings.value("editor/italic_color", "#808000").toString();
     m_strikeColor  = settings.value("editor/strike_color", "#808080").toString();
     m_linkColor    = settings.value("editor/link_color", "#e06010").toString();
-    m_tableColor   = settings.value("editor/table_color", "#000000").toString();
 
     // Parser render options
     m_parserOptions.clear();
@@ -94,10 +92,8 @@ void ConfigManager::saveConfig()
     settings.setValue("editor/list_color", m_listColor);
     settings.setValue("editor/hr_color", m_hrColor);
     settings.setValue("editor/bold_color", m_boldColor);
-    settings.setValue("editor/italic_color", m_italicColor);
     settings.setValue("editor/strike_color", m_strikeColor);
     settings.setValue("editor/link_color", m_linkColor);
-    settings.setValue("editor/table_color", m_tableColor);
 
     // Parser render options
     foreach (const ParserOption &o, MarkdownParser::parserOptions())
@@ -113,7 +109,10 @@ void ConfigManager::saveConfig()
     settings.setValue("window/state", m_windowState);
 
     settings.setValue("recent/files", m_recentFiles);
+}
 
+void ConfigManager::notifyChanged()
+{
     emit configurationChanged();
 }
 
@@ -194,17 +193,11 @@ void ConfigManager::setHrColor(const QString &color) { m_hrColor = color; }
 QString ConfigManager::boldColor() const { return m_boldColor; }
 void ConfigManager::setBoldColor(const QString &color) { m_boldColor = color; }
 
-QString ConfigManager::italicColor() const { return m_italicColor; }
-void ConfigManager::setItalicColor(const QString &color) { m_italicColor = color; }
-
 QString ConfigManager::strikeColor() const { return m_strikeColor; }
 void ConfigManager::setStrikeColor(const QString &color) { m_strikeColor = color; }
 
 QString ConfigManager::linkColor() const { return m_linkColor; }
 void ConfigManager::setLinkColor(const QString &color) { m_linkColor = color; }
-
-QString ConfigManager::tableColor() const { return m_tableColor; }
-void ConfigManager::setTableColor(const QString &color) { m_tableColor = color; }
 
 // ---- Encoding ----
 QString ConfigManager::defaultEncoding() const

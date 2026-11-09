@@ -24,10 +24,8 @@ private:
     QTextCharFormat m_listFmt;
     QTextCharFormat m_hrFmt;
     QTextCharFormat m_boldFmt;
-    QTextCharFormat m_italicFmt;
     QTextCharFormat m_strikeFmt;
     QTextCharFormat m_linkFmt;
-    QTextCharFormat m_tableFmt;
 };
 
 #endif // MARKDOWNHIGHLIGHTER_H

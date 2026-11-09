@@ -7,9 +7,8 @@
 
 struct ParserOption
 {
-    QString key;       // config key under the "parser" group
+    QString key;       // config key under the "parser" group (also the cmark-gfm extension name)
     QString label;     // menu text shown to the user
-    QString name;      // cmark-gfm extension name (e.g. "table")
     bool defaultOn;    // default value when not present in config
 };
 

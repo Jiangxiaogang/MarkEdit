@@ -3,7 +3,6 @@
 
 #include <QRegExp>
 #include <QTextCharFormat>
-#include <QDebug>
 
 namespace
 {
@@ -26,10 +25,8 @@ MarkdownHighlighter::MarkdownHighlighter(QTextDocument *document)
     m_listFmt    = colorFormat(QColor(cfg->listColor()));
     m_hrFmt      = colorFormat(QColor(cfg->hrColor()));
     m_boldFmt    = colorFormat(QColor(cfg->boldColor()));
-    m_italicFmt  = colorFormat(QColor(cfg->italicColor()));
     m_strikeFmt  = colorFormat(QColor(cfg->strikeColor()));
     m_linkFmt    = colorFormat(QColor(cfg->linkColor()));
-    m_tableFmt   = colorFormat(QColor(cfg->tableColor()));
 }
 
 void MarkdownHighlighter::applyRegex(const QString &text, const QRegExp &re,const QTextCharFormat &fmt)

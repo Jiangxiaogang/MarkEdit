@@ -5,7 +5,6 @@
 #include <QString>
 
 class MarkdownParser;
-class StyleSheetLoader;
 class ConfigManager;
 
 class PreviewWidget : public QWebView
@@ -15,7 +14,6 @@ public:
     explicit PreviewWidget(QWidget *parent = 0);
     ~PreviewWidget();
     QString getHtml() const;
-    void setCSS(const QString &css);
     void setMarkdown(const QString &markdown);
     void setBaseUrl(const QUrl &url);
     void refresh();
@@ -25,7 +23,6 @@ public:
 
 signals:
     void scrolled(int value);
-    void cssFailed(const QString &error);
 
 protected:
     void keyPressEvent(QKeyEvent *event);
@@ -43,7 +40,6 @@ private:
     void applyRatio(float ratio);
 
     MarkdownParser *m_parser;
-    StyleSheetLoader *m_loader;
     QString m_markdown;
     QString m_css;
     QUrl m_baseUrl;

@@ -108,7 +108,7 @@ private slots:
     void updateRecentMenu();
     void clearRecentFilesAction();
     void wrapSelection(const QString &before, const QString &after);
-    void applyLinePrefix(const QString &prefix, bool toggle = true);
+    void applyLinePrefix(const QString &prefix);
     void insertAtCursor(const QString &text);
     bool maybeSave();
     void setCurrentFile(const QString &path);

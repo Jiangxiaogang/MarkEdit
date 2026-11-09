@@ -5,9 +5,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QFormLayout>
-#include <QLabel>
 #include <QTextCursor>
-#include <QRegExp>
 
 FindReplaceDialog::FindReplaceDialog(QPlainTextEdit *editor, QWidget *parent)
     : QDialog(parent)
@@ -65,7 +63,7 @@ void FindReplaceDialog::setFindText(const QString &text)
     m_findEdit->selectAll();
 }
 
-bool FindReplaceDialog::find(bool /*forward*/)
+bool FindReplaceDialog::find()
 {
     QString term = m_findEdit->text();
     if (term.isEmpty())
@@ -98,7 +96,7 @@ bool FindReplaceDialog::find(bool /*forward*/)
 
 void FindReplaceDialog::findNext()
 {
-    find(true);
+    find();
 }
 
 void FindReplaceDialog::replaceOne()
@@ -111,12 +109,12 @@ void FindReplaceDialog::replaceOne()
     QTextCursor cursor = m_editor->textCursor();
     if (!cursor.hasSelection() || cursor.selectedText() != term)
     {
-        if (!find(true))
+        if (!find())
             return;
         cursor = m_editor->textCursor();
     }
     cursor.insertText(replacement);
-    find(true);
+    find();
 }
 
 void FindReplaceDialog::replaceAll()
@@ -134,7 +132,6 @@ void FindReplaceDialog::replaceAll()
 
     QTextCursor cursor(m_editor->document());
     cursor.movePosition(QTextCursor::Start);
-    int count = 0;
     for (;;)
     {
         QTextCursor found = m_editor->document()->find(term, cursor, flags);
@@ -142,8 +139,5 @@ void FindReplaceDialog::replaceAll()
             break;
         found.insertText(replacement);
         cursor = found;
-        ++count;
     }
-    if (count == 0)
-        return;
 }

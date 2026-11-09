@@ -55,13 +55,12 @@ bool StyleSheetLoader::validateCSS(const QString &css)
 
 QString StyleSheetLoader::getDefaultCSS()
 {
-    return  "h1, h2 {border-bottom: 1px solid #eaecef; padding-bottom: 0.2em;}"
-            "code {background-color: #eaecef; padding: 0.1em 0.4em;}"
-            "pre {border: 1px solid #dfe2e5;background-color: #f6f8fa;padding: 16px;overflow: auto;}"
-            "pre code {background: none;padding: 0;}"
-            "blockquote {border-left: 4px solid #dfe2e5;color: #6a737d; padding: 0 1em;margin: 0;}"
-            "li {margin: 6px 0 6px 0;}"
-            "table {border-collapse: collapse;}"
-            "table th {background-color: #f0f0f0;}"
-            "table th, table td {border: 1px solid #dfe2e5;padding: 6px 6px;}";
+    // Single source of truth for the built-in preview style: the resource
+    // compiled from styles/default.css.
+    QFile file(":/styles/default.css");
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return QString();
+    QTextStream in(&file);
+    in.setCodec("UTF-8");
+    return in.readAll();
 }

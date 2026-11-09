@@ -2,7 +2,6 @@
 QT       += core gui widgets printsupport webkit
 TARGET    = MarkEdit
 TEMPLATE  = app
-CONFIG   += c++11
 DEFINES  += CMARK_GFM_STATIC_DEFINE
 
 # Source files
@@ -40,7 +39,7 @@ HEADERS += \
 RC_FILE = res/app.rc
 
 # Resources
-RESOURCES +=
+RESOURCES += res/resources.qrc
 
 # libcmark
 INCLUDEPATH += src/libcmark-gfm

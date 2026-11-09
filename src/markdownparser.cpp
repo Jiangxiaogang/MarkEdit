@@ -12,11 +12,11 @@ MarkdownParser::MarkdownParser(QObject *parent)
 QList<ParserOption> MarkdownParser::parserOptions()
 {
     static const QList<ParserOption> options = QList<ParserOption>()
-        << ParserOption{ "table",         tr("表格"),        "table",         true  }
-        << ParserOption{ "strikethrough", tr("删除线"),      "strikethrough", true }
-        << ParserOption{ "autolink",      tr("自动链接"),    "autolink",      false }
-        << ParserOption{ "tagfilter",     tr("标签过滤"),    "tagfilter",     false }
-        << ParserOption{ "tasklist",      tr("任务列表"),    "tasklist",      true };
+        << ParserOption{ "table",         tr("表格"),        true  }
+        << ParserOption{ "strikethrough", tr("删除线"),      true  }
+        << ParserOption{ "autolink",      tr("自动链接"),    false }
+        << ParserOption{ "tagfilter",     tr("标签过滤"),    false }
+        << ParserOption{ "tasklist",      tr("任务列表"),    true  };
     return options;
 }
 
@@ -33,7 +33,7 @@ QString MarkdownParser::parse(const QString &markdown) const
     {
         if (cfg->parserOption(o.key))
         {
-            QByteArray nameBytes = o.name.toUtf8();
+            QByteArray nameBytes = o.key.toUtf8();
             cmark_syntax_extension *ext = cmark_find_syntax_extension(nameBytes.constData());
             if (ext)
             {
