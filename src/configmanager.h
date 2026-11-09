@@ -106,6 +106,7 @@ public:
     // ---- Recent files ----
     QStringList recentFiles(int max = 10) const;
     void addRecentFile(const QString &path);
+    void removeRecentFile(const QString &path);
     void clearRecentFiles();
 
 signals:

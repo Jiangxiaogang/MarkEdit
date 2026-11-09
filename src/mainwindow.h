@@ -8,6 +8,7 @@ class CodeEditor;
 class PreviewWidget;
 class ConfigManager;
 class StyleSheetLoader;
+class FindReplaceDialog;
 class QSplitter;
 class QAction;
 class QLabel;
@@ -51,6 +52,9 @@ private slots:
     void onSelectAll();
     void onFind();
     void onReplace();
+
+    // Shared find/replace dialog, created on first use.
+    FindReplaceDialog *ensureFindReplaceDialog();
 
     // View
     void toggleFullScreen();
@@ -124,6 +128,7 @@ private:
     QSplitter *m_splitter;
     ConfigManager *m_config;
     StyleSheetLoader *m_styleLoader;
+    FindReplaceDialog *m_findDialog;
 
     QTimer *m_previewTimer;
 

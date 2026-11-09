@@ -46,6 +46,7 @@ MainWindow::MainWindow(const QString &filePath, QWidget *parent)
     , m_splitter(0)
     , m_config(ConfigManager::instance())
     , m_styleLoader(new StyleSheetLoader(this))
+    , m_findDialog(0)
     , m_previewTimer(new QTimer(this))
     , m_fileEncoding(m_config->defaultEncoding())
     , m_diskSize(0)
@@ -470,13 +471,8 @@ void MainWindow::onOpenRecent()
     if (!QFile::exists(path))
     {
         QMessageBox::warning(this, tr("打开最近的文件"), tr("文件已不存在:\n%1").arg(path));
-        m_config->addRecentFile(path);
-        m_config->clearRecentFiles();
-        QStringList cleaned;
-        for (const QString &f : m_config->recentFiles())
-            if (f != path) cleaned.append(f);
-        for (const QString &f : cleaned)
-            m_config->addRecentFile(f);
+        m_config->removeRecentFile(path);
+        m_config->saveConfig();
         updateRecentMenu();
         return;
     }
@@ -595,9 +591,8 @@ void MainWindow::onSaveFile()
 {
     if (m_currentFile.isEmpty())
         onSaveAs();
-    else
+    else if (saveFile(m_currentFile))
     {
-        saveFile(m_currentFile);
         m_editor->document()->setModified(false);
     }
 }
@@ -630,6 +625,12 @@ bool MainWindow::saveFile(const QString &path)
         codec = QTextCodec::codecForName("UTF-8");
     out.setCodec(codec);
     out << m_editor->toPlainText();
+    if (out.status() != QTextStream::Ok || !file.flush())
+    {
+        file.close();
+        QMessageBox::warning(this, tr("保存"), tr("保存文件失败，文件可能不完整:\n%1").arg(path));
+        return false;
+    }
     file.close();
     // Remember the state we just wrote so returning to the window does not
     // report our own save as an external modification.
@@ -681,11 +682,16 @@ void MainWindow::onSelectAll()
     m_editor->selectAll();
 }
 
+FindReplaceDialog *MainWindow::ensureFindReplaceDialog()
+{
+    if (!m_findDialog)
+        m_findDialog = new FindReplaceDialog(m_editor, this);
+    return m_findDialog;
+}
+
 void MainWindow::onFind()
 {
-    static FindReplaceDialog *dlg = 0;
-    if (!dlg)
-        dlg = new FindReplaceDialog(m_editor, this);
+    FindReplaceDialog *dlg = ensureFindReplaceDialog();
     if (!dlg->isVisible())
     {
         QTextCursor cur = m_editor->textCursor();
@@ -699,9 +705,7 @@ void MainWindow::onFind()
 
 void MainWindow::onReplace()
 {
-    static FindReplaceDialog *dlg = 0;
-    if (!dlg)
-        dlg = new FindReplaceDialog(m_editor, this);
+    FindReplaceDialog *dlg = ensureFindReplaceDialog();
     dlg->show();
     dlg->raise();
     dlg->activateWindow();

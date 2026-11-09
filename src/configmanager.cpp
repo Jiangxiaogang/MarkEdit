@@ -283,6 +283,12 @@ void ConfigManager::addRecentFile(const QString &path)
         m_recentFiles.removeLast();
 }
 
+void ConfigManager::removeRecentFile(const QString &path)
+{
+    QString absPath = QFileInfo(path).absoluteFilePath();
+    m_recentFiles.removeAll(absPath);
+}
+
 void ConfigManager::clearRecentFiles()
 {
     m_recentFiles.clear();
