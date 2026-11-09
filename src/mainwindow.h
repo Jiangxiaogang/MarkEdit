@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QDateTime>
 
 class CodeEditor;
 class PreviewWidget;
@@ -23,6 +24,7 @@ public:
 protected:
     void closeEvent(QCloseEvent *event);
     void showEvent(QShowEvent *event);
+    bool event(QEvent *event);
 
 private:
     // UI construction (called directly, not via signals)
@@ -112,6 +114,10 @@ private slots:
     bool loadFile(const QString &path);
     bool loadFileWithEncoding(const QString &path, const QString &encoding);
 
+    // External modification check (performed when the window is activated).
+    void checkForExternalChanges();
+    void snapshotFileState(const QString &path);
+
 private:
     CodeEditor *m_editor;
     PreviewWidget *m_preview;
@@ -123,6 +129,8 @@ private:
 
     QString m_currentFile;
     QString m_fileEncoding;
+    QDateTime m_diskModified;   // last known modification time on disk
+    qint64 m_diskSize;          // last known file size on disk
     bool m_syncing;
     bool m_splitSet;
 

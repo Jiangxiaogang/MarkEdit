@@ -31,6 +31,7 @@
 #include <QTextCursor>
 #include <QTextBlock>
 #include <QRegExp>
+#include <QEvent>
 #include <QStyle>
 #include <QVBoxLayout>
 #include <QDialog>
@@ -47,6 +48,7 @@ MainWindow::MainWindow(const QString &filePath, QWidget *parent)
     , m_styleLoader(new StyleSheetLoader(this))
     , m_previewTimer(new QTimer(this))
     , m_fileEncoding(m_config->defaultEncoding())
+    , m_diskSize(0)
     , m_syncing(false)
     , m_splitSet(false)
 {
@@ -503,10 +505,63 @@ bool MainWindow::loadFileWithEncoding(const QString &path, const QString &encodi
     QString txt = codec->toUnicode(raw);
     m_editor->setPlainText(txt);
     m_editor->document()->setModified(false);
+    m_saveAction->setEnabled(false);
     setCurrentFile(path);
     updateEncodingMenu();
     updatePreview();
     return true;
+}
+
+// --------------------------------------------------------------------------
+// External file modification check
+// --------------------------------------------------------------------------
+void MainWindow::snapshotFileState(const QString &path)
+{
+    m_diskModified = QDateTime();
+    m_diskSize = 0;
+    if (path.isEmpty())
+        return;
+    QFileInfo info(path);
+    if (!info.exists())
+        return;
+    m_diskModified = info.lastModified();
+    m_diskSize = info.size();
+}
+
+void MainWindow::checkForExternalChanges()
+{
+    if (m_currentFile.isEmpty())
+        return;
+
+    QFileInfo info(m_currentFile);
+    if (!info.exists())
+        return; // Deleted or mid-replace: keep the editor content untouched.
+
+    // Modification time alone can be too coarse (e.g. FAT has a 2s
+    // resolution), so the size acts as a cheap extra signal.
+    if (info.lastModified() == m_diskModified && info.size() == m_diskSize)
+        return;
+
+    bool modified = m_editor->document()->isModified();
+    QString name = info.fileName();
+    QMessageBox::StandardButton ret = QMessageBox::question(
+        this, tr("文件已被修改"),
+        modified
+            ? tr("文件 \"%1\" 已被外部修改。\n重新加载将丢弃当前未保存的更改，是否重新加载？").arg(name)
+            : tr("文件 \"%1\" 已被外部修改，是否重新加载？").arg(name),
+        QMessageBox::Yes | QMessageBox::No,
+        modified ? QMessageBox::No : QMessageBox::Yes);
+
+    if (ret == QMessageBox::Yes)
+    {
+        loadFileWithEncoding(m_currentFile, m_fileEncoding);
+    }
+    else
+    {
+        // Acknowledge the current state so the same modification is not
+        // reported again the next time the window is activated.
+        snapshotFileState(m_currentFile);
+    }
 }
 
 void MainWindow::onEncodingSelected(const QString &codecName)
@@ -576,6 +631,9 @@ bool MainWindow::saveFile(const QString &path)
     out.setCodec(codec);
     out << m_editor->toPlainText();
     file.close();
+    // Remember the state we just wrote so returning to the window does not
+    // report our own save as an external modification.
+    snapshotFileState(path);
     statusBar()->showMessage(tr("已保存 %1").arg(path), 3000);
     return true;
 }
@@ -1112,6 +1170,7 @@ void MainWindow::setCurrentFile(const QString &path)
     }
     setWindowTitle(title);
     m_saveAction->setEnabled(m_editor->document()->isModified());
+    snapshotFileState(path);
     if (!path.isEmpty())
         m_config->saveConfig();
 }
@@ -1149,8 +1208,17 @@ void MainWindow::clearRecentFilesAction()
 }
 
 // --------------------------------------------------------------------------
-// Close event
+// Window events
 // --------------------------------------------------------------------------
+bool MainWindow::event(QEvent *event)
+{
+    // External changes are only checked when the user comes back to the
+    // window, so there is no polling and no file-system watcher.
+    if (event->type() == QEvent::WindowActivate)
+        checkForExternalChanges();
+    return QMainWindow::event(event);
+}
+
 void MainWindow::showEvent(QShowEvent *event)
 {
     QMainWindow::showEvent(event);
