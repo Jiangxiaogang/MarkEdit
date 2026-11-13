@@ -118,13 +118,13 @@
 - `parserOptions()` 暴露选项列表（表格、删除线、自动链接、标签过滤、任务列表、保留单行换行），各开关由 `ConfigManager` 的 parser 选项决定；默认开启表格、删除线、任务列表。GFM 扩展通过 `cmark_parser_attach_syntax_extension()` 挂载，渲染类选项（如 `CMARK_OPT_HARDBREAKS`）通过 `renderFlags` 汇总后传给 `cmark_render_html()`。
 
 ### 3.6 配置管理（ConfigManager）
-- 单例（构造函数私有，禁用拷贝），基于 `QSettings`（INI）读写；`notifyChanged()` 显式发出 `configurationChanged()`（仅在确认偏好设置后调用，避免常规保存触发预览重渲染）。
+- 单例（构造函数私有，禁用拷贝），基于 `QSettings`（INI）读写；`notifyChanged()` 显式发出 `configurationChanged()`，由偏好设置的实时修改和需要刷新的场景调用，`MainWindow` 与 `PreviewWidget` 均监听该信号。
 - 管理内容：
   - **编辑器**：字体、自动换行、行号、空白字符、语法高亮、Tab 宽度；
   - **语法高亮配色**：当前行、标题、代码、引用、列表、水平线、粗体、删除线、链接；
   - **编码**：默认编码；
   - **解析选项**：各 GFM 扩展开关；
-  - **预览**：浏览器字体族（standard/serif/sans-serif/monospace）、预览样式文件；
+  - **预览**：标准字体与标准字号、等宽字体与等宽字号、预览样式文件；
   - **窗口状态**：geometry / state；
   - **最近文件**：去重的最近打开列表。
 
@@ -136,7 +136,7 @@
 
 ### 3.8 对话框
 - `FindReplaceDialog`：模态查找/替换，支持大小写敏感、整词匹配、全部替换。
-- `SettingsDialog`：偏好设置（编辑器字体/字号/Tab 宽度/当前行底色，预览样式文件与字体族），确认后保存并通知 `ConfigManager`。
+- `SettingsDialog`：偏好设置（编辑器字体/字号/Tab 宽度/当前行底色，预览样式文件、标准/等宽字体与字号）。控件值变化时立即写入配置、保存并发出 `configurationChanged()`，编辑区与预览区实时更新；底部仅保留“确定”按钮，无“取消”回滚。
 - `InsertDialog`：插入链接 / 图片的输入提示框。
 - `AboutDialog`：显示版本、Qt 版本与许可证信息。
 

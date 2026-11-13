@@ -76,9 +76,9 @@ void PreviewWidget::applyFontSettings()
     QWebSettings *settings = QWebSettings::globalSettings();
     ConfigManager *cfg = ConfigManager::instance();
     settings->setFontFamily(QWebSettings::StandardFont, cfg->standardFont());
-    settings->setFontFamily(QWebSettings::SerifFont, cfg->serifFont());
-    settings->setFontFamily(QWebSettings::SansSerifFont, cfg->sansSerifFont());
     settings->setFontFamily(QWebSettings::FixedFont, cfg->monospaceFont());
+    settings->setFontSize(QWebSettings::DefaultFontSize, cfg->standardFontSize());
+    settings->setFontSize(QWebSettings::DefaultFixedFontSize, cfg->monospaceFontSize());
     refresh();
 }
 

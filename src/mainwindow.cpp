@@ -122,6 +122,8 @@ void MainWindow::initConnections()
     connect(m_editor->verticalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(syncScrollFromEditor(int)));
     connect(m_preview, SIGNAL(scrolled(int)), this, SLOT(syncScrollFromPreview(int)));
     connect(m_previewTimer, SIGNAL(timeout()), this, SLOT(updatePreview()));
+    // Live preferences: keep the editor in sync while the dialog is open.
+    connect(m_config, SIGNAL(configurationChanged()), this, SLOT(onConfigurationChanged()));
 
     m_editor->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(m_editor, SIGNAL(customContextMenuRequested(const QPoint &)),this, SLOT(editorContextMenu(const QPoint &)));
@@ -468,6 +470,11 @@ void MainWindow::applyConfigToUi()
 
     foreach (QAction *act, m_parserOptionActions)
         act->setChecked(m_config->parserOption(act->data().toString()));
+}
+
+void MainWindow::onConfigurationChanged()
+{
+    applyConfigToUi();
 }
 
 // --------------------------------------------------------------------------

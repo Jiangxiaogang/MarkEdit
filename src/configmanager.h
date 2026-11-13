@@ -17,9 +17,10 @@ public:
 
     void loadConfig();
     void saveConfig();
-    // Emit configurationChanged() to let live previews reload style/fonts.
-    // Kept separate from saveConfig() so routine saves (window state, recent
-    // files, editor toggles) do not trigger a preview re-render.
+    // Emit configurationChanged() so live consumers (editor UI, preview) can
+    // reload fonts, colours and styles. Kept separate from saveConfig() so
+    // routine saves (window state, recent files, editor toggles) do not
+    // trigger a UI refresh.
     void notifyChanged();
 
     // ---- Editor settings ----
@@ -84,14 +85,14 @@ public:
     QString standardFont() const;
     void setStandardFont(const QString &family);
 
-    QString serifFont() const;
-    void setSerifFont(const QString &family);
-
-    QString sansSerifFont() const;
-    void setSansSerifFont(const QString &family);
+    int standardFontSize() const;
+    void setStandardFontSize(int size);
 
     QString monospaceFont() const;
     void setMonospaceFont(const QString &family);
+
+    int monospaceFontSize() const;
+    void setMonospaceFontSize(int size);
 
     // Preview stylesheet file
     QString previewStyleFile() const;
@@ -148,9 +149,9 @@ private:
 
     // Preview
     QString m_standardFont;
-    QString m_serifFont;
-    QString m_sansSerifFont;
+    int m_standardFontSize;
     QString m_monospaceFont;
+    int m_monospaceFontSize;
     QString m_previewStyleFile;
 
     // Window

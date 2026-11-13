@@ -1,5 +1,4 @@
 body {
-    font-size: 16px;
     line-height: 1.5;
     padding: 20px;
     color: #000;
@@ -47,7 +46,6 @@ a:hover {
 code {
     padding: 0.2em 0.4em;
     margin: 0;
-    font-size: 0.9em;
     background-color: rgba(27,31,35,0.05);
     border-radius: 3px;
 }
@@ -55,7 +53,6 @@ code {
 pre {
     padding: 16px;
     overflow: auto;
-    font-size: 0.9em;
     line-height: 1.2;
     background-color: #eff;
     border-radius: 3px;
@@ -115,6 +112,10 @@ table {
 table th, table td {
     padding: 6px 13px;
     border: 1px solid #dee;
+}
+
+table th {
+    background-color: #f6f8fa;
 }
 
 table tr {

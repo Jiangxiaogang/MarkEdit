@@ -62,9 +62,9 @@ void ConfigManager::loadConfig()
 
     // Preview (browser font families)
     m_standardFont   = settings.value("preview/standard_font", "SimSun").toString();
-    m_serifFont      = settings.value("preview/serif_font", "SimSun").toString();
-    m_sansSerifFont  = settings.value("preview/sans_serif_font", "Tahoma").toString();
+    m_standardFontSize = settings.value("preview/standard_font_size", 16).toInt();
     m_monospaceFont  = settings.value("preview/monospace_font", "Courier New").toString();
+    m_monospaceFontSize = settings.value("preview/monospace_font_size", 14).toInt();
     m_previewStyleFile = settings.value("preview/style_file", "").toString();
 
     // Window
@@ -102,9 +102,9 @@ void ConfigManager::saveConfig()
         settings.setValue("parser/" + o.key, m_parserOptions.value(o.key));
 
     settings.setValue("preview/standard_font", m_standardFont);
-    settings.setValue("preview/serif_font", m_serifFont);
-    settings.setValue("preview/sans_serif_font", m_sansSerifFont);
+    settings.setValue("preview/standard_font_size", m_standardFontSize);
     settings.setValue("preview/monospace_font", m_monospaceFont);
+    settings.setValue("preview/monospace_font_size", m_monospaceFontSize);
     settings.setValue("preview/style_file", m_previewStyleFile);
 
     settings.setValue("window/geometry", m_windowGeometry);
@@ -235,14 +235,14 @@ void ConfigManager::setParserOption(const QString &key, bool on)
 QString ConfigManager::standardFont() const { return m_standardFont; }
 void ConfigManager::setStandardFont(const QString &family) { m_standardFont = family; }
 
-QString ConfigManager::serifFont() const { return m_serifFont; }
-void ConfigManager::setSerifFont(const QString &family) { m_serifFont = family; }
-
-QString ConfigManager::sansSerifFont() const { return m_sansSerifFont; }
-void ConfigManager::setSansSerifFont(const QString &family) { m_sansSerifFont = family; }
+int ConfigManager::standardFontSize() const { return m_standardFontSize; }
+void ConfigManager::setStandardFontSize(int size) { m_standardFontSize = size; }
 
 QString ConfigManager::monospaceFont() const { return m_monospaceFont; }
 void ConfigManager::setMonospaceFont(const QString &family) { m_monospaceFont = family; }
+
+int ConfigManager::monospaceFontSize() const { return m_monospaceFontSize; }
+void ConfigManager::setMonospaceFontSize(int size) { m_monospaceFontSize = size; }
 
 QString ConfigManager::previewStyleFile() const { return m_previewStyleFile; }
 void ConfigManager::setPreviewStyleFile(const QString &path) { m_previewStyleFile = path; }

@@ -20,6 +20,7 @@ private slots:
     void accept();
     void chooseCurrentLineColor();
     void applyCurrentLineText();
+    void applyChanges();
 
 private:
     ConfigManager *m_config;
@@ -27,9 +28,9 @@ private:
     QSpinBox *m_fontSize;
     QSpinBox *m_tabWidth;
     QFontComboBox *m_standardFontCombo;
-    QFontComboBox *m_serifFontCombo;
-    QFontComboBox *m_sansSerifFontCombo;
+    QSpinBox *m_standardFontSize;
     QFontComboBox *m_monospaceFontCombo;
+    QSpinBox *m_monospaceFontSize;
     QComboBox *m_styleCombo;
     QPushButton *m_currentLineBtn;
     QLineEdit *m_currentLineEdit;

@@ -56,14 +56,16 @@ SettingsDialog::SettingsDialog(ConfigManager *config, QWidget *parent)
     // ---- Preview tab ----
     QWidget *previewTab = new QWidget;
     m_standardFontCombo = new QFontComboBox;
-    m_serifFontCombo = new QFontComboBox;
-    m_sansSerifFontCombo = new QFontComboBox;
     m_monospaceFontCombo = new QFontComboBox;
+    m_standardFontSize = new QSpinBox;
+    m_standardFontSize->setRange(8, 48);
+    m_monospaceFontSize = new QSpinBox;
+    m_monospaceFontSize->setRange(8, 48);
 
     m_standardFontCombo->setCurrentFont(QFont(m_config->standardFont()));
-    m_serifFontCombo->setCurrentFont(QFont(m_config->serifFont()));
-    m_sansSerifFontCombo->setCurrentFont(QFont(m_config->sansSerifFont()));
     m_monospaceFontCombo->setCurrentFont(QFont(m_config->monospaceFont()));
+    m_standardFontSize->setValue(m_config->standardFontSize());
+    m_monospaceFontSize->setValue(m_config->monospaceFontSize());
 
     m_styleCombo = new QComboBox;
     m_styleCombo->addItem(tr("内置样式"), QString()); // built-in: no external .css
@@ -87,24 +89,31 @@ SettingsDialog::SettingsDialog(ConfigManager *config, QWidget *parent)
     QFormLayout *previewLayout = new QFormLayout(previewTab);
     previewLayout->addRow(tr("样式文件:"), m_styleCombo);
     previewLayout->addRow(tr("标准字体:"), m_standardFontCombo);
-    previewLayout->addRow(tr("衬线字体:"), m_serifFontCombo);
-    previewLayout->addRow(tr("无衬线字体:"), m_sansSerifFontCombo);
+    previewLayout->addRow(tr("标准字号:"), m_standardFontSize);
     previewLayout->addRow(tr("等宽字体:"), m_monospaceFontCombo);
+    previewLayout->addRow(tr("等宽字号:"), m_monospaceFontSize);
     tabs->addTab(previewTab, tr("预览"));
 
+    // Apply every change immediately. The dialog has no Cancel/rollback.
+    connect(m_fontCombo, SIGNAL(currentFontChanged(QFont)), this, SLOT(applyChanges()));
+    connect(m_fontSize, SIGNAL(valueChanged(int)), this, SLOT(applyChanges()));
+    connect(m_tabWidth, SIGNAL(valueChanged(int)), this, SLOT(applyChanges()));
+    connect(m_styleCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(applyChanges()));
+    connect(m_standardFontCombo, SIGNAL(currentFontChanged(QFont)), this, SLOT(applyChanges()));
+    connect(m_standardFontSize, SIGNAL(valueChanged(int)), this, SLOT(applyChanges()));
+    connect(m_monospaceFontCombo, SIGNAL(currentFontChanged(QFont)), this, SLOT(applyChanges()));
+    connect(m_monospaceFontSize, SIGNAL(valueChanged(int)), this, SLOT(applyChanges()));
+
     QPushButton *okBtn = new QPushButton(tr("确定"));
-    QPushButton *cancelBtn = new QPushButton(tr("取消"));
     QHBoxLayout *btnRow = new QHBoxLayout;
     btnRow->addStretch();
     btnRow->addWidget(okBtn);
-    btnRow->addWidget(cancelBtn);
 
     QVBoxLayout *main = new QVBoxLayout(this);
     main->addWidget(tabs);
     main->addLayout(btnRow);
 
     connect(okBtn, SIGNAL(clicked()), this, SLOT(accept()));
-    connect(cancelBtn, SIGNAL(clicked()), this, SLOT(reject()));
 }
 
 void SettingsDialog::setButtonColor(QPushButton *btn, const QColor &color)
@@ -124,19 +133,28 @@ void SettingsDialog::chooseCurrentLineColor()
 {
     QColor c = QColorDialog::getColor(m_currentLineColor, this, tr("选择当前行背景颜色"));
     if (c.isValid())
+    {
         setColor(m_currentLineColor, c, m_currentLineBtn, m_currentLineEdit);
+        applyChanges();
+    }
 }
 
 void SettingsDialog::applyCurrentLineText()
 {
     QColor c(m_currentLineEdit->text());
-    if (c.isValid())
-        setColor(m_currentLineColor, c, m_currentLineBtn, m_currentLineEdit);
-    else
+    if (!c.isValid())
+    {
         m_currentLineEdit->setText(m_currentLineColor.name());
+        return;
+    }
+    if (c == m_currentLineColor)
+        return;
+
+    setColor(m_currentLineColor, c, m_currentLineBtn, m_currentLineEdit);
+    applyChanges();
 }
 
-void SettingsDialog::accept()
+void SettingsDialog::applyChanges()
 {
     QFont f = m_fontCombo->currentFont();
     f.setPointSize(m_fontSize->value());
@@ -144,11 +162,17 @@ void SettingsDialog::accept()
     m_config->setTabWidth(m_tabWidth->value());
     m_config->setCurrentLineColor(m_currentLineColor.name());
     m_config->setStandardFont(m_standardFontCombo->currentFont().family());
-    m_config->setSerifFont(m_serifFontCombo->currentFont().family());
-    m_config->setSansSerifFont(m_sansSerifFontCombo->currentFont().family());
+    m_config->setStandardFontSize(m_standardFontSize->value());
     m_config->setMonospaceFont(m_monospaceFontCombo->currentFont().family());
+    m_config->setMonospaceFontSize(m_monospaceFontSize->value());
     m_config->setPreviewStyleFile(m_styleCombo->itemData(m_styleCombo->currentIndex()).toString());
     m_config->saveConfig();
     m_config->notifyChanged();
+}
+
+void SettingsDialog::accept()
+{
+    // Commit a colour typed into the line edit that may not have lost focus yet.
+    applyCurrentLineText();
     QDialog::accept();
 }

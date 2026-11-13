@@ -54,7 +54,8 @@ preview on the right.
 - **Syntax Extensions** – toggle GFM extensions: table, strikethrough,
   autolink, tagfilter, tasklist.
 - **Preferences…** – editor font, font size, tab width, current-line colour,
-  preview stylesheet and preview font families.
+  preview stylesheet, and preview standard/monospace fonts and sizes. Changes
+  apply immediately to the editor and preview; the dialog has no Cancel button.
 
 ### Help
 - **About** (`F1`) – version and license information.
@@ -70,6 +71,9 @@ The preview pane renders your Markdown with a CSS stylesheet:
   style when the selection is empty.
 - Invalid CSS (unbalanced braces) or an unreadable file falls back to the
   built-in style.
+- The standard and monospace font sizes control QtWebKit's default font sizes.
+  Stylesheets that set explicit `font-size` values (for example `body {
+  font-size: 16px; }`) override those defaults.
 
 ## Encoding
 

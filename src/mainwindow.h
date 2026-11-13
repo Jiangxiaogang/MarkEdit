@@ -65,6 +65,7 @@ private slots:
     void showEditorOnly();
     void showPreviewOnly();
     void toggleStatusBar(bool checked);
+    void onConfigurationChanged();
 
     // Format
     void formatBold();
