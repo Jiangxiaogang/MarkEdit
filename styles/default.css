@@ -1,7 +1,6 @@
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
     font-size: 16px;
-    line-height: 1.6;
+    line-height: 1.5;
     color: #333;
     max-width: 900px;
     margin: 0 auto;
@@ -13,7 +12,7 @@ h1, h2, h3, h4, h5, h6 {
     margin-top: 24px;
     margin-bottom: 16px;
     font-weight: 600;
-    line-height: 1.25;
+    line-height: 1.2;
 }
 
 h1 {
@@ -52,14 +51,13 @@ code {
     font-size: 85%;
     background-color: rgba(27,31,35,0.05);
     border-radius: 3px;
-    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
 }
 
 pre {
     padding: 16px;
     overflow: auto;
     font-size: 85%;
-    line-height: 1.45;
+    line-height: 1.4;
     background-color: #f6f8fa;
     border-radius: 3px;
 }
@@ -70,7 +68,7 @@ pre code {
     padding: 0;
     margin: 0;
     overflow: visible;
-    line-height: inherit;
+    line-height: 1.0;
     word-wrap: normal;
     background-color: transparent;
     border: 0;
