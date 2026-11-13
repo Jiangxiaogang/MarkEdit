@@ -5,4 +5,4 @@ set QMAKESPEC=win32-g++
 set PATH=%QTDIR%\bin;%QTMINGW%\bin;%PATH%;
 qmake -r
 mingw32-make clean
-mingw32-make all
+mingw32-make release
