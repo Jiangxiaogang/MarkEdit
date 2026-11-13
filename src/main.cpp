@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     QApplication::setOrganizationName("MarkEdit");
     QApplication::setApplicationName("MarkEdit");
-    QApplication::setApplicationVersion("1.0.2");
+    QApplication::setApplicationVersion("1.1.0");
 
     QPalette globalPal = qApp->palette();
     globalPal.setColor(QPalette::Inactive, QPalette::Highlight,globalPal.color(QPalette::Active, QPalette::Highlight));
