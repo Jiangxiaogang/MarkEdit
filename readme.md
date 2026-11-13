@@ -108,13 +108,14 @@
 ### 3.4 预览区（PreviewWidget）
 - 继承 `QWebView`（QtWebKit），渲染解析后的完整 HTML。
 - 套用 CSS 样式（本地文件或内置默认样式）；支持设置 `baseUrl` 以正确解析相对路径资源。
+- `refresh()` 在 `setHtml()` 前记录当前滚动比例，加载完成后恢复，因此编辑内容导致重渲染时预览区不会跳回顶部（与滚动同步开关无关）。
 - 链接点击委托系统浏览器（`QDesktopServices`）打开。
 - 支持 `Ctrl+C` 复制选中文字与 `Ctrl+A` 全选（`keyPressEvent` 映射到 `QWebPage::Copy` / `SelectAll`；编辑菜单不注册窗口级快捷键，避免抢占预览区按键事件）。
 - 双向比例滚动同步：编辑器滚动条变化按比例驱动预览；预览侧以定时器轮询网页滚动位置变化并发出 `scrolled`，反向驱动编辑器（`m_syncing` 防递归；`setHtml()` 异步加载完成后重新应用待定滚动比例）。
 
 ### 3.5 解析器（MarkdownParser）
-- 封装 cmark-gfm：输入 Markdown（转 UTF-8）→ `cmark_parser_new` → 按需挂载 GFM 扩展 → `cmark_render_html` → 输出 HTML 字符串（UTF-8）。
-- 暴露 `parserOptions()` 列表（表格、删除线、自动链接、标签过滤、任务列表），各开关由 `ConfigManager` 的 parser 选项决定；默认开启表格、删除线、任务列表。
+- 无状态静态工具类：`parse()` 封装 cmark-gfm，输入 Markdown（转 UTF-8）→ `cmark_parser_new` → 按需挂载 GFM 扩展 → `cmark_render_html` → 输出 HTML 字符串（UTF-8）；解析器与语法树均为函数内局部对象，用完即释放。
+- `parserOptions()` 暴露选项列表（表格、删除线、自动链接、标签过滤、任务列表），各开关由 `ConfigManager` 的 parser 选项决定；默认开启表格、删除线、任务列表。
 
 ### 3.6 配置管理（ConfigManager）
 - 单例（构造函数私有，禁用拷贝），基于 `QSettings`（INI）读写；`notifyChanged()` 显式发出 `configurationChanged()`（仅在确认偏好设置后调用，避免常规保存触发预览重渲染）。
@@ -128,8 +129,10 @@
   - **最近文件**：去重的最近打开列表。
 
 ### 3.7 样式加载（StyleSheetLoader）
-- 读取本地 CSS 文件（UTF-8），校验花括号配平；失败时回退到内置 `getDefaultCSS()`。
-- 内置默认样式来自 `styles/default.css`（经 `res/resources.qrc` 编译为 `:/styles/default.css`），不再另存一份硬编码副本。
+- 无状态工具类，全部为静态方法，不再依赖 `QObject` / 信号。
+- `load(path, errorMessage)` 读取本地 CSS 文件（UTF-8）；空路径表示“内置样式”，不算错误。文件不存在、无法打开或校验失败时回退内置样式，并通过可选的 `errorMessage` 返回原因。
+- `validate(css, errorMessage)` 校验花括号配平，跳过注释与引号字符串，报告出错行号。
+- `defaultStyle()` 读取并缓存内置样式；样式来自 `styles/default.css`（经 `res/resources.qrc` 编译为 `:/styles/default.css`），不再另存一份硬编码副本。
 
 ### 3.8 对话框
 - `FindReplaceDialog`：模态查找/替换，支持大小写敏感、整词匹配、全部替换。
@@ -179,6 +182,9 @@ MarkEdit/
 # 修改build.bat中定义QT路径
 build.bat
 # 生成 MarkEdit.exe
+
+# 直接运行 release 目录下的程序（自动配置 Qt 运行时路径）
+run.bat
 ```
 
 > 说明：预览区依赖 QtWebKit（`QWebView`），需使用包含 WebKit 模块的构建环境。cmark-gfm 以静态库形式随工程提供，无需额外安装。

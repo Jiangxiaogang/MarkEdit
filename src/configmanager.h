@@ -38,6 +38,9 @@ public:
     bool showSyntaxHighlighting() const;
     void setShowSyntaxHighlighting(bool show);
 
+    bool scrollSync() const;
+    void setScrollSync(bool enabled);
+
     int tabWidth() const;
     void setTabWidth(int width);
 
@@ -123,6 +126,7 @@ private:
     bool m_showLineNumber;
     bool m_showWhitespace;
     bool m_showSyntaxHighlighting;
+    bool m_scrollSync;
     int m_tabWidth;
 
     // Editor colours

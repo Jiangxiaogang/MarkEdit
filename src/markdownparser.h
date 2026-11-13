@@ -1,7 +1,6 @@
 #ifndef MARKDOWNPARSER_H
 #define MARKDOWNPARSER_H
 
-#include <QObject>
 #include <QString>
 #include <QList>
 
@@ -12,17 +11,19 @@ struct ParserOption
     bool defaultOn;    // default value when not present in config
 };
 
-class MarkdownParser : public QObject
+// Stateless wrapper around cmark-gfm. All parsing state is local to parse(),
+// so the class is used through static methods instead of an instance.
+class MarkdownParser
 {
-    Q_OBJECT
 public:
-    explicit MarkdownParser(QObject *parent = 0);
-    QString parse(const QString &markdown) const;
+    // Converts Markdown to HTML using the parser options from ConfigManager.
+    static QString parse(const QString &markdown);
 
-    /**
-     * @brief The full list of render options exposed in the UI.
-     */
+    // The full list of render options exposed in the UI.
     static QList<ParserOption> parserOptions();
+
+private:
+    MarkdownParser();
 };
 
 #endif // MARKDOWNPARSER_H

@@ -7,7 +7,6 @@
 class CodeEditor;
 class PreviewWidget;
 class ConfigManager;
-class StyleSheetLoader;
 class FindReplaceDialog;
 class QSplitter;
 class QAction;
@@ -61,6 +60,7 @@ private slots:
     void toggleLineWrap(bool checked);
     void toggleLineNumber(bool checked);
     void toggleWhitespace(bool checked);
+    void toggleScrollSync(bool checked);
     void setVerticalSplit();
     void showEditorOnly();
     void showPreviewOnly();
@@ -127,7 +127,6 @@ private:
     PreviewWidget *m_preview;
     QSplitter *m_splitter;
     ConfigManager *m_config;
-    StyleSheetLoader *m_styleLoader;
     FindReplaceDialog *m_findDialog;
 
     QTimer *m_previewTimer;
@@ -148,6 +147,7 @@ private:
     QAction *m_lineWrapAction;
     QAction *m_lineNumberAction;
     QAction *m_whitespaceAction;
+    QAction *m_scrollSyncAction;
     QAction *m_statusBarAction;
     QAction *m_fullScreenAction;
     QAction *m_verticalSplitAction;

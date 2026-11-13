@@ -14,7 +14,6 @@
 
 PreviewWidget::PreviewWidget(QWidget *parent)
     : QWebView(parent)
-    , m_parser(new MarkdownParser(this))
     , m_css("")
     , m_emitScroll(true)
     , m_lastScroll(0)
@@ -52,11 +51,19 @@ void PreviewWidget::setMarkdown(const QString &markdown)
 
 void PreviewWidget::refresh()
 {
-    QString body = m_parser->parse(m_markdown);
+    // setHtml() reloads the document and resets the scroll bar to the top.
+    // Remember the current relative position so re-rendering (for example
+    // while typing) keeps the preview where the user left it, regardless of
+    // whether editor/preview scroll sync is enabled.
+    const int max = scrollMaximum();
+    const float ratio = max > 0 ? static_cast<float>(scrollValue()) / max : 0.0f;
+
+    QString body = MarkdownParser::parse(m_markdown);
     QString html = generateHtml(body);
     m_emitScroll = false;
-    setHtml(html, m_baseUrl);
     m_lastScroll = 0;
+    m_pendingRatio = ratio;
+    setHtml(html, m_baseUrl);
 }
 
 void PreviewWidget::setBaseUrl(const QUrl &url)
@@ -78,9 +85,8 @@ void PreviewWidget::applyFontSettings()
 void PreviewWidget::applyStyle()
 {
     ConfigManager *cfg = ConfigManager::instance();
-    QString path = cfg->previewStyleFile();
-    StyleSheetLoader loader;
-    m_css = loader.loadFromFile(path);
+    // An empty configured path selects the built-in style.
+    m_css = StyleSheetLoader::load(cfg->previewStyleFile());
 }
 
 void PreviewWidget::onConfigChanged()

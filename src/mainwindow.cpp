@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include "codeeditor.h"
 #include "previewwidget.h"
-#include "stylesheetloader.h"
 #include "markdownparser.h"
 #include "configmanager.h"
 #include "findreplacedialog.h"
@@ -71,7 +70,6 @@ MainWindow::MainWindow(const QString &filePath, QWidget *parent)
     , m_preview(0)
     , m_splitter(0)
     , m_config(ConfigManager::instance())
-    , m_styleLoader(new StyleSheetLoader(this))
     , m_findDialog(0)
     , m_previewTimer(new QTimer(this))
     , m_fileEncoding(m_config->defaultEncoding())
@@ -337,6 +335,13 @@ void MainWindow::initMenuBar()
     viewMenu->addAction(m_whitespaceAction);
 
     viewMenu->addSeparator();
+
+    m_scrollSyncAction = new QAction(tr("滚动同步"), this);
+    m_scrollSyncAction->setCheckable(true);
+    connect(m_scrollSyncAction, SIGNAL(toggled(bool)), this, SLOT(toggleScrollSync(bool)));
+    viewMenu->addAction(m_scrollSyncAction);
+
+    viewMenu->addSeparator();
     m_verticalSplitAction = new QAction(tr("编辑预览"), this);
     m_verticalSplitAction->setCheckable(true);
     m_verticalSplitAction->setChecked(true);
@@ -459,6 +464,7 @@ void MainWindow::applyConfigToUi()
 
     m_lineNumberAction->setChecked(m_config->showLineNumber());
     m_whitespaceAction->setChecked(m_config->showWhitespace());
+    m_scrollSyncAction->setChecked(m_config->scrollSync());
 
     foreach (QAction *act, m_parserOptionActions)
         act->setChecked(m_config->parserOption(act->data().toString()));
@@ -766,6 +772,12 @@ void MainWindow::toggleWhitespace(bool checked)
     m_config->saveConfig();
 }
 
+void MainWindow::toggleScrollSync(bool checked)
+{
+    m_config->setScrollSync(checked);
+    m_config->saveConfig();
+}
+
 void MainWindow::setVerticalSplit()
 {
     m_editor->setVisible(true);
@@ -982,7 +994,7 @@ void MainWindow::updateStatus()
 
 void MainWindow::syncScrollFromEditor(int value)
 {
-    if (m_syncing || !m_preview->isVisible())
+    if (!m_config->scrollSync() || m_syncing || !m_preview->isVisible())
         return;
     int max = m_editor->verticalScrollBar()->maximum();
     float ratio = max > 0 ? (float)value / max : 0.0f;
@@ -993,7 +1005,7 @@ void MainWindow::syncScrollFromEditor(int value)
 
 void MainWindow::syncScrollFromPreview(int value)
 {
-    if (m_syncing || !m_editor->isVisible())
+    if (!m_config->scrollSync() || m_syncing || !m_editor->isVisible())
         return;
     int previewMax = m_preview->scrollMaximum();
     float ratio = previewMax > 0 ? (float)value / previewMax : 0.0f;

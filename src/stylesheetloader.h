@@ -1,22 +1,28 @@
 #ifndef STYLESHEETLOADER_H
 #define STYLESHEETLOADER_H
 
-#include <QObject>
 #include <QString>
 
-class StyleSheetLoader : public QObject
+// Stateless helper for preview CSS. The built-in style is compiled into the
+// binary from styles/default.css as :/styles/default.css.
+class StyleSheetLoader
 {
-    Q_OBJECT
 public:
-    explicit StyleSheetLoader(QObject *parent = 0);
+    // Returns the built-in preview style. Loaded once and cached.
+    static QString defaultStyle();
 
-    QString loadFromFile(const QString &filePath);
-    static QString getDefaultCSS();
-    bool validateCSS(const QString &css);
+    // Loads CSS from filePath (UTF-8). An empty path selects the built-in
+    // style. On any failure the built-in style is returned and errorMessage
+    // (when provided) receives the reason.
+    static QString load(const QString &filePath, QString *errorMessage = 0);
 
-signals:
-    void cssLoaded(const QString &css);
-    void cssLoadFailed(const QString &error);
+    // Checks that braces are balanced. Comments and quoted strings are
+    // ignored so braces inside them do not affect the result. On failure,
+    // errorMessage (when provided) receives a description with the line.
+    static bool validate(const QString &css, QString *errorMessage = 0);
+
+private:
+    StyleSheetLoader();
 };
 
 #endif // STYLESHEETLOADER_H

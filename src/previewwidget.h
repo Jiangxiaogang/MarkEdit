@@ -4,7 +4,6 @@
 #include <QWebView>
 #include <QString>
 
-class MarkdownParser;
 class ConfigManager;
 
 class PreviewWidget : public QWebView
@@ -39,7 +38,6 @@ private:
     QString generateHtml(const QString &body) const;
     void applyRatio(float ratio);
 
-    MarkdownParser *m_parser;
     QString m_markdown;
     QString m_css;
     QUrl m_baseUrl;

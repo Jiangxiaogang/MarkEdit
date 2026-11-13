@@ -2,25 +2,22 @@
 #include "configmanager.h"
 #include "cmark-gfm.h"
 #include "cmark-gfm-core-extensions.h"
-#include <QStringList>
 
-MarkdownParser::MarkdownParser(QObject *parent)
-    : QObject(parent)
-{
-}
+#include <QCoreApplication>
+#include <QStringList>
 
 QList<ParserOption> MarkdownParser::parserOptions()
 {
     static const QList<ParserOption> options = QList<ParserOption>()
-        << ParserOption{ "table",         tr("表格"),        true  }
-        << ParserOption{ "strikethrough", tr("删除线"),      true  }
-        << ParserOption{ "autolink",      tr("自动链接"),    false }
-        << ParserOption{ "tagfilter",     tr("标签过滤"),    false }
-        << ParserOption{ "tasklist",      tr("任务列表"),    true  };
+        << ParserOption{ "table",         QCoreApplication::translate("MarkdownParser", "表格"),        true  }
+        << ParserOption{ "strikethrough", QCoreApplication::translate("MarkdownParser", "删除线"),      true  }
+        << ParserOption{ "autolink",      QCoreApplication::translate("MarkdownParser", "自动链接"),    false }
+        << ParserOption{ "tagfilter",     QCoreApplication::translate("MarkdownParser", "标签过滤"),    false }
+        << ParserOption{ "tasklist",      QCoreApplication::translate("MarkdownParser", "任务列表"),    true  };
     return options;
 }
 
-QString MarkdownParser::parse(const QString &markdown) const
+QString MarkdownParser::parse(const QString &markdown)
 {
     QByteArray utf8Data = markdown.toUtf8();
     const char *text = utf8Data.constData();

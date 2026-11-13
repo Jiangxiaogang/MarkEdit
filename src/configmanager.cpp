@@ -42,6 +42,7 @@ void ConfigManager::loadConfig()
     m_showLineNumber = settings.value("editor/show_line_number", true).toBool();
     m_showWhitespace = settings.value("editor/show_whitespace", false).toBool();
     m_showSyntaxHighlighting = settings.value("editor/syntax_highlighting", true).toBool();
+    m_scrollSync = settings.value("editor/scroll_sync", true).toBool();
     m_tabWidth = settings.value("editor/tab_width", 4).toInt();
     m_defaultEncoding = settings.value("editor/default_encoding", "UTF-8").toString();
     m_currentLineColor = settings.value("editor/current_line_color", "#f0f0ff").toString();
@@ -83,6 +84,7 @@ void ConfigManager::saveConfig()
     settings.setValue("editor/show_line_number", m_showLineNumber);
     settings.setValue("editor/show_whitespace", m_showWhitespace);
     settings.setValue("editor/syntax_highlighting", m_showSyntaxHighlighting);
+    settings.setValue("editor/scroll_sync", m_scrollSync);
     settings.setValue("editor/tab_width", m_tabWidth);
     settings.setValue("editor/default_encoding", m_defaultEncoding);
     settings.setValue("editor/current_line_color", m_currentLineColor);
@@ -160,6 +162,15 @@ bool ConfigManager::showSyntaxHighlighting() const
 void ConfigManager::setShowSyntaxHighlighting(bool show)
 {
     m_showSyntaxHighlighting = show;
+}
+
+bool ConfigManager::scrollSync() const
+{
+    return m_scrollSync;
+}
+void ConfigManager::setScrollSync(bool enabled)
+{
+    m_scrollSync = enabled;
 }
 
 int ConfigManager::tabWidth() const
