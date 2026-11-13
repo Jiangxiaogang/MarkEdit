@@ -45,7 +45,6 @@ a:hover {
 
 code {
     padding: 0.2em 0.4em;
-    margin: 0;
     background-color: rgba(27,31,35,0.05);
     border-radius: 3px;
 }
@@ -53,21 +52,15 @@ code {
 pre {
     padding: 16px;
     overflow: auto;
-    line-height: 1.2;
     background-color: #eff;
     border-radius: 3px;
 }
 
 pre code {
     display: block;
-    max-width: auto;
     padding: 0;
-    margin: 0;
-    overflow: visible;
     line-height: normal;
-    word-wrap: normal;
     background-color: transparent;
-    border: 0;
     white-space: pre;
 }
 
@@ -90,7 +83,7 @@ li {
 
 img {
     max-width: 100%;
-    box-sizing: content-box;
+    height: auto;
 }
 
 hr {
@@ -116,10 +109,6 @@ table th, table td {
 
 table th {
     background-color: #f6f8fa;
-}
-
-table tr {
-    background-color: #fff;
 }
 
 table tr:nth-child(2n) {
