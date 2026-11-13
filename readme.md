@@ -27,7 +27,7 @@
 > 最后经过验证QT4.8可以完美避免以上问题。
 
 ### 1.3 第三方库说明
-- **cmark-gfm**：用于把 Markdown 文本解析为 HTML。相比自研解析器，直接复用 CommonMark + GFM 扩展，保证解析的正确性与兼容性。渲染时按需挂载 GFM 扩展（表格、删除线、任务列表、自动链接、标签过滤），由 `ConfigManager` 的 parser 选项控制。
+- **cmark-gfm**：用于把 Markdown 文本解析为 HTML。相比自研解析器，直接复用 CommonMark + GFM 扩展，保证解析的正确性与兼容性。渲染时按需挂载 GFM 扩展（表格、删除线、任务列表、自动链接、标签过滤）与渲染选项（保留单行换行／硬换行），由 `ConfigManager` 的 parser 选项控制。
 
 ---
 
@@ -115,7 +115,7 @@
 
 ### 3.5 解析器（MarkdownParser）
 - 无状态静态工具类：`parse()` 封装 cmark-gfm，输入 Markdown（转 UTF-8）→ `cmark_parser_new` → 按需挂载 GFM 扩展 → `cmark_render_html` → 输出 HTML 字符串（UTF-8）；解析器与语法树均为函数内局部对象，用完即释放。
-- `parserOptions()` 暴露选项列表（表格、删除线、自动链接、标签过滤、任务列表），各开关由 `ConfigManager` 的 parser 选项决定；默认开启表格、删除线、任务列表。
+- `parserOptions()` 暴露选项列表（表格、删除线、自动链接、标签过滤、任务列表、保留单行换行），各开关由 `ConfigManager` 的 parser 选项决定；默认开启表格、删除线、任务列表。GFM 扩展通过 `cmark_parser_attach_syntax_extension()` 挂载，渲染类选项（如 `CMARK_OPT_HARDBREAKS`）通过 `renderFlags` 汇总后传给 `cmark_render_html()`。
 
 ### 3.6 配置管理（ConfigManager）
 - 单例（构造函数私有，禁用拷贝），基于 `QSettings`（INI）读写；`notifyChanged()` 显式发出 `configurationChanged()`（仅在确认偏好设置后调用，避免常规保存触发预览重渲染）。
@@ -227,7 +227,7 @@ run.bat
 
 - **轻量高效**：纯 C++ 原生程序，单进程运行，启动快、内存占用低（数十 MB 量级），无 Electron 数百 MB 的安装体积与内存开销；cmark-gfm 以静态库随工程链接，无额外运行时依赖。
 - **渲染质量与轻量的平衡**：预览基于 QtWebKit（`QWebView`），同时规避了 Qt 自带 TextDocument 渲染 HTML 不理想的缺陷与 WebEngine/Chromium 内核过于沉重的问题；"原生控件 + 嵌入式渲染内核"与 MarkdownPad 同类，但内核更新、体积更小。
-- **解析正确性有保障**：直接复用 GitHub 官方 C 实现 cmark-gfm，严格遵循 CommonMark + GFM 规范，表格、删除线、任务列表等复杂语法的解析结果与 GitHub 一致，规避了自研/正则解析器常见的边界错误；GFM 扩展可按需开关（表格、删除线、自动链接、标签过滤、任务列表）。
+- **解析正确性有保障**：直接复用 GitHub 官方 C 实现 cmark-gfm，严格遵循 CommonMark + GFM 规范，表格、删除线、任务列表等复杂语法的解析结果与 GitHub 一致，规避了自研/正则解析器常见的边界错误；GFM 扩展与渲染选项可按需开关（表格、删除线、自动链接、标签过滤、任务列表、保留单行换行）。
 
 **编辑体验**
 

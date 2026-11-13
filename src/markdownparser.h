@@ -9,6 +9,7 @@ struct ParserOption
     QString key;       // config key under the "parser" group (also the cmark-gfm extension name)
     QString label;     // menu text shown to the user
     bool defaultOn;    // default value when not present in config
+    unsigned int renderFlags; // extra cmark_render_html options; 0 for plain GFM extensions
 };
 
 // Stateless wrapper around cmark-gfm. All parsing state is local to parse(),
